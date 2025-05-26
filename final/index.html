@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Visualization</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script defer src="../global.js"></script>
+    <script defer src="final.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../first/index.html">First</a></li>
+                <li><a href="../second/index.html">Second</a></li>
+                <li><a href="../third/index.html">Third</a></li>
+                <li><a href="../fourth/index.html">Fourth</a></li>
+                <li><a href="../fifth/index.html">Fifth</a></li>
+                <li><a href="../final/index.html" class="active">Final</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Balance Assessment Tool</h1>
+            <p>Take the same tests as research participants and discover your predicted balance score</p>
+        </div>
+
+        <div class="assessment-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <!-- Step 1: Demographics -->
+            <div class="step active" id="step1">
+                <h2>Step 1: Basic Information</h2>
+                <div class="question">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" min="18" max="100" required>
+                </div>
+                <div class="question">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" required>
+                        <option value="">Select...</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label for="height">Height (cm):</label>
+                    <input type="number" id="height" min="100" max="250" required>
+                </div>
+                <div class="question">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" id="weight" min="30" max="200" required>
+                </div>
+                <button class="btn" onclick="nextStep()">Next</button>
+            </div>
+
+            <!-- Step 2: Falls Efficacy Scale -->
+            <div class="step" id="step2">
+                <h2>Step 2: Falls Efficacy Scale (FES-I)</h2>
+                <p>How concerned are you that you might fall when doing the following activities?</p>
+                <div id="fesQuestions"></div>
+                <button class="btn btn-secondary" onclick="prevStep()">Previous</button>
+                <button class="btn" onclick="nextStep()">Next</button>
+            </div>
+
+            <!-- Step 3: Physical Activity -->
+            <div class="step" id="step3">
+                <h2>Step 3: Physical Activity (IPAQ)</h2>
+                <div class="question">
+                    <label>During the last 7 days, on how many days did you do vigorous physical activities?</label>
+                    <input type="number" id="ipaq1a" min="0" max="7">
+                </div>
+                <div class="question">
+                    <label>How much time did you usually spend doing vigorous activities on one of those days? (minutes)</label>
+                    <input type="number" id="ipaq1b" min="0" max="480">
+                </div>
+                <div class="question">
+                    <label>During the last 7 days, on how many days did you do moderate physical activities?</label>
+                    <input type="number" id="ipaq2a" min="0" max="7">
+                </div>
+                <div class="question">
+                    <label>How much time did you usually spend doing moderate activities on one of those days? (minutes)</label>
+                    <input type="number" id="ipaq2b" min="0" max="480">
+                </div>
+                <button class="btn btn-secondary" onclick="prevStep()">Previous</button>
+                <button class="btn" onclick="nextStep()">Next</button>
+            </div>
+
+            <!-- Step 4: Trail Making Test -->
+            <div class="step" id="step4">
+                <h2>Step 4: Trail Making Test A</h2>
+                <div class="instructions">
+                    <p><strong>Instructions:</strong> Click the numbers in order from 1 to 13 as quickly as possible. Your time will be recorded.</p>
+                </div>
+                <div class="timer" id="tmtTimer">Ready to start</div>
+                <div class="tmt-container">
+                    <div class="tmt-grid" id="tmtGrid"></div>
+                    <button class="btn" id="tmtStartBtn" onclick="startTMT()">Start Test</button>
+                </div>
+                <button class="btn btn-secondary" onclick="prevStep()">Previous</button>
+                <button class="btn" id="tmtNextBtn" onclick="nextStep()" disabled>Next</button>
+            </div>
+
+            <!-- Step 5: Results -->
+            <div class="step" id="step5">
+                <h2>Your Balance Assessment Results</h2>
+                <div class="results">
+                    <div>Predicted Mini-BESTest Score:</div>
+                    <div class="score-display" id="predictedScore">--</div>
+                    <div id="scoreInterpretation"></div>
+                    <div class="comparison-chart" id="comparisonChart"></div>
+                    <div id="recommendations"></div>
+                </div>
+                <button class="btn btn-secondary" onclick="prevStep()">Previous</button>
+                <button class="btn" onclick="resetAssessment()">Take Test Again</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
