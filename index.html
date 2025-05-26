@@ -3,9 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home</title>
+  <title>Balance and Falls Risk Visualizations</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="global.js"></script>
+  <style>
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-content {
+      padding: 20px;
+    }
+    
+    .card h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.3rem;
+    }
+    
+    .card p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .card-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 15px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    
+    .card-link:hover {
+      background-color: #45a049;
+    }
+    
+    .project-intro {
+      background-color: #f9f9f9;
+      border-left: 3px solid #4CAF50;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -22,15 +82,63 @@
   </header>
 
   <main>
-    <h1>Welcome to the Home Page</h1>
-    <p>We have created 5 static visualizations as part of the exploratory
-      data analysis process. Using these, we will come up interesting, interactive
+    <h1>Balance and Falls Risk Visualizations</h1>
+    <p>Exploring factors that affect balance performance and falls risk in different populations</p>
+    
+    <div class="project-intro">
+      <h1>Welcome to the Home Page</h1>
+      <p>We have created 5 static visualizations as part of the exploratory
+        data analysis process. Using these, we will come up interesting, interactive
     ways to visualize the data. We have plans to make it interactive in that one 
   could test their own balance. We may involve a camera or some sort of test where the 
   viewer is able to take a test and see how different aspects of their balance compare
   to others. In addition to this, we will also make visualizations that convey informations
   about the trends present in the data. Through both of these types of visualizations, the viewer 
   should be able to learn about both their own stability and human balancing capabilites in general.</p>
+      
+    </div>
+    
+    <div class="card-container">
+      <div class="card">
+        <div class="card-content">
+          <h2>Age Distribution and Falls Risk</h2>
+          <p>Explore how falls risk perception changes across different age groups.</p>
+          <a href="first/index.html" class="card-link">View Visualization</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-content">
+          <h2>Balance Performance and Vision</h2>
+          <p>Discover how different vision conditions affect various components of balance.</p>
+          <a href="second/index.html" class="card-link">View Visualization</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-content">
+          <h2>BMI, Falls History, and Balance</h2>
+          <p>Investigate the relationships between BMI, falls history, and balance performance.</p>
+          <a href="third/index.html" class="card-link">View Visualization</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-content">
+          <h2>Falls Risk by Gender and Age</h2>
+          <p>Compare falls risk between genders across different age groups.</p>
+          <a href="fourth/index.html" class="card-link">View Visualization</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-content">
+          <h2>Balance Performance Correlations</h2>
+          <p>Analyze the correlations between different balance metrics, age, and falls history.</p>
+          <a href="fifth/index.html" class="card-link">View Visualization</a>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer>
