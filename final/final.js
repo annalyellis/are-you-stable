@@ -56,6 +56,12 @@ function selectLikert(element, questionId, value) {
     assessmentData[questionId] = value;
 }
 
+function convertToMetric(heightInInches, weightInPounds) {
+    const heightCm = heightInInches * 2.54;
+    const weightKg = weightInPounds * 0.453592;
+    return { heightCm, weightKg };
+}
+
 // Initialize TMT grid
 function initializeTMT() {
     const grid = document.getElementById('tmtGrid');
@@ -158,9 +164,18 @@ function collectCurrentStepData() {
     if (currentStep === 1) {
         assessmentData.age = parseInt(document.getElementById('age').value);
         assessmentData.gender = document.getElementById('gender').value;
-        assessmentData.height = parseInt(document.getElementById('height').value);
-        assessmentData.weight = parseInt(document.getElementById('weight').value);
-        assessmentData.bmi = assessmentData.weight / ((assessmentData.height / 100) ** 2);
+
+        const heightInches = parseFloat(document.getElementById('height').value);
+        const weightPounds = parseFloat(document.getElementById('weight').value);
+        
+        // Convert to metric
+        const { heightCm, weightKg } = convertToMetric(heightInches, weightPounds);
+
+        // Save converted values
+        assessmentData.height = heightCm;
+        assessmentData.weight = weightKg;
+        assessmentData.bmi = weightKg / ((heightCm / 100) ** 2);
+        
     } else if (currentStep === 3) {
         assessmentData.ipaq1a = parseInt(document.getElementById('ipaq1a').value) || 0;
         assessmentData.ipaq1b = parseInt(document.getElementById('ipaq1b').value) || 0;
