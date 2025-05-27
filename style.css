@@ -55,7 +55,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #006699 0%, #195536 100%);
     min-height: 100vh;
 }
 
@@ -139,7 +139,7 @@ nav a:hover, nav a.active {
 }
 
 .step h2 {
-    color: #667eea;
+    color: #195536;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
 }
@@ -149,7 +149,7 @@ nav a:hover, nav a.active {
     padding: 1rem;
     background: #f8f9ff;
     border-radius: 10px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #195536;
 }
 
 .question label {
@@ -169,7 +169,7 @@ nav a:hover, nav a.active {
 
 .question input:focus, .question select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #195536;
 }
 
 .likert-scale {
@@ -195,9 +195,9 @@ nav a:hover, nav a.active {
 }
 
 .likert-option.selected {
-    background: #667eea;
+    background: #195536;
     color: white;
-    border-color: #5a67d8;
+    border-color: #195536;
 }
 
 .tmt-container {
@@ -236,9 +236,9 @@ nav a:hover, nav a.active {
 }
 
 .tmt-circle.current {
-    background: #667eea;
+    background: #195536;
     color: white;
-    border-color: #5a67d8;
+    border-color: #195536;
     animation: pulse 1.5s infinite;
 }
 
@@ -248,7 +248,7 @@ nav a:hover, nav a.active {
 }
 
 .btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #006699 0%, #195536 100%);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -286,7 +286,7 @@ nav a:hover, nav a.active {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, #006699 0%, #195536 100%);
     transition: width 0.5s ease;
     border-radius: 4px;
 }
@@ -299,7 +299,7 @@ nav a:hover, nav a.active {
 .score-display {
     font-size: 3rem;
     font-weight: bold;
-    color: #667eea;
+    color: #195536;
     margin: 1rem 0;
 }
 
@@ -311,7 +311,7 @@ nav a:hover, nav a.active {
 .timer {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #667eea;
+    color: #195536;
     text-align: center;
     margin: 1rem 0;
 }
@@ -322,4 +322,12 @@ nav a:hover, nav a.active {
     border-radius: 8px;
     padding: 1rem;
     margin: 1rem 0;
+}
+
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
 }

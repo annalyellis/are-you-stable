@@ -35,6 +35,12 @@
                 <div class="progress-fill" id="progressFill" style="width: 0%"></div>
             </div>
 
+            <div class="step active" id="step0">
+                <h2>Welcome to the Balance Assessment</h2>
+                <p>This tool helps predict your balance ability based on your responses.</p>
+                <button class="btn" onclick="goToStep(1)">Start</button>
+            </div>
+
             <!-- Step 1: Demographics -->
             <div class="step active" id="step1">
                 <h2>Step 1: Basic Information</h2>
@@ -122,6 +128,7 @@
                     <div class="comparison-chart" id="comparisonChart"></div>
                     <div id="recommendations"></div>
                 </div>
+                <button class="btn" onclick="downloadResults()">Download Results</button>
                 <button class="btn btn-secondary" onclick="prevStep()">Previous</button>
                 <button class="btn" onclick="resetAssessment()">Take Test Again</button>
             </div>

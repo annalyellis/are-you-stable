@@ -1,4 +1,4 @@
-let currentStep = 1;
+let currentStep = 0;
 let assessmentData = {};
 let tmtStartTime = null;
 let tmtCurrentNumber = 1;
@@ -13,6 +13,24 @@ const fesQuestions = [
     "Getting in or out of a chair",
     "Going up or down stairs"
 ];
+
+window.onload = function() {
+    goToStep(0); // show the welcome step first
+};
+
+function goToStep(stepNum) {
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    currentStep = stepNum;
+    document.getElementById(`step${stepNum}`).classList.add('active');
+    updateProgress();
+}
+
+function updateProgress() {
+    const totalSteps = 5;
+    const adjustedStep = Math.max(0, currentStep); // avoid negatives
+    const progress = (adjustedStep / totalSteps) * 100;
+    document.getElementById('progressFill').style.width = `${progress}%`;
+}
 
 // Initialize FES questions
 function initializeFESQuestions() {
@@ -339,6 +357,14 @@ function createComparisonChart(userScore) {
         .attr('y', 20)
         .attr('text-anchor', 'middle')
         .text('Number of Participants (%)');
+}
+
+function downloadResults() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assessmentData, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", "balance_assessment_results.json");
+    dlAnchor.click();
 }
 
 function resetAssessment() {
