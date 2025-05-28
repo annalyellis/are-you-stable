@@ -421,6 +421,21 @@
     .toggle-button:hover {
         background-color: #449d44;
     }
+    .explore-results-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+
+    .explore-results-btn:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
@@ -1003,10 +1018,18 @@
 
             createComparisonChart(score); // Create chart to fill the full-screen results pane
 
-            // 3. Set a timeout to transition to the visualization page
-            autoTransitionTimeout = setTimeout(() => {
-                transitionToVizPage();
-            }, 6000); // **Increased delay to 6 seconds**
+            //     transitionToVizPage();
+            // }, 6000); // **Increased delay to 6 seconds**
+            // Add this to your results display function
+            const exploreButton = document.createElement('button');
+            exploreButton.textContent = 'Explore Your Results';
+            exploreButton.className = 'explore-results-btn';
+            exploreButton.onclick = transitionToVizPage;
+
+            // Insert the button into the results content area, not the resultsPane container
+            // Find a better container within resultsPane (like after recommendations)
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.appendChild(exploreButton);
         }, 500); // Match quizContainer opacity transition duration
     }
 
@@ -1455,3 +1478,7 @@
   </script>
 </body>
 </html>
+
+
+
+
