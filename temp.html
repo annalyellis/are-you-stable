@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://unpkg.com/scrollama"></script>
+    <script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -21,7 +21,7 @@
         /* Scrollytelling Container */
         .scrolly-container {
             display: flex;
-            align-items: flex-start; /* Ensures sticky works well within flexbox */
+            align-items: flex-start;
             position: relative;
             min-height: 100vh;
             background-color: #f8fafc;
@@ -34,6 +34,7 @@
             width: 50%;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #f8fafc;
@@ -43,8 +44,54 @@
 
         .scrolly-graphic canvas {
             width: 100%;
-            height: 100%;
+            height: 80%;
             display: block;
+        }
+
+        /* Balance scale visualization */
+        .balance-scale {
+            width: 80%;
+            max-width: 400px;
+            height: 60px;
+            margin-top: 20px;
+            position: relative;
+            background: linear-gradient(to right, #ef4444 0%, #f97316 25%, #facc15 50%, #22c55e 75%, #22c55e 100%);
+            border-radius: 30px;
+            border: 2px solid #334155;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .balance-indicator {
+            position: absolute;
+            top: -5px;
+            width: 20px;
+            height: 70px;
+            background-color: #334155;
+            border-radius: 10px;
+            transition: left 0.8s ease-in-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .balance-indicator::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 10px solid #334155;
+        }
+
+        .balance-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
         }
 
         /* Text Area - Scrolls */
@@ -75,7 +122,7 @@
             margin-bottom: 2rem;
         }
 
-        /* Quiz Section (outside scrolly container) */
+        /* Quiz Section */
         .quiz-section {
             min-height: 100vh;
             display: flex;
@@ -243,12 +290,19 @@
     <div class="scrolly-container">
         <div class="scrolly-graphic">
             <canvas id="main-canvas"></canvas>
+            <div class="balance-scale">
+                <div class="balance-indicator" id="balance-indicator"></div>
+            </div>
+            <div class="balance-labels">
+                <span>Poor Balance</span>
+                <span>Excellent Balance</span>
+            </div>
         </div>
         <div class="scrolly-text">
             <div class="scrolly-section" data-age="intro">
                 <div class="section-content">
                     <h1 class="text-5xl font-bold mb-6 text-gray-800">The Age of Balance: Joe's Journey Through Life</h1>
-                    <p class="text-xl text-gray-600 mb-8">Scroll down to follow Joe's fascinating journey and discover how balance evolves throughout our lives.</p>
+                    <p class="text-xl text-gray-600 mb-8">Scroll down to follow Joe's fascinating journey and discover how balance evolves throughout our lives. Watch the balance meter on the left!</p>
                     <i class="fas fa-chevron-down text-4xl text-blue-500 animate-bounce"></i>
                 </div>
             </div>
@@ -292,13 +346,16 @@
                     <p class="text-md text-gray-600 mt-4">Increased risk of falls, slower reflexes, and potential chronic conditions can impact balance significantly at this age.</p>
                 </div>
             </div>
-        </div> </div> <div class="quiz-section" id="quiz-section">
+        </div> 
+    </div> 
+    
+    <div class="quiz-section" id="quiz-section">
         <div class="quiz-container">
             <h2 class="text-4xl font-bold mb-6 text-gray-800 text-center">Assess Your Own Balance Journey</h2>
             <p class="text-lg text-gray-700 mb-8 text-center">Answer these questions to get insights into your balance and discover personalized tips.</p>
 
             <form id="balance-quiz">
-                </form>
+            </form>
 
             <button type="button" id="submit-quiz" class="quiz-submit-btn w-full">Get My Balance Insights</button>
 
@@ -351,28 +408,35 @@
             }
         });
 
-
         // Canvas Drawing Logic
         const mainCanvas = document.getElementById('main-canvas');
         const mainCtx = mainCanvas.getContext('2d');
-        let currentActiveAge = null; // Stores the age for the current active graphic
-        let animationFrameId = null; // Stores the ID returned by requestAnimationFrame
+        const balanceIndicator = document.getElementById('balance-indicator');
+        let currentActiveAge = null;
+        let animationFrameId = null;
+
+        // Balance scale position mapping
+        const balancePositions = {
+            'intro': 50, // Neutral/center
+            'toddler': 25, // Learning stage - wobbling
+            20: 85, // Peak balance
+            40: 70, // Good balance
+            60: 40, // Declining balance
+            80: 15  // Poor balance
+        };
+
+        function updateBalanceIndicator(age) {
+            const position = balancePositions[age] || 50;
+            balanceIndicator.style.left = `calc(${position}% - 10px)`;
+            console.log(`Balance indicator moved to ${position}% for age ${age}`);
+        }
 
         /**
          * Draws Joe's stick figure on the canvas.
-         * The origin (0,0) in this function's local coordinate system is the base of Joe's body (where legs start).
-         * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
-         * @param {number} x - The x-coordinate for the center of Joe (at his base).
-         * @param {number} yBase - The y-coordinate for the base of Joe's feet.
-         * @param {number} scale - Scaling factor for Joe's size relative to base drawing units.
-         * @param {number} tiltAngle - Angle in radians to tilt Joe.
-         * @param {number} wobble - Magnitude of the sinusoidal wobble animation.
-         * @param {boolean} hasBraces - True if Joe should be drawn with braces.
-         * @param {number} stoopAngle - Angle in radians to apply a forward stoop/lean to the body.
          */
         function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0) {
             ctx.save();
-            ctx.translate(x, yBase); // Translate to the base of Joe's feet
+            ctx.translate(x, yBase);
             ctx.rotate(tiltAngle);
 
             const headRadius = 10 * scale;
@@ -386,7 +450,7 @@
             ctx.strokeStyle = '#334155';
             ctx.fillStyle = '#334155';
 
-            // Legs: drawn downwards from the origin (0,0) which is Joe's hip/base
+            // Legs
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(-limbLength * 0.5, limbLength);
@@ -394,121 +458,116 @@
             ctx.lineTo(limbLength * 0.5, limbLength);
             ctx.stroke();
 
-            // Body: drawn upwards from the origin, applying stoopAngle
-            ctx.save(); // Save context before applying stoop rotation
-            ctx.rotate(-stoopAngle); // Rotate for the stoop
+            // Body with stoop
+            ctx.save();
+            ctx.rotate(-stoopAngle);
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(0, -bodyLength);
             ctx.stroke();
 
-            // Arms: drawn from a point on the body (relative to stooped body)
+            // Arms
             ctx.beginPath();
-            ctx.moveTo(0, -bodyLength * 0.75); // Roughly shoulder height
-            ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5); // Arms angled down
+            ctx.moveTo(0, -bodyLength * 0.75);
+            ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5);
             ctx.moveTo(0, -bodyLength * 0.75);
             ctx.lineTo(limbLength * 0.7, -bodyLength * 0.5);
             ctx.stroke();
 
-            // Head: drawn above the body (relative to stooped body)
+            // Head
             ctx.beginPath();
             ctx.arc(0, -bodyLength - headRadius, headRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Add braces if requested
+            // Braces if needed
             if (hasBraces) {
-                ctx.fillStyle = '#a0aec0'; // Light gray for braces color
-                const braceWidth = 16 * scale; // Even wider for visibility
-                const braceHeight = 3 * scale; // Even thicker for visibility
-                // Position relative to head, near the mouth area
+                ctx.fillStyle = '#a0aec0';
+                const braceWidth = 16 * scale;
+                const braceHeight = 3 * scale;
                 ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.5 + 5 * scale, braceWidth, braceHeight);
                 ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.4 + 5 * scale, braceWidth, braceHeight);
             }
-            ctx.restore(); // Restore context after stoop rotation
-            ctx.restore(); // Restore main context
+            ctx.restore();
+            ctx.restore();
         }
 
         /**
-         * Draws the balance visualization on the main canvas based on the given age.
-         * This function is called repeatedly for animation.
-         * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the main canvas.
-         * @param {number|string} age - The age of Joe (e.g., 20, 40, 'intro') to determine visualization.
+         * Draws the balance visualization based on age.
          */
         function drawBalanceVisualization(ctx, age) {
             if (!ctx) return;
 
-            // Ensure canvas drawing buffer matches its display size
             ctx.canvas.width = ctx.canvas.offsetWidth;
             ctx.canvas.height = ctx.canvas.offsetHeight;
-
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
             const centerX = ctx.canvas.width / 2;
-            const joeGroundY = ctx.canvas.height * 0.7; // A consistent ground level for Joe's feet, regardless of canvas height.
-            // Base scale that scales elements relative to the smaller canvas dimension
+            const joeGroundY = ctx.canvas.height * 0.8;
             const baseScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 300;
 
+            // Age-specific parameters
             let joeTilt = 0;
             let joeWobble = 0;
-            let balanceColor = '#22c55e'; // Green for peak balance
-            let balanceLineOffset = 0;
-            let joeImageScale = 1; // Multiplier for Joe's base scale to control his relative height
+            let joeImageScale = 1;
             let hasBraces = false;
-            let showCane = false; // Flag to show cane
-            let stoopAngle = 0; // Angle for Joe's forward stoop/lean
+            let showCane = false;
+            let stoopAngle = 0;
 
             switch (age) {
-                case 'intro': // Baby Joe (newborn)
-                    joeImageScale = 0.2; // Very small
-                    balanceColor = '#22c55e'; // Stable (as they are usually lying down)
+                case 'intro':
+                    joeImageScale = 0.3;
+                    joeTilt = 0;
+                    joeWobble = 0;
+                    hasBraces = false;
+                    showCane = false;
+                    stoopAngle = 0;
                     break;
-                case 'toddler': // Toddler Joe
-                    joeImageScale = 0.5; // Larger than baby, smaller than adult
-                    balanceColor = '#facc15'; // Yellow, indicating learning/wobbly
-                    joeTilt = Math.sin(Date.now() * 0.008) * 0.25; // More frequent and larger wobble
+                case 'toddler':
+                    joeImageScale = 0.6;
+                    joeTilt = Math.sin(Date.now() * 0.008) * 0.25;
                     joeWobble = 0.15;
-                    balanceLineOffset = Math.sin(Date.now() * 0.006) * 50 * baseScale; // More deviation
+                    hasBraces = false;
+                    showCane = false;
+                    stoopAngle = 0;
                     break;
                 case 20:
-                    joeImageScale = 1.0; // Full height
-                    hasBraces = true; // Joe has braces
-                    balanceColor = '#22c55e'; // Green for peak balance
+                    joeImageScale = 1.0;
+                    hasBraces = true;
+                    joeTilt = 0;
+                    joeWobble = 0;
+                    showCane = false;
+                    stoopAngle = 0;
                     break;
                 case 40:
-                    joeImageScale = 1.0; // Full height, subtle changes in balance
-                    balanceColor = '#facc15'; // Yellow for subtle shifts
-                    joeTilt = Math.sin(Date.now() * 0.003) * 0.2; // More noticeable tilt
-                    joeWobble = 0.1; // More noticeable wobble
-                    balanceLineOffset = Math.sin(Date.now() * 0.002) * 40 * baseScale; // More noticeable line deviation
-                    stoopAngle = 0.05; // Very slight forward lean
+                    joeImageScale = 1.0;
+                    joeTilt = Math.sin(Date.now() * 0.003) * 0.1;
+                    joeWobble = 0.05;
+                    hasBraces = false;
+                    showCane = false;
+                    stoopAngle = 0.05;
                     break;
                 case 60:
-                    joeImageScale = 1.0; // Full height, more noticeable changes
-                    balanceColor = '#f97316'; // Orange for noticeable changes
-                    joeTilt = Math.sin(Date.now() * 0.004) * 0.4; // Significantly more noticeable tilt
-                    joeWobble = 0.2; // Significantly more noticeable wobble
-                    balanceLineOffset = Math.sin(Date.now() * 0.003) * 80 * baseScale; // Significantly more noticeable line deviation
-                    stoopAngle = 0.2; // More pronounced forward lean
+                    joeImageScale = 1.0;
+                    joeTilt = Math.sin(Date.now() * 0.004) * 0.2;
+                    joeWobble = 0.1;
+                    hasBraces = false;
+                    showCane = false;
+                    stoopAngle = 0.2;
                     break;
                 case 80:
-                    joeImageScale = 0.6; // Significantly shorter height for 80s
-                    balanceColor = '#ef4444'; // Red for significant challenges
-                    joeTilt = Math.sin(Date.now() * 0.005) * 0.6; // Dramatically exaggerated tilt
-                    joeWobble = 0.3; // Dramatically exaggerated wobble
-                    balanceLineOffset = Math.sin(Date.now() * 0.004) * 120 * baseScale; // Dramatically exaggerated line deviation
-                    showCane = true; // Show cane for 80+
-                    stoopAngle = 0.35; // Maximum forward lean
+                    joeImageScale = 0.8;
+                    joeTilt = Math.sin(Date.now() * 0.005) * 0.3;
+                    joeWobble = 0.15;
+                    hasBraces = false;
+                    showCane = true;
+                    stoopAngle = 0.35;
                     break;
             }
 
-            // Log parameters to console for debugging
-            console.log(`Drawing for age: ${age}, joeImageScale: ${joeImageScale.toFixed(2)}, hasBraces: ${hasBraces}, showCane: ${showCane}, stoopAngle: ${stoopAngle.toFixed(2)}`);
-
-
-            // Draw Joe with the age-adjusted scale, braces status, and stoop angle
+            // Draw Joe
             drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle);
 
-            // Draw a stable base line
+            // Draw ground line
             ctx.beginPath();
             ctx.moveTo(centerX - 100 * baseScale, joeGroundY);
             ctx.lineTo(centerX + 100 * baseScale, joeGroundY);
@@ -516,68 +575,98 @@
             ctx.strokeStyle = '#64748b';
             ctx.stroke();
 
-            // Draw balance indicator (its position and size still relative to baseScale)
-            ctx.beginPath();
-            ctx.arc(centerX + balanceLineOffset, joeGroundY, 8 * baseScale, 0, Math.PI * 2);
-            ctx.fillStyle = balanceColor;
-            ctx.fill();
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 1 * baseScale;
-            ctx.stroke();
-
-            // Draw assistive devices if flags are true
+            // Draw cane if needed
             if (showCane) {
-                ctx.font = `${55 * baseScale}px "Font Awesome 6 Free"`; // Even larger icon
-                ctx.fillStyle = '#475569';
-                // Position cane next to Joe at the ground level, adjusted for his shorter scale
-                // The X position is adjusted slightly to the right of Joe's center, scaled by joeImageScale
-                ctx.fillText('\uf787', centerX + 40 * baseScale * joeImageScale, joeGroundY + 10 * baseScale); // Added small Y offset to sit on line
+                ctx.font = `${45 * baseScale}px "Font Awesome 6 Free"`;
+                ctx.fillStyle = '#8B4513';
+                ctx.fillText('\uf787', centerX + 35 * baseScale * joeImageScale, joeGroundY + 5 * baseScale);
             }
 
-            // Request the next animation frame ONLY if the current active age matches the age being drawn
-            // This ensures only one animation loop is active at a time.
+            // Continue animation if this is the active age
             if (age === currentActiveAge) {
                 animationFrameId = requestAnimationFrame(() => drawBalanceVisualization(ctx, age));
             }
         }
 
         // Scrollama Setup
-        const scroller = scrollama();
-
         function handleStepEnter(response) {
-            console.log('Step entered:', response.element.dataset.age, response.direction);
+            console.log('Step entered:', response.element.dataset.age);
             
-            // Cancel any existing animation frame before starting a new one
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
-                animationFrameId = null; // Clear the ID
+                animationFrameId = null;
             }
 
-            currentActiveAge = response.element.dataset.age; // Update the active age
-            // Start the animation for the new active age
-            drawBalanceVisualization(mainCtx, currentActiveAge);
+            const age = response.element.dataset.age;
+            currentActiveAge = age;
+            
+            // Update balance indicator
+            updateBalanceIndicator(age);
+            
+            // Start animation
+            drawBalanceVisualization(mainCtx, age);
         }
 
-        function handleStepExit(response) {
-            // This function is intentionally left empty as the animation management
-            // is handled by handleStepEnter to prevent previous TypeErrors.
-            // Scrollama's internal ResizeObserver warning is benign for this demo.
-        }
-
-        /**
-         * Initializes Scrollama and sets up the event handlers.
-         */
         function setupScrollama() {
-            scroller
-                .setup({
-                    step: '.scrolly-section',
-                    offset: 0.5,
-                    // debug: true, // Uncomment this line for debugging lines (shows triggers)
-                })
-                .onStepEnter(handleStepEnter)
-                .onStepExit(handleStepExit);
+            if (typeof scrollama === 'undefined') {
+                console.error('Scrollama not available, using fallback');
+                useScrollFallback();
+                return;
+            }
 
-            // Scrollama handles its own resizing internally.
+            try {
+                const scroller = scrollama();
+                scroller
+                    .setup({
+                        step: '.scrolly-section',
+                        offset: 0.5,
+                    })
+                    .onStepEnter(handleStepEnter);
+                
+                console.log('Scrollama setup complete');
+            } catch (error) {
+                console.error('Scrollama setup failed:', error);
+                useScrollFallback();
+            }
+        }
+
+        function useScrollFallback() {
+            console.log('Using basic scroll fallback');
+            
+            function checkScroll() {
+                const sections = document.querySelectorAll('.scrolly-section');
+                const windowHeight = window.innerHeight;
+                
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    const isVisible = rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5;
+                    
+                    if (isVisible) {
+                        const age = section.dataset.age;
+                        if (age !== currentActiveAge) {
+                            if (animationFrameId) {
+                                cancelAnimationFrame(animationFrameId);
+                                animationFrameId = null;
+                            }
+                            
+                            currentActiveAge = age;
+                            updateBalanceIndicator(age);
+                            drawBalanceVisualization(mainCtx, currentActiveAge);
+                            console.log('Fallback: Switched to age', age);
+                        }
+                    }
+                });
+            }
+            
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                if (scrollTimeout) {
+                    clearTimeout(scrollTimeout);
+                }
+                scrollTimeout = setTimeout(checkScroll, 50);
+            });
+            
+            checkScroll();
         }
 
         // Quiz Logic
@@ -698,16 +787,29 @@
 
         // Initialize on window load
         window.onload = function() {
-            // Initial canvas size setup (it will be updated on every draw)
+            console.log('Window loaded, initializing...');
+            
             if (mainCanvas) {
                 mainCanvas.width = mainCanvas.offsetWidth;
                 mainCanvas.height = mainCanvas.offsetHeight;
+                console.log('Canvas initialized:', mainCanvas.width, 'x', mainCanvas.height);
             }
-            setupScrollama(); // Set up Scrollama
-            renderQuiz(); // Render the quiz questions
-            // Trigger initial draw for the intro section
+            
+            if (typeof scrollama !== 'undefined') {
+                console.log('Scrollama available, setting up normally');
+                setupScrollama();
+            } else {
+                console.log('Scrollama not available, using fallback');
+                useScrollFallback();
+            }
+            
+            renderQuiz();
+            
+            // Initialize with intro
             currentActiveAge = 'intro';
+            updateBalanceIndicator('intro');
             drawBalanceVisualization(mainCtx, currentActiveAge);
+            console.log('Initial draw triggered for intro');
         };
 
     </script>
