@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balance Journey</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>Balance Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
-
-    <title>Balance Quiz & Visualization</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -125,51 +124,38 @@
             margin-bottom: 2rem;
         }
 
-        /* Quiz Section */
-        .quiz-section {
-            min-height: 100vh;
+        /* Quiz Section Styles */
+        .intro-section {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             padding: 2rem;
-            background-color: #e2e8f0;
-            color: #1a202c;
+            text-align: center;
+            background-color: #f0f4f8;
+            color: #334155;
         }
-        .quiz-container {
-            background-color: white;
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 700px;
-            width: 100%;
-        }
-        .quiz-question {
+
+        .intro-section h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
             margin-bottom: 1.5rem;
+            color: #1e293b;
         }
-        .quiz-options label {
-            display: block;
-            background-color: #f8fafc;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-            border: 1px solid #cbd5e1;
+
+        .intro-section p {
+            font-size: 1.25rem;
+            color: #475569;
+            margin-bottom: 2rem;
+            max-width: 600px;
         }
-        .quiz-options label:hover {
-            background-color: #e0f2fe;
-            border-color: #90cdf4;
+
+        .navigation-buttons {
+            margin-top: 2rem;
         }
-        .quiz-options input[type="radio"] {
-            margin-right: 0.75rem;
-            accent-color: #3b82f6;
-        }
-        .quiz-options input[type="radio"]:checked + span {
-            font-weight: 600;
-            color: #1e40af;
-        }
-        .quiz-submit-btn {
+
+        .navigation-buttons button {
             background-color: #3b82f6;
             color: white;
             padding: 0.75rem 1.5rem;
@@ -179,94 +165,225 @@
             transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
             border: none;
             box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
+            margin: 0 0.5rem;
         }
-        .quiz-submit-btn:hover {
+
+        .navigation-buttons button:hover {
             background-color: #2563eb;
             transform: translateY(-2px);
         }
-        .quiz-submit-btn:active {
+
+        .navigation-buttons button:active {
             transform: translateY(0);
         }
-        .quiz-results {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #e0f2fe;
-            border-radius: 0.75rem;
-            border: 1px solid #90cdf4;
-            color: #1e40af;
+
+        #quizContainer {
+            display: none;
+            min-height: 100vh;
+            padding: 2rem;
+            background-color: #f8fafc;
+            color: #334155;
         }
 
-        /* Custom Modal Styling */
-        .modal-overlay {
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .step {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+        }
+
+        .question label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .question input, .question select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .question input:focus, .question select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Likert Scale Styles */
+        .likert-scale {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .likert-option {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #f9fafb;
+        }
+
+        .likert-option:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .likert-option.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .likert-option div:first-child {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .likert-option div:last-child {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        /* TMT Grid Styles */
+        .tmt-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+        }
+
+        .tmt-circle {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #64748b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .tmt-circle:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .tmt-circle.current {
+            border-color: #f59e0b;
+            background-color: #fef3c7;
+            animation: pulse 1s infinite;
+        }
+
+        .tmt-circle.completed {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .tmt-timer {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: #374151;
+        }
+
+        /* Results Styles */
+        #mainContent {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background-color: white;
+        }
+
+        .full-screen-results {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
             background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            max-width: 450px;
-            width: 90%;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease-in-out;
+            z-index: 999;
+            overflow: auto;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .modal-overlay.show .modal-content {
-            transform: translateY(0);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1e40af;
-        }
-        .modal-close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #64748b;
-            transition: color 0.2s;
-        }
-        .modal-close-btn:hover {
-            color: #334155;
-        }
-        .modal-body {
-            margin-bottom: 1.5rem;
-            color: #475569;
-        }
-        .modal-footer {
-            text-align: right;
-        }
-        .modal-ok-btn {
+
+        .explore-results-btn {
             background-color: #3b82f6;
             color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.5rem;
-            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
+            margin-top: 2rem;
         }
-        .modal-ok-btn:hover {
+
+        .explore-results-btn:hover {
             background-color: #2563eb;
+            transform: translateY(-2px);
         }
 
         /* Media queries for responsiveness */
@@ -285,85 +402,12 @@
             .scrolly-section {
                 min-height: 75vh;
             }
-        }
-        /* Additional styles for combined layout if needed */
-        #introSection, #quizContainer, #mainContent {
-            /* Ensure these sections are visible and structured correctly in the combined page */
-            /* For initial state, #introSection should be visible, others hidden by JS */
-            display: flex; /* or block, depending on desired layout for intro */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Make sure they take full viewport height */
-            padding: 2rem;
-            text-align: center;
-            background-color: #f0f4f8; /* default background */
-            color: #334155;
-        }
-        #quizContainer, #mainContent {
-            display: none; /* Hidden by default, shown by JS */
-        }
-        .full-screen-results {
-            display: flex !important;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: white; /* Or match a theme */
-            z-index: 999;
-            overflow: auto; /* Allow scrolling for content that exceeds screen height */
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .minimized {
-            position: fixed !important;
-            bottom: 20px;
-            right: 20px;
-            width: 300px; /* Smaller width */
-            height: 200px; /* Smaller height */
-            overflow: auto;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            border-radius: 8px;
-            z-index: 1000;
-            padding: 15px;
-            box-sizing: border-box;
-            display: block !important; /* Override initial display: none */
-        }
-        .minimized .toggle-button {
-            display: block !important;
-            margin-bottom: 10px;
-        }
-        .minimized h2, .minimized p, .minimized .download-button, .minimized #comparisonChart {
-            /* Hide or shrink content within minimized pane */
-            display: none;
-        }
-        .minimized #predictedScore {
-            display: inline; /* Keep score visible */
-        }
-        /* Specific styles for the explore button */
-        .explore-results-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            border: none;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
-            margin-top: 2rem;
-        }
-        .explore-results-btn:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        .explore-results-btn:active {
-            transform: translateY(0);
+            .likert-scale {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .tmt-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     </style>
 </head>
@@ -430,121 +474,182 @@
         </div> 
     </div> 
     
-    
-       
-        <div id="mainContent">
-            <div id="resultsPane">
-                <button class="toggle-button" onclick="toggleResultsPane()">Minimize Results</button>
-                <h2>Your Predicted Mini-BESTest Score: <span id="predictedScore"></span></h2>
-                <div id="scoreInterpretation"></div>
-                <div id="recommendations"></div>
-                <div id="comparisonChart"></div> <div style="text-align: center; margin-top: 20px;">
-                    <button class="download-button" onclick="downloadScore()">Download My Score</button>
-                    <a href="#" id="downloadResultsBtn" class="download-button" onclick="downloadResults()">Download All Results (JSON)</a>
-                    <button class="download-button" onclick="resetAssessment()">Start New Assessment</button>
-                </div>
-            </div>
-            <div id="visualizationArea">
-                <div id="viz1" class="viz-container">
-                    <h2>Balance Over Time (By Gender)</h2>
-                    <div class="viz-content">
-                        <p>This graph illustrates the trend in balance performance one could experience throughout their lifetime.
-                            It is based on the Best_t score, the same score you recieved by taking the quiz.
-                        </p>
-                        <svg width="100%" height="300"></svg> <p>Consider how you compare to others your age and gender. Remember that consistent activity often leads to
-                            more stable balance over time.
-                        </p>
-                    </div>
-                </div>
-                <div id="viz2" class="viz-container">
-                    <h2>Balance with vs. without prosthetics</h2>
-                    <div class="viz-content">
-                        <p>This visualization informs us of how those of us who wear prosthetics might have different balance scores compared to those of us who don't</p>
-                        <svg width="100%" height="300"></svg>
-                        <p></p>
-                    </div>
-                </div>
-                <div id="viz3" class="viz-container">
-                    <h2>How do shoes affect your balance?</h2>
-                    <div class="viz-content">
-                        <p>This bar chart breaks down which combinations of commonly worn footwear lead to different balance scores.</p>
-                        <svg width="100%" height="300"></svg>
-                        <p>For good balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?></p>
-                    </div>
-                </div>
-                </div>
+    <section id="introSection" class="intro-section">
+        <h1>Are you stable?</h1>
+        <p>
+            Balance is a crucial aspect of physical health 
+            that enables safe movement, coordination, and stability in 
+            everyday activities. As we age, maintaining good balance becomes 
+            increasingly important to prevent falls and support long-term 
+            mobility and independence.
+        </p>
+        <div class="navigation-buttons">
+            <button id="toQuizbtn">Let's Find Out!</button>
+        </div>
+    </section>
+
+    <div id="quizContainer">
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
         </div>
 
-    <div id="customModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="modalTitle">Message</span>
-                <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+        <div id="step0" class="step active">
+            <h2>Welcome to the Balance Assessment!</h2>
+            <p>This quiz will assess your balance and provide personalized insights. It involves several steps, including questions about your physical activity and a simple motor test.</p>
+            <div class="navigation-buttons">
+                <button id="startQuizBtn" onclick="goToStep(1)">Start Quiz</button>
             </div>
-            <div class="modal-body" id="modalBody">
-                This is a custom message.
+        </div>
+
+        <div id="step1" class="step">
+            <h2>1. Personal Information</h2>
+            <div class="question">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" min="1" max="120" required>
             </div>
-            <div class="modal-footer">
-                <button class="modal-ok-btn" id="modalOkBtn">OK</button>
+            <div class="question">
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="height">Height (inches):</label>
+                <input type="number" id="height" name="height" min="20" max="100" step="0.1" required>
+            </div>
+            <div class="question">
+                <label for="weight">Weight (pounds):</label>
+                <input type="number" id="weight" name="weight" min="50" max="1000" step="0.1" required>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn1" onclick="prevStep()" style="display: none;">Previous</button>
+                <button id="nextBtn1" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <div id="step2" class="step">
+            <h2>2. Falls Efficacy Scale - International (FES-I)</h2>
+            <p>Please indicate your level of concern about falling during the following activities:</p>
+            <div id="fesQuestions"></div>
+            <div class="navigation-buttons">
+                <button id="prevBtn2" onclick="prevStep()">Previous</button>
+                <button id="nextBtn2" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <div id="step3" class="step">
+            <h2>3. International Physical Activity Questionnaire (IPAQ)</h2>
+            <div class="question">
+                <label for="ipaq1a">In the last 7 days, on how many days did you do **vigorous** physical activities like heavy lifting, digging, aerobics, or fast bicycling?</label>
+                <input type="number" id="ipaq1a" name="ipaq1a" min="0" max="7" required>
+            </div>
+            <div class="question">
+                <label for="ipaq1b">How much time did you spend on one of those days doing vigorous physical activities? (minutes per day)</label>
+                <input type="number" id="ipaq1b" name="ipaq1b" min="0" required>
+            </div>
+            <div class="question">
+                <label for="ipaq2a">In the last 7 days, on how many days did you do **moderate** physical activities like carrying light loads, bicycling at a regular pace, or doubles tennis? (Don't include walking)</label>
+                <input type="number" id="ipaq2a" name="ipaq2a" min="0" max="7" required>
+            </div>
+            <div class="question">
+                <label for="ipaq2b">How much time did you spend on one of those days doing moderate physical activities? (minutes per day)</label>
+                <input type="number" id="ipaq2b" name="ipaq2b" min="0" required>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn3" onclick="prevStep()">Previous</button>
+                <button id="nextBtn3" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <div id="step4" class="step">
+            <h2>4. Trail Making Test (TMT) - Part A (Numbers)</h2>
+            <p>Click on the numbers in ascending order (1, 2, 3, ...). The timer starts when you click 'Start'.</p>
+            <div class="tmt-grid" id="tmtGrid"></div>
+            <div class="tmt-timer" id="tmtTimer">Ready to start</div>
+            <div class="navigation-buttons">
+                <button id="tmtStartBtn" onclick="startTMT()">Start Test</button>
+                <button id="prevBtn4" onclick="prevStep()">Previous</button>
+                <button id="tmtNextBtn" onclick="nextStep()" disabled>Next</button>
+            </div>
+        </div>
+
+        <div id="step5" class="step">
+            <h2>5. Submit Assessment</h2>
+            <p>Click 'Submit' to calculate your balance score and see your personalized results.</p>
+            <div class="navigation-buttons">
+                <button id="prevBtn5" onclick="prevStep()">Previous</button>
+                <button id="submitBtn" onclick="calculateResults()">Submit</button>
             </div>
         </div>
     </div>
-    <script src="global.js"></script>
+
+    <div id="mainContent">
+        <div id="resultsPane">
+            <h2>Your Predicted Mini-BESTest Score: <span id="predictedScore"></span></h2>
+            <div id="scoreInterpretation"></div>
+            <div id="recommendations"></div>
+            <div id="comparisonChart"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="navigation-buttons button" onclick="downloadScore()">Download My Score</button>
+                <button class="navigation-buttons button" onclick="resetAssessment()">Start New Assessment</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- NEW VERSION LOADED ---
-        console.log("--- NEW VERSION LOADED ---");
-
-        // Custom Modal Functions from temp.html
-        const customModal = document.getElementById('customModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalBody = document.getElementById('modalBody');
-        const modalCloseBtn = document.getElementById('modalCloseBtn');
-        const modalOkBtn = document.getElementById('modalOkBtn');
-
-        function showCustomModal(title, message) {
-            modalTitle.textContent = title;
-            modalBody.textContent = message;
-            customModal.classList.add('show');
-        }
-
-        function hideCustomModal() {
-            customModal.classList.remove('show');
-        }
-
-        modalCloseBtn.addEventListener('click', hideCustomModal);
-        modalOkBtn.addEventListener('click', hideCustomModal);
-        customModal.addEventListener('click', (e) => {
-            if (e.target === customModal) {
-                hideCustomModal();
-            }
-        });
-
-        // Canvas Drawing Logic
-        const mainCanvas = document.getElementById('main-canvas');
-        const mainCtx = mainCanvas.getContext('2d');
-        const balanceIndicator = document.getElementById('balance-indicator');
+        // Global variables
+        let currentStep = 0;
+        let assessmentData = {};
+        let tmtStartTime = null;
+        let tmtCurrentNumber = 1;
+        let tmtCompleted = false;
+        let finalPredictedScore = null;
         let currentActiveAge = null;
         let animationFrameId = null;
 
+        // FES-I Questions
+        const fesQuestions = [
+            "Cleaning the house (e.g. sweep, vacuum, or dust)",
+            "Getting dressed or un-dressed",
+            "Preparing simple meals",
+            "Taking a bath or shower",
+            "Going to the shop",
+            "Getting in or out of a chair",
+            "Going up or down stairs",
+            "Walking around the house",
+            "Walking on a slippery surface (e.g. wet floor, ice)",
+            "Walking on an uneven surface (e.g. stony path, grass)",
+            "Walking in a place with crowds (e.g. shopping center, street)",
+            "Walking up or down a slope",
+            "Visiting friends or relatives",
+            "Going to a place with stairs or steps",
+            "Going for a social event (e.g. club, religious meeting, party)",
+            "Going to the doctor's clinic or hospital"
+        ];
+
         // Balance scale position mapping
         const balancePositions = {
-            'intro': 50, // Neutral/center
-            'toddler': 25, // Learning stage - wobbling
-            20: 85, // Peak balance
-            40: 70, // Good balance
-            60: 40, // Declining balance
-            80: 15  // Poor balance
+            'intro': 50,
+            'toddler': 25,
+            20: 85,
+            40: 70,
+            60: 40,
+            80: 15
         };
+
+        // Canvas and scrollytelling functions
+        const mainCanvas = document.getElementById('main-canvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const balanceIndicator = document.getElementById('balance-indicator');
 
         function updateBalanceIndicator(age) {
             const position = balancePositions[age] || 50;
             balanceIndicator.style.left = `calc(${position}% - 10px)`;
-            console.log(`Balance indicator moved to ${position}% for age ${age}`);
         }
 
-        /**
-         * Draws Joe's stick figure on the canvas.
-         */
         function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0, isFallen = false) {
             ctx.save();
             ctx.translate(x, yBase);
@@ -555,19 +660,14 @@
             const limbLength = 30 * scale;
 
             if (isFallen) {
-                // Drawing for fallen Joe
                 ctx.save();
-                // Adjust translation for a fallen figure to appear on the ground line
-                // Rotate 90 degrees to lie horizontally
                 ctx.rotate(Math.PI / 2);
 
-                // Body (horizontal, centered at the new origin)
                 ctx.beginPath();
                 ctx.moveTo(-bodyLength / 2, 0);
                 ctx.lineTo(bodyLength / 2, 0);
                 ctx.stroke();
 
-                // Legs (relative to horizontal body)
                 ctx.beginPath();
                 ctx.moveTo(-bodyLength * 0.2, 0);
                 ctx.lineTo(-bodyLength * 0.2 - limbLength * 0.5, limbLength * 0.7);
@@ -575,7 +675,6 @@
                 ctx.lineTo(bodyLength * 0.2 + limbLength * 0.5, limbLength * 0.7);
                 ctx.stroke();
 
-                // Arms (relative to horizontal body)
                 ctx.beginPath();
                 ctx.moveTo(-bodyLength * 0.3, 0);
                 ctx.lineTo(-bodyLength * 0.3 - limbLength * 0.4, -limbLength * 0.6);
@@ -583,13 +682,12 @@
                 ctx.lineTo(bodyLength * 0.3 + limbLength * 0.4, -limbLength * 0.6);
                 ctx.stroke();
 
-                // Head (relative to horizontal body)
                 ctx.beginPath();
                 ctx.arc(bodyLength / 2 + headRadius, 0, headRadius, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.restore(); // Restore from fallen position
-                ctx.restore(); // Restore main context
+                ctx.restore();
+                ctx.restore();
                 return;
             }
 
@@ -600,7 +698,6 @@
             ctx.strokeStyle = '#334155';
             ctx.fillStyle = '#334155';
 
-            // Legs
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(-limbLength * 0.5, limbLength);
@@ -608,7 +705,6 @@
             ctx.lineTo(limbLength * 0.5, limbLength);
             ctx.stroke();
 
-            // Body with stoop
             ctx.save();
             ctx.rotate(-stoopAngle);
             ctx.beginPath();
@@ -616,7 +712,6 @@
             ctx.lineTo(0, -bodyLength);
             ctx.stroke();
 
-            // Arms
             ctx.beginPath();
             ctx.moveTo(0, -bodyLength * 0.75);
             ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5);
@@ -624,12 +719,10 @@
             ctx.lineTo(limbLength * 0.7, -bodyLength * 0.5);
             ctx.stroke();
 
-            // Head
             ctx.beginPath();
             ctx.arc(0, -bodyLength - headRadius, headRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Braces if needed
             if (hasBraces) {
                 ctx.fillStyle = '#a0aec0';
                 const braceWidth = 16 * scale;
@@ -641,9 +734,6 @@
             ctx.restore();
         }
 
-        /**
-         * Draws the balance visualization based on age.
-         */
         function drawBalanceVisualization(ctx, age) {
             if (!ctx) return;
 
@@ -655,7 +745,6 @@
             const joeGroundY = ctx.canvas.height * 0.8;
             const baseScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 300;
 
-            // Age-specific parameters
             let joeTilt = 0;
             let joeWobble = 0;
             let joeImageScale = 1;
@@ -717,15 +806,12 @@
                     hasBraces = false;
                     showCane = true;
                     stoopAngle = 0.35;
-                    // Show fallen Joe occasionally to represent the fall
                     isFallen = Math.sin(Date.now() * 0.002) > 0.7;
                     break;
             }
 
-            // Draw Joe
             drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle, isFallen);
 
-            // Draw ground line
             ctx.beginPath();
             ctx.moveTo(centerX - 100 * baseScale, joeGroundY);
             ctx.lineTo(centerX + 100 * baseScale, joeGroundY);
@@ -733,23 +819,18 @@
             ctx.strokeStyle = '#64748b';
             ctx.stroke();
 
-            // Draw cane if needed and not fallen
             if (showCane && !isFallen) {
                 ctx.font = `${45 * baseScale}px "Font Awesome 6 Free"`;
                 ctx.fillStyle = '#8B4513';
                 ctx.fillText('\uf787', centerX + 35 * baseScale * joeImageScale, joeGroundY + 5 * baseScale);
             }
 
-            // Continue animation if this is the active age
             if (age === currentActiveAge) {
                 animationFrameId = requestAnimationFrame(() => drawBalanceVisualization(ctx, age));
             }
         }
 
-        // Scrollama Setup
         function handleStepEnter(response) {
-            console.log('Step entered:', response.element.dataset.age);
-            
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
                 animationFrameId = null;
@@ -758,10 +839,7 @@
             const age = response.element.dataset.age;
             currentActiveAge = age;
             
-            // Update balance indicator
             updateBalanceIndicator(age);
-            
-            // Start animation
             drawBalanceVisualization(mainCtx, age);
         }
 
@@ -780,8 +858,6 @@
                         offset: 0.5,
                     })
                     .onStepEnter(handleStepEnter);
-                
-                console.log('Scrollama setup complete');
             } catch (error) {
                 console.error('Scrollama setup failed:', error);
                 useScrollFallback();
@@ -789,8 +865,6 @@
         }
 
         function useScrollFallback() {
-            console.log('Using basic scroll fallback');
-            
             function checkScroll() {
                 const sections = document.querySelectorAll('.scrolly-section');
                 const windowHeight = window.innerHeight;
@@ -810,7 +884,6 @@
                             currentActiveAge = age;
                             updateBalanceIndicator(age);
                             drawBalanceVisualization(mainCtx, currentActiveAge);
-                            console.log('Fallback: Switched to age', age);
                         }
                     }
                 });
@@ -827,21 +900,477 @@
             checkScroll();
         }
 
-        // Initialize on window load
-        window.onload = function() {
-            console.log('Window loaded, initializing...');
-            
+        // Quiz functions
+        function startQuizFromIntro() {
+            document.getElementById('introSection').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            goToStep(0);
+        }
+
+        function goToStep(stepNum) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            currentStep = stepNum;
+            document.getElementById(`step${stepNum}`).classList.add('active');
+            updateProgress();
+
+            const prevBtns = [
+                document.getElementById('prevBtn1'),
+                document.getElementById('prevBtn2'),
+                document.getElementById('prevBtn3'),
+                document.getElementById('prevBtn4'),
+                document.getElementById('prevBtn5')
+            ];
+            prevBtns.forEach(btn => {
+                if (btn) {
+                    btn.style.display = (currentStep > 0 && currentStep <= 5) ? 'inline-block' : 'none';
+                }
+            });
+        }
+
+        function updateProgress() {
+            const totalSteps = 5;
+            const adjustedStep = Math.max(0, currentStep - 1);
+            const progress = (adjustedStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function initializeFESQuestions() {
+            const container = document.getElementById('fesQuestions');
+            container.innerHTML = '';
+            fesQuestions.forEach((question, index) => {
+                const questionId = `fes${index + 1}`;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <label>${index + 1}. ${question}</label>
+                    <div class="likert-scale">
+                        <div class="likert-option" data-value="1" onclick="selectLikert(this, '${questionId}', 1)">
+                            <div>Not at all concerned</div>
+                            <div><strong>1</strong></div>
+                        </div>
+                        <div class="likert-option" data-value="2" onclick="selectLikert(this, '${questionId}', 2)">
+                            <div>Somewhat concerned</div>
+                            <div><strong>2</strong></div>
+                        </div>
+                        <div class="likert-option" data-value="3" onclick="selectLikert(this, '${questionId}', 3)">
+                            <div>Fairly concerned</div>
+                            <div><strong>3</strong></div>
+                        </div>
+                        <div class="likert-option" data-value="4" onclick="selectLikert(this, '${questionId}', 4)">
+                            <div>Very concerned</div>
+                            <div><strong>4</strong></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+
+                if (assessmentData[questionId]) {
+                    const selectedOption = questionDiv.querySelector(`.likert-option[data-value="${assessmentData[questionId]}"]`);
+                    if (selectedOption) {
+                        selectedOption.classList.add('selected');
+                    }
+                }
+            });
+        }
+
+        function selectLikert(element, questionId, value) {
+            element.parentNode.querySelectorAll('.likert-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            assessmentData[questionId] = value;
+        }
+
+        function initializeTMT() {
+            const grid = document.getElementById('tmtGrid');
+            grid.innerHTML = '';
+            const numbers = Array.from({length: 13}, (_, i) => i + 1);
+            const shuffled = numbers.sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(num => {
+                const circle = document.createElement('div');
+                circle.className = 'tmt-circle';
+                circle.textContent = num;
+                circle.dataset.number = num;
+                circle.onclick = () => clickTMTNumber(num, circle);
+                grid.appendChild(circle);
+            });
+
+            document.getElementById('tmtTimer').textContent = 'Ready to start';
+            document.getElementById('tmtStartBtn').style.display = 'inline-block';
+            document.getElementById('tmtNextBtn').disabled = true;
+        }
+
+        function startTMT() {
+            tmtStartTime = Date.now();
+            tmtCurrentNumber = 1;
+            tmtCompleted = false;
+
+            document.getElementById('tmtStartBtn').style.display = 'none';
+            const firstCircle = document.querySelector('[data-number="1"]');
+            if (firstCircle) {
+                firstCircle.classList.add('current');
+            }
+
+            updateTMTTimer();
+        }
+
+        function updateTMTTimer() {
+            if (!tmtStartTime || tmtCompleted) return;
+
+            const elapsed = (Date.now() - tmtStartTime) / 1000;
+            document.getElementById('tmtTimer').textContent = `Time: ${elapsed.toFixed(1)}s`;
+
+            requestAnimationFrame(updateTMTTimer);
+        }
+
+        function clickTMTNumber(number, element) {
+            if (!tmtStartTime || tmtCompleted) return;
+
+            if (number === tmtCurrentNumber) {
+                element.classList.remove('current');
+                element.classList.add('completed');
+
+                tmtCurrentNumber++;
+
+                if (tmtCurrentNumber <= 13) {
+                    const nextCircle = document.querySelector(`[data-number="${tmtCurrentNumber}"]`);
+                    if (nextCircle) {
+                        nextCircle.classList.add('current');
+                    }
+                } else {
+                    tmtCompleted = true;
+                    const totalTime = (Date.now() - tmtStartTime) / 1000;
+                    assessmentData.tmtTime = totalTime;
+
+                    document.getElementById('tmtTimer').textContent = `Completed in ${totalTime.toFixed(1)}s`;
+                    document.getElementById('tmtNextBtn').disabled = false;
+                }
+            }
+        }
+
+        function convertToMetric(heightInInches, weightInPounds) {
+            const heightCm = heightInInches * 2.54;
+            const weightKg = weightInPounds * 0.453592;
+            return { heightCm, weightKg };
+        }
+
+        function nextStep() {
+            if (!validateCurrentStep()) {
+                alert('Please complete all required fields for this step.');
+                return;
+            }
+
+            collectCurrentStepData();
+
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep++;
+            goToStep(currentStep);
+
+            if (currentStep > 5) {
+                calculateResults();
+            }
+        }
+
+        function prevStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep--;
+            goToStep(currentStep);
+        }
+
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                return document.getElementById('age').value &&
+                       document.getElementById('gender').value &&
+                       document.getElementById('height').value &&
+                       document.getElementById('weight').value;
+            } else if (currentStep === 2) {
+                return fesQuestions.every((_, i) => assessmentData[`fes${i + 1}`] !== undefined);
+            } else if (currentStep === 3) {
+                return document.getElementById('ipaq1a').value !== '' &&
+                       document.getElementById('ipaq1b').value !== '' &&
+                       document.getElementById('ipaq2a').value !== '' &&
+                       document.getElementById('ipaq2b').value !== '';
+            } else if (currentStep === 4) {
+                return tmtCompleted;
+            }
+            return true;
+        }
+
+        function collectCurrentStepData() {
+            if (currentStep === 1) {
+                assessmentData.age = parseInt(document.getElementById('age').value);
+                assessmentData.gender = document.getElementById('gender').value;
+
+                const heightInches = parseFloat(document.getElementById('height').value);
+                const weightPounds = parseFloat(document.getElementById('weight').value);
+
+                const { heightCm, weightKg } = convertToMetric(heightInches, weightPounds);
+
+                assessmentData.height = heightCm;
+                assessmentData.weight = weightKg;
+                assessmentData.bmi = weightKg / ((heightCm / 100) ** 2);
+
+            } else if (currentStep === 3) {
+                assessmentData.ipaq1a = parseInt(document.getElementById('ipaq1a').value) || 0;
+                assessmentData.ipaq1b = parseInt(document.getElementById('ipaq1b').value) || 0;
+                assessmentData.ipaq2a = parseInt(document.getElementById('ipaq2a').value) || 0;
+                assessmentData.ipaq2b = parseInt(document.getElementById('ipaq2b').value) || 0;
+            }
+        }
+
+        function calculateResults() {
+            let fesTotal = 0;
+            fesQuestions.forEach((_, i) => {
+                fesTotal += assessmentData[`fes${i + 1}`] || 1;
+            });
+            assessmentData.fesTotal = fesTotal;
+
+            const vigorousMets = assessmentData.ipaq1a * assessmentData.ipaq1b * 8;
+            const moderateMets = assessmentData.ipaq2a * assessmentData.ipaq2b * 4;
+            assessmentData.ipaqScore = vigorousMets + moderateMets;
+
+            let predictedScore = 28;
+
+            if (assessmentData.age > 65) predictedScore -= 3;
+            else if (assessmentData.age > 45) predictedScore -= 1;
+
+            if (assessmentData.bmi > 30) predictedScore -= 2;
+            else if (assessmentData.bmi < 18.5) predictedScore -= 1;
+
+            if (fesTotal >= 40) predictedScore -= 4;
+            else if (fesTotal >= 30) predictedScore -= 3;
+            else if (fesTotal >= 20) predictedScore -= 1;
+
+            if (assessmentData.tmtTime > 30) predictedScore -= 3;
+            else if (assessmentData.tmtTime > 20) predictedScore -= 1;
+
+            if (assessmentData.ipaqScore > 3000) predictedScore += 2;
+            else if (assessmentData.ipaqScore < 600) predictedScore -= 2;
+
+            predictedScore = Math.max(0, Math.min(28, predictedScore));
+            finalPredictedScore = predictedScore;
+
+            displayResults(predictedScore);
+        }
+
+        function displayResults(score) {
+            const quizContainer = document.getElementById('quizContainer');
+            const mainContent = document.getElementById('mainContent');
+            const resultsPane = document.getElementById('resultsPane');
+
+            quizContainer.style.opacity = 0;
+            setTimeout(() => {
+                quizContainer.style.display = 'none';
+
+                mainContent.style.display = 'flex';
+                mainContent.style.opacity = 1;
+                mainContent.style.pointerEvents = 'auto';
+
+                resultsPane.classList.add('full-screen-results');
+
+                document.getElementById('predictedScore').textContent = score.toFixed(1);
+
+                let interpretation = '';
+                let recommendations = '';
+
+                if (score >= 24) {
+                    interpretation = 'Excellent balance! Low fall risk.';
+                    recommendations = 'Continue your current activity level and consider challenging balance exercises to maintain your excellent balance.';
+                } else if (score >= 20) {
+                    interpretation = 'Good balance with mild impairment.';
+                    recommendations = 'Consider incorporating more balance training exercises (e.g., tai chi, yoga, standing on one leg) and regular physical activity into your routine to further improve and maintain your balance.';
+                } else if (score >= 16) {
+                    interpretation = 'Moderate balance impairment. Increased fall risk.';
+                    recommendations = 'Balance training is highly recommended. You should consider consulting a healthcare provider or a physical therapist for a personalized balance assessment and tailored exercise program.';
+                } else {
+                    interpretation = 'Significant balance impairment. High fall risk.';
+                    recommendations = 'It is strongly advised that you consult with a healthcare provider, such as a doctor or physical therapist, for a comprehensive balance assessment and to develop a specialized training and fall prevention plan.';
+                }
+
+                document.getElementById('scoreInterpretation').innerHTML = `<p><strong>${interpretation}</strong></p>`;
+                document.getElementById('recommendations').innerHTML = `<h3>Recommendations:</h3><p>${recommendations}</p>`;
+
+                createComparisonChart(score);
+
+                const exploreButton = document.createElement('button');
+                exploreButton.textContent = 'Explore Your Results';
+                exploreButton.className = 'explore-results-btn';
+                exploreButton.onclick = () => window.location.href = '#introSection';
+
+                const recommendationsDiv = document.getElementById('recommendations');
+                recommendationsDiv.appendChild(exploreButton);
+            }, 500);
+        }
+
+        function createComparisonChart(userScore) {
+            const chartContainer = d3.select('#comparisonChart');
+            chartContainer.selectAll("*").remove();
+
+            const svg = chartContainer
+                .append('svg')
+                .attr('viewBox', `0 0 600 350`);
+
+            const width = 600;
+            const height = 350;
+            const margin = {top: 40, right: 30, bottom: 60, left: 60};
+
+            const data = [
+                {range: '0-7', count: 5, color: '#ff6b6b'},
+                {range: '8-15', count: 15, color: '#feca57'},
+                {range: '16-23', count: 45, color: '#48dbfb'},
+                {range: '24-28', count: 35, color: '#1dd1a1'}
+            ];
+
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.range))
+                .range([margin.left, width - margin.right])
+                .padding(0.1);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count) * 1.1])
+                .range([height - margin.bottom, margin.top]);
+
+            svg.selectAll('rect')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('x', d => x(d.range))
+                .attr('y', d => y(d.count))
+                .attr('width', x.bandwidth())
+                .attr('height', d => height - margin.bottom - y(d.count))
+                .attr('fill', d => d.color)
+                .attr('opacity', 0.8);
+
+            const userRange = userScore <= 7 ? '0-7' :
+                             userScore <= 15 ? '8-15' :
+                             userScore <= 23 ? '16-23' : '24-28';
+
+            const userXPos = x(userRange) + x.bandwidth() / 2;
+
+            svg.append('line')
+                .attr('x1', userXPos)
+                .attr('x2', userXPos)
+                .attr('y1', y(d3.max(data, d => d.count) * 1.05))
+                .attr('y2', height - margin.bottom)
+                .attr('stroke', '#2c3e50')
+                .attr('stroke-width', 3)
+                .attr('stroke-dasharray', '5,5');
+
+            svg.append('text')
+                .attr('x', userXPos)
+                .attr('y', y(d3.max(data, d => d.count) * 1.05) - 10)
+                .attr('text-anchor', 'middle')
+                .attr('font-weight', 'bold')
+                .attr('fill', '#2c3e50')
+                .text('Your Score');
+
+            svg.append('g')
+                .attr('transform', `translate(0,${height - margin.bottom})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .style("font-size", "12px");
+
+            svg.append('g')
+                .attr('transform', `translate(${margin.left},0)`)
+                .call(d3.axisLeft(y).tickFormat(d => `${d}%`))
+                .selectAll("text")
+                .style("font-size", "12px");
+
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', height - 10)
+                .attr('text-anchor', 'middle')
+                .style("font-size", "14px")
+                .style("font-weight", "bold")
+                .text('Mini-BESTest Score Range');
+
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -height / 2)
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .style("font-size", "14px")
+                .style("font-weight", "bold")
+                .text('Number of Participants (%)');
+
+            svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", margin.top / 2 + 5)
+                .attr("text-anchor", "middle")
+                .style("font-size", "18px")
+                .style("font-weight", "bold")
+                .text("Your Score vs. Population Distribution");
+        }
+
+        function downloadScore() {
+            if (finalPredictedScore === null) {
+                alert("Score not yet calculated. Please complete the quiz.");
+                return;
+            }
+
+            const scoreText = `Your Predicted Mini-BESTest Score: ${finalPredictedScore.toFixed(1)}\n` +
+                              `Interpretation: ${document.getElementById('scoreInterpretation').textContent}\n` +
+                              `Recommendations: ${document.getElementById('recommendations').textContent.replace('Recommendations:', '').trim()}`;
+
+            const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(scoreText);
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "balance_score_summary.txt");
+            dlAnchor.click();
+        }
+
+        function resetAssessment() {
+            currentStep = 0;
+            assessmentData = {};
+            tmtCompleted = false;
+            tmtCurrentNumber = 1;
+            tmtStartTime = null;
+            finalPredictedScore = null;
+
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step0').classList.add('active');
+
+            document.querySelectorAll('input').forEach(input => {
+                if (input.type === 'number' || input.type === 'text') {
+                    input.value = '';
+                }
+            });
+            document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+            document.querySelectorAll('.likert-option').forEach(opt => opt.classList.remove('selected'));
+
+            initializeTMT();
+
+            document.getElementById('predictedScore').textContent = '';
+            document.getElementById('scoreInterpretation').innerHTML = '';
+            document.getElementById('recommendations').innerHTML = '';
+            d3.select('#comparisonChart').selectAll("*").remove();
+
+            document.getElementById('mainContent').style.opacity = 0;
+            document.getElementById('mainContent').style.pointerEvents = 'none';
+            setTimeout(() => {
+                document.getElementById('mainContent').style.display = 'none';
+            }, 500);
+
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('quizContainer').style.opacity = 1;
+            document.getElementById('quizContainer').scrollTop = 0;
+
+            updateProgress();
+        }
+
+        // Initialize everything when the page loads
+        window.addEventListener('load', function() {
+            // Initialize canvas
             if (mainCanvas) {
                 mainCanvas.width = mainCanvas.offsetWidth;
                 mainCanvas.height = mainCanvas.offsetHeight;
-                console.log('Canvas initialized:', mainCanvas.width, 'x', mainCanvas.height);
             }
             
+            // Setup scrollytelling
             if (typeof scrollama !== 'undefined') {
-                console.log('Scrollama available, setting up normally');
                 setupScrollama();
             } else {
-                console.log('Scrollama not available, using fallback');
                 useScrollFallback();
             }
             
@@ -849,1506 +1378,19 @@
             currentActiveAge = 'intro';
             updateBalanceIndicator('intro');
             drawBalanceVisualization(mainCtx, currentActiveAge);
-            console.log('Initial draw triggered for intro');
-        };
 
+            // Initialize quiz components
+            initializeFESQuestions();
+            initializeTMT();
+            
+            // Set up initial state
+            document.getElementById('introSection').style.display = 'block';
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'none';
+
+            // Add event listener for quiz start button
+            document.getElementById('toQuizbtn').addEventListener('click', startQuizFromIntro);
+        });
     </script>
-
-
-<section id = "introSection" class="intro-section">
-    <h1>Are you stable?</h1>
-    <p>
-      Balance is a crucial aspect of physical health 
-      that enables safe movement, coordination, and stability in 
-      everyday activities. As we age, maintaining good balance becomes 
-      increasingly important to prevent falls and support long-term 
-      mobility and independence.
-    </p>
-    <div class="navigation-buttons">
-      <button id="toQuizbtn">Let's Find Out!</button>
-    </div>
-  </section>
-  <div id="quizContainer">
-    <div class="progress-bar">
-      <div id="progressFill" class="progress-fill"></div>
-    </div>
-
-    <div id="step0" class="step active">
-      <h2>Welcome to the Balance Assessment!</h2>
-      <p>This quiz will assess your balance and provide personalized insights. It involves several steps, including questions about your physical activity and a simple motor test.</p>
-      <div class="navigation-buttons">
-        <button id="startQuizBtn" onclick="goToStep(1)">Start Quiz</button>
-      </div>
-    </div>
-
-    <div id="step1" class="step">
-      <h2>1. Personal Information</h2>
-      <div class="question">
-        <label for="age">Age:</label>
-        <input type="number" id="age" name="age" min="1" max="120" required>
-      </div>
-      <div class="question">
-        <label for="gender">Gender:</label>
-        <select id="gender" name="gender" required>
-          <option value="">Select</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="question">
-        <label for="height">Height (inches):</label>
-        <input type="number" id="height" name="height" min="20" max="100" step="0.1" required>
-      </div>
-      <div class="question">
-        <label for="weight">Weight (pounds):</label>
-        <input type="number" id="weight" name="weight" min="50" max="1000" step="0.1" required>
-      </div>
-      <div class="navigation-buttons">
-        <button id="prevBtn1" onclick="prevStep()" style="display: none;">Previous</button>
-        <button id="nextBtn1" onclick="nextStep()">Next</button>
-      </div>
-    </div>
-
-    <div id="step2" class="step">
-      <h2>2. Falls Efficacy Scale - International (FES-I)</h2>
-      <p>Please indicate your level of concern about falling during the following activities:</p>
-      <div id="fesQuestions">
-        </div>
-      <div class="navigation-buttons">
-        <button id="prevBtn2" onclick="prevStep()">Previous</button>
-        <button id="nextBtn2" onclick="nextStep()">Next</button>
-      </div>
-    </div>
-
-    <div id="step3" class="step">
-      <h2>3. International Physical Activity Questionnaire (IPAQ)</h2>
-      <div class="question">
-        <label for="ipaq1a">In the last 7 days, on how many days did you do **vigorous** physical activities like heavy lifting, digging, aerobics, or fast bicycling?</label>
-        <input type="number" id="ipaq1a" name="ipaq1a" min="0" max="7" required>
-      </div>
-      <div class="question">
-        <label for="ipaq1b">How much time did you spend on one of those days doing vigorous physical activities? (minutes per day)</label>
-        <input type="number" id="ipaq1b" name="ipaq1b" min="0" required>
-      </div>
-      <div class="question">
-        <label for="ipaq2a">In the last 7 days, on how many days did you do **moderate** physical activities like carrying light loads, bicycling at a regular pace, or doubles tennis? (Don't include walking)</label>
-        <input type="number" id="ipaq2a" name="ipaq2a" min="0" max="7" required>
-      </div>
-      <div class="question">
-        <label for="ipaq2b">How much time did you spend on one of those days doing moderate physical activities? (minutes per day)</label>
-        <input type="number" id="ipaq2b" name="ipaq2b" min="0" required>
-      </div>
-      <div class="navigation-buttons">
-        <button id="prevBtn3" onclick="prevStep()">Previous</button>
-        <button id="nextBtn3" onclick="nextStep()">Next</button>
-      </div>
-    </div>
-
-    <div id="step4" class="step">
-      <h2>4. Trail Making Test (TMT) - Part A (Numbers)</h2>
-      <p>Click on the numbers in ascending order (1, 2, 3, ...). The timer starts when you click 'Start'.</p>
-      <div class="tmt-grid" id="tmtGrid">
-        </div>
-      <div class="tmt-timer" id="tmtTimer">Ready to start</div>
-      <div class="navigation-buttons">
-        <button id="tmtStartBtn" onclick="startTMT()">Start Test</button>
-        <button id="prevBtn4" onclick="prevStep()">Previous</button>
-        <button id="tmtNextBtn" onclick="nextStep()" disabled>Next</button>
-      </div>
-    </div>
-
-    <div id="step5" class="step">
-      <h2>5. Submit Assessment</h2>
-      <p>Click 'Submit' to calculate your balance score and see your personalized results.</p>
-      <div class="navigation-buttons">
-        <button id="prevBtn5" onclick="prevStep()">Previous</button>
-        <button id="submitBtn" onclick="calculateResults()">Submit</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="mainContent">
-    <div id="resultsPane">
-        <button class="toggle-button" onclick="toggleResultsPane()">Minimize Results</button>
-        <h2>Your Predicted Mini-BESTest Score: <span id="predictedScore"></span></h2>
-        <div id="scoreInterpretation"></div>
-        <div id="recommendations"></div>
-        <div id="comparisonChart"></div> <div style="text-align: center; margin-top: 20px;">
-            <button class="download-button" onclick="downloadScore()">Download My Score</button>
-            <a href="#" id="downloadResultsBtn" class="download-button" onclick="downloadResults()">Download All Results (JSON)</a>
-            <button class="download-button" onclick="resetAssessment()">Start New Assessment</button>
-        </div>
-    </div>
-    <div id="visualizationArea">
-        <div id="viz1" class="viz-container">
-            <h2>Balance Over Time (By Gender)</h2>
-            <div class="viz-content">
-                <p>This graph illustrates the trend in balance performance one could experience throughout their lifetime.
-                    It is based on the Best_t score, the same score you recieved by taking the quiz.
-                </p>
-                <svg width="100%" height="300"></svg> <p>Consider how you compare to others your age and gender. Remember that consistent activity often leads to
-                    more stable balance over time.
-                </p>
-            </div>
-        </div>
-        <div id="viz2" class="viz-container">
-            <h2>Balance with vs. without prosthetics</h2>
-            <div class="viz-content">
-                <p>This visualization informs us of how those of us who wear prosthetics might have different balance scores compared to those of us who don't</p>
-                <svg width="100%" height="300"></svg>
-                <p></p>
-            </div>
-        </div>
-        <div id="viz3" class="viz-container">
-            <h2>How do shoes affect your balance?</h2>
-            <div class="viz-content">
-                <p>This bar chart breaks down which combinations of commonly worn footwear lead to different balance scores.</p>
-                <svg width="100%" height="300"></svg>
-                <p>For good balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?></p>
-            </div>
-        </div>
-        </div>
-  </div>
-
-  <script>
-    let currentStep = 0;
-    let assessmentData = {};
-    let tmtStartTime = null;
-    let tmtCurrentNumber = 1;
-    let tmtCompleted = false;
-    let finalPredictedScore = null; // Stores the final score for download
-    let autoTransitionTimeout; // To store the timeout ID for auto-transitioning to viz page
-
-    // FES-I Questions - A static list of questions for the FES-I section
-    const fesQuestions = [
-        "Cleaning the house (e.g. sweep, vacuum, or dust)",
-        "Getting dressed or un-dressed",
-        "Preparing simple meals",
-        "Taking a bath or shower",
-        "Going to the shop",
-        "Getting in or out of a chair",
-        "Going up or down stairs",
-        "Walking around the house",
-        "Walking on a slippery surface (e.g. wet floor, ice)",
-        "Walking on an uneven surface (e.g. stony path, grass)",
-        "Walking in a place with crowds (e.g. shopping center, street)",
-        "Walking up or down a slope",
-        "Visiting friends or relatives",
-        "Going to a place with stairs or steps",
-        "Going for a social event (e.g. club, religious meeting, party)",
-        "Going to the doctor’s clinic or hospital"
-    ];
-
-
-    function startQuizFromIntro() {
-        // Hide the intro section
-        document.getElementById('introSection').style.display = 'none';
-        
-        // Show the quiz container
-        document.getElementById('quizContainer').style.display = 'block';
-        
-        // Make sure we're at step 0 (welcome page)
-        goToStep(0);
-    }
-
-    /**
-     * Initializes the quiz on page load.
-     * Sets the initial step to the welcome screen and prepares dynamic elements.
-     */
-    window.onload = function() {
-        //goToStep(0); // Show the welcome step first
-        initializeFESQuestions();
-        initializeTMT();
-        // Initially hide the main content split view using CSS directly, not JS here
-        // The CSS for #mainContent and #visualizationArea now includes display: none; by default
-        document.getElementById('introSection').style.display = 'block';
-        document.getElementById('quizContainer').style.display = 'none';
-
-        document.getElementById('toQuizbtn').addEventListener('click', startQuizFromIntro);
-    };
-
-    /**
-     * Navigates to a specific quiz step.
-     * @param {number} stepNum - The number of the step to go to.
-     */
-    function goToStep(stepNum) {
-        document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-        currentStep = stepNum;
-        document.getElementById(`step${stepNum}`).classList.add('active');
-        updateProgress();
-
-        // Manage navigation button visibility
-        const prevBtns = [
-            document.getElementById('prevBtn1'),
-            document.getElementById('prevBtn2'),
-            document.getElementById('prevBtn3'),
-            document.getElementById('prevBtn4'),
-            document.getElementById('prevBtn5')
-        ];
-        prevBtns.forEach(btn => {
-            if (btn) { // Check if the button exists
-                btn.style.display = (currentStep > 0 && currentStep <= 5) ? 'inline-block' : 'none';
-            }
-        });
-    }
-
-    /**
-     * Updates the progress bar based on the current quiz step.
-     */
-    function updateProgress() {
-        const totalSteps = 5; // Total assessment steps (1 to 5)
-        const adjustedStep = Math.max(0, currentStep - 1); // Current step for progress bar (0 to 4)
-        const progress = (adjustedStep / totalSteps) * 100;
-        document.getElementById('progressFill').style.width = `${progress}%`;
-    }
-
-    /**
-     * Dynamically creates and displays the FES-I questions.
-     * Pre-selects options if data already exists (e.g., on 'Previous' button click).
-     */
-    function initializeFESQuestions() {
-        const container = document.getElementById('fesQuestions');
-        container.innerHTML = ''; // Clear existing questions
-        fesQuestions.forEach((question, index) => {
-            const questionId = `fes${index + 1}`;
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question';
-            questionDiv.innerHTML = `
-                <label>${index + 1}. ${question}</label>
-                <div class="likert-scale">
-                    <div class="likert-option" data-value="1" onclick="selectLikert(this, '${questionId}', 1)">
-                        <div>Not at all concerned</div>
-                        <div><strong>1</strong></div>
-                    </div>
-                    <div class="likert-option" data-value="2" onclick="selectLikert(this, '${questionId}', 2)">
-                        <div>Somewhat concerned</div>
-                        <div><strong>2</strong></div>
-                    </div>
-                    <div class="likert-option" data-value="3" onclick="selectLikert(this, '${questionId}', 3)">
-                        <div>Fairly concerned</div>
-                        <div><strong>3</strong></div>
-                    </div>
-                    <div class="likert-option" data-value="4" onclick="selectLikert(this, '${questionId}', 4)">
-                        <div>Very concerned</div>
-                        <div><strong>4</strong></div>
-                    </div>
-                </div>
-            `;
-            container.appendChild(questionDiv);
-
-            // If a value is already stored, pre-select the option
-            if (assessmentData[questionId]) {
-                const selectedOption = questionDiv.querySelector(`.likert-option[data-value="${assessmentData[questionId]}"]`);
-                if (selectedOption) {
-                    selectedOption.classList.add('selected');
-                }
-            }
-        });
-    }
-
-    /**
-     * Handles the selection of a Likert scale option.
-     * Stores the selected value in `assessmentData`.
-     * @param {HTMLElement} element - The clicked Likert option element.
-     * @param {string} questionId - The ID of the question (e.g., 'fes1').
-     * @param {number} value - The numerical value of the selected option.
-     */
-    function selectLikert(element, questionId, value) {
-        element.parentNode.querySelectorAll('.likert-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
-        element.classList.add('selected');
-        assessmentData[questionId] = value;
-    }
-
-    /**
-     * Converts height from inches to centimeters and weight from pounds to kilograms.
-     * @param {number} heightInInches - Height in inches.
-     * @param {number} weightInPounds - Weight in pounds.
-     * @returns {{heightCm: number, weightKg: number}} - Object with converted values.
-     */
-    function convertToMetric(heightInInches, weightInPounds) {
-        const heightCm = heightInInches * 2.54;
-        const weightKg = weightInPounds * 0.453592;
-        return { heightCm, weightKg };
-    }
-
-    /**
-     * Initializes the Trail Making Test (TMT) grid.
-     * Generates and shuffles numbers for the test.
-     */
-    function initializeTMT() {
-        const grid = document.getElementById('tmtGrid');
-        grid.innerHTML = ''; // Clear existing circles
-        const numbers = Array.from({length: 13}, (_, i) => i + 1); // Numbers 1 to 13
-
-        // Shuffle positions for a random layout
-        const shuffled = numbers.sort(() => Math.random() - 0.5);
-
-        shuffled.forEach(num => {
-            const circle = document.createElement('div');
-            circle.className = 'tmt-circle';
-            circle.textContent = num;
-            circle.dataset.number = num;
-            circle.onclick = () => clickTMTNumber(num, circle);
-            grid.appendChild(circle);
-        });
-
-        // Reset TMT state for re-initialization
-        document.getElementById('tmtTimer').textContent = 'Ready to start';
-        document.getElementById('tmtStartBtn').style.display = 'inline-block';
-        document.getElementById('tmtNextBtn').disabled = true;
-    }
-
-    /**
-     * Starts the Trail Making Test timer and highlights the first number.
-     */
-    function startTMT() {
-        tmtStartTime = Date.now();
-        tmtCurrentNumber = 1;
-        tmtCompleted = false;
-
-        document.getElementById('tmtStartBtn').style.display = 'none';
-        const firstCircle = document.querySelector('[data-number="1"]');
-        if (firstCircle) {
-            firstCircle.classList.add('current');
-        }
-
-        updateTMTTimer();
-    }
-
-    /**
-     * Updates the TMT timer display.
-     * Uses `requestAnimationFrame` for smooth updates.
-     */
-    function updateTMTTimer() {
-        if (!tmtStartTime || tmtCompleted) return;
-
-        const elapsed = (Date.now() - tmtStartTime) / 1000;
-        document.getElementById('tmtTimer').textContent = `Time: ${elapsed.toFixed(1)}s`;
-
-        requestAnimationFrame(updateTMTTimer);
-    }
-
-    /**
-     * Handles clicks on TMT numbers.
-     * Validates if the correct number is clicked and tracks progress.
-     * @param {number} number - The number on the clicked circle.
-     * @param {HTMLElement} element - The clicked circle element.
-     */
-    function clickTMTNumber(number, element) {
-        if (!tmtStartTime || tmtCompleted) return;
-
-        if (number === tmtCurrentNumber) {
-            element.classList.remove('current');
-            element.classList.add('completed');
-
-            tmtCurrentNumber++;
-
-            if (tmtCurrentNumber <= 13) {
-                const nextCircle = document.querySelector(`[data-number="${tmtCurrentNumber}"]`);
-                if (nextCircle) {
-                    nextCircle.classList.add('current');
-                }
-            } else {
-                // Test completed
-                tmtCompleted = true;
-                const totalTime = (Date.now() - tmtStartTime) / 1000;
-                assessmentData.tmtTime = totalTime;
-
-                document.getElementById('tmtTimer').textContent = `Completed in ${totalTime.toFixed(1)}s`;
-                document.getElementById('tmtNextBtn').disabled = false;
-            }
-        }
-    }
-
-    /**
-     * Moves to the next quiz step after validating the current step.
-     */
-    function nextStep() {
-        if (!validateCurrentStep()) {
-            alert('Please complete all required fields for this step.');
-            return;
-        }
-
-        collectCurrentStepData();
-
-        document.getElementById(`step${currentStep}`).classList.remove('active');
-        currentStep++;
-        goToStep(currentStep);
-
-        if (currentStep > 5) { // If it's past the last quiz step, calculate results
-            calculateResults();
-        }
-    }
-
-    /**
-     * Moves to the previous quiz step.
-     */
-    function prevStep() {
-        document.getElementById(`step${currentStep}`).classList.remove('active');
-        currentStep--;
-        goToStep(currentStep);
-    }
-
-    /**
-     * Validates that all required fields for the current step are filled.
-     * @returns {boolean} - True if validation passes, false otherwise.
-     */
-    function validateCurrentStep() {
-        if (currentStep === 1) {
-            return document.getElementById('age').value &&
-                   document.getElementById('gender').value &&
-                   document.getElementById('height').value &&
-                   document.getElementById('weight').value;
-        } else if (currentStep === 2) {
-            // Check if all FES questions have a selected value
-            return fesQuestions.every((_, i) => assessmentData[`fes${i + 1}`] !== undefined);
-        } else if (currentStep === 3) {
-            return document.getElementById('ipaq1a').value !== '' &&
-                   document.getElementById('ipaq1b').value !== '' &&
-                   document.getElementById('ipaq2a').value !== '' &&
-                   document.getElementById('ipaq2b').value !== '';
-        } else if (currentStep === 4) {
-            return tmtCompleted;
-        }
-        return true;
-    }
-
-    /**
-     * Collects data from the current quiz step and stores it in `assessmentData`.
-     */
-    function collectCurrentStepData() {
-        if (currentStep === 1) {
-            assessmentData.age = parseInt(document.getElementById('age').value);
-            assessmentData.gender = document.getElementById('gender').value;
-
-            const heightInches = parseFloat(document.getElementById('height').value);
-            const weightPounds = parseFloat(document.getElementById('weight').value);
-
-            // Convert to metric
-            const { heightCm, weightKg } = convertToMetric(heightInches, weightPounds);
-
-            // Save converted values
-            assessmentData.height = heightCm;
-            assessmentData.weight = weightKg;
-            assessmentData.bmi = weightKg / ((heightCm / 100) ** 2);
-
-        } else if (currentStep === 3) {
-            assessmentData.ipaq1a = parseInt(document.getElementById('ipaq1a').value) || 0;
-            assessmentData.ipaq1b = parseInt(document.getElementById('ipaq1b').value) || 0;
-            assessmentData.ipaq2a = parseInt(document.getElementById('ipaq2a').value) || 0;
-            assessmentData.ipaq2b = parseInt(document.getElementById('ipaq2b').value) || 0;
-        }
-        // FES data is collected in `selectLikert`
-        // TMT data is collected in `clickTMTNumber`
-    }
-
-    /**
-     * Calculates the predicted Mini-BESTest score based on collected assessment data.
-     * This is a simplified prediction model for demonstration purposes.
-     */
-    function calculateResults() {
-        // Calculate FES total score
-        let fesTotal = 0;
-        fesQuestions.forEach((_, i) => {
-            fesTotal += assessmentData[`fes${i + 1}`] || 1; // Default to 1 if not selected
-        });
-        assessmentData.fesTotal = fesTotal;
-
-        // Calculate IPAQ score (simplified MET calculation)
-        // METs: Vigorous = 8, Moderate = 4
-        const vigorousMets = assessmentData.ipaq1a * assessmentData.ipaq1b * 8;
-        const moderateMets = assessmentData.ipaq2a * assessmentData.ipaq2b * 4;
-        assessmentData.ipaqScore = vigorousMets + moderateMets;
-
-        // Predict Mini-BESTest score using simplified model (max 28)
-        let predictedScore = 28; // Base score
-
-        // Age factor
-        if (assessmentData.age > 65) predictedScore -= 3;
-        else if (assessmentData.age > 45) predictedScore -= 1;
-
-        // BMI factor
-        if (assessmentData.bmi > 30) predictedScore -= 2;
-        else if (assessmentData.bmi < 18.5) predictedScore -= 1;
-
-        // FES factor (higher concern = lower balance)
-        // FES-I score ranges from 16 (no concern) to 64 (severe concern).
-        if (fesTotal >= 40) predictedScore -= 4; // High concern
-        else if (fesTotal >= 30) predictedScore -= 3; // Moderate-high concern
-        else if (fesTotal >= 20) predictedScore -= 1; // Moderate concern
-
-        // TMT factor (slower time = lower balance)
-        if (assessmentData.tmtTime > 30) predictedScore -= 3;
-        else if (assessmentData.tmtTime > 20) predictedScore -= 1;
-
-        // Physical activity factor (higher activity = better balance)
-        // IPAQ scores can be large, use thresholds for impact.
-        if (assessmentData.ipaqScore > 3000) predictedScore += 2; // Very active
-        else if (assessmentData.ipaqScore < 600) predictedScore -= 2; // Low activity
-
-        // Ensure score is within valid range (0-28)
-        predictedScore = Math.max(0, Math.min(28, predictedScore));
-        finalPredictedScore = predictedScore; // Store for download
-
-        displayResults(predictedScore);
-    }
-
-    /**
-     * Displays the calculated results as a full-screen page initially.
-     * Sets a timeout to transition to the scrollable visualization page after a delay.
-     * @param {number} score - The predicted Mini-BESTest score.
-     */
-    function displayResults(score) {
-        const quizContainer = document.getElementById('quizContainer');
-        const mainContent = document.getElementById('mainContent');
-        const resultsPane = document.getElementById('resultsPane');
-        const visualizationArea = document.getElementById('visualizationArea');
-
-        clearTimeout(autoTransitionTimeout); // Clear any existing timeout
-
-        // 1. Fade out quiz container
-        quizContainer.style.opacity = 0;
-        setTimeout(() => {
-            quizContainer.style.display = 'none'; // Hide quiz container after fade out
-
-            // 2. Prepare mainContent for full-screen results
-            mainContent.style.display = 'flex'; // Enable flexbox for mainContent
-            mainContent.style.opacity = 1; // Fade in mainContent
-            mainContent.style.pointerEvents = 'auto'; // Enable interactions
-
-            // Make resultsPane full screen, hide visualizationArea
-            resultsPane.classList.add('full-screen-results');
-            resultsPane.classList.remove('minimized'); // Ensure it's not minimized
-            resultsPane.querySelector('.toggle-button').style.display = 'none'; // Hide toggle button
-
-            // Explicitly hide visualizationArea by changing its display property
-            visualizationArea.style.display = 'none'; // THIS IS CRUCIAL TO HIDE VISUALIZATIONS
-
-            // Clear any old visualizations from the visualization area (in case of reset/re-run)
-            d3.select('#viz1 svg').selectAll("*").remove();
-            d3.select('#viz2 svg').selectAll("*").remove();
-            d3.select('#viz3 svg').selectAll("*").remove();
-
-
-            // Clear previous results content in resultsPane
-            document.getElementById('predictedScore').textContent = '';
-            document.getElementById('scoreInterpretation').innerHTML = '';
-            document.getElementById('recommendations').innerHTML = '';
-            d3.select('#comparisonChart').selectAll("*").remove(); // Ensure comparison chart SVG is empty
-
-
-            // Populate results
-            document.getElementById('predictedScore').textContent = score.toFixed(1);
-
-            let interpretation = '';
-            let recommendations = '';
-
-            if (score >= 24) {
-                interpretation = 'Excellent balance! Low fall risk.';
-                recommendations = 'Continue your current activity level and consider challenging balance exercises to maintain your excellent balance.';
-            } else if (score >= 20) {
-                interpretation = 'Good balance with mild impairment.';
-                recommendations = 'Consider incorporating more balance training exercises (e.g., tai chi, yoga, standing on one leg) and regular physical activity into your routine to further improve and maintain your balance.';
-            } else if (score >= 16) {
-                interpretation = 'Moderate balance impairment. Increased fall risk.';
-                recommendations = 'Balance training is highly recommended. You should consider consulting a healthcare provider or a physical therapist for a personalized balance assessment and tailored exercise program.';
-            } else {
-                interpretation = 'Significant balance impairment. High fall risk.';
-                recommendations = 'It is strongly advised that you consult with a healthcare provider, such as a doctor or physical therapist, for a comprehensive balance assessment and to develop a specialized training and fall prevention plan.';
-            }
-
-            document.getElementById('scoreInterpretation').innerHTML = `<p><strong>${interpretation}</strong></p>`;
-            document.getElementById('recommendations').innerHTML = `<h3>Recommendations:</h3><p>${recommendations}</p>`;
-
-            createComparisonChart(score); // Create chart to fill the full-screen results pane
-
-            //     transitionToVizPage();
-            // }, 6000); // **Increased delay to 6 seconds**
-            // Add this to your results display function
-            const exploreButton = document.createElement('button');
-            exploreButton.textContent = 'Explore Your Results';
-            exploreButton.className = 'explore-results-btn';
-            exploreButton.onclick = transitionToVizPage;
-
-            // Insert the button into the results content area, not the resultsPane container
-            // Find a better container within resultsPane (like after recommendations)
-            const recommendationsDiv = document.getElementById('recommendations');
-            recommendationsDiv.appendChild(exploreButton);
-        }, 500); // Match quizContainer opacity transition duration
-    }
-
-    /**
-     * Transitions from the full-screen results page to the full-screen scrollable visualization page.
-     * Minimizes the results pane to a corner and makes the visualization area full screen.
-     */
-    function transitionToVizPage() {
-        const resultsPane = document.getElementById('resultsPane');
-        const visualizationArea = document.getElementById('visualizationArea');
-        const toggleButton = resultsPane.querySelector('.toggle-button');
-
-        // Clear any automatic transition timeout if a manual toggle occurs
-        clearTimeout(autoTransitionTimeout);
-
-        // Remove full-screen-results class
-        resultsPane.classList.remove('full-screen-results');
-
-        // Minimize results pane to the corner
-        resultsPane.classList.add('minimized');
-        toggleButton.style.display = 'block'; // Show toggle button in minimized state
-        toggleButton.textContent = 'Expand Results'; // Set initial text
-
-        // Make visualizationArea visible and allow it to grow to full screen
-        visualizationArea.style.display = 'flex'; // Ensure it's active in the flex container
-
-        // Re-draw ALL D3 visualizations to ensure they fit the new full-screen visualization area
-        renderAllVisualizations();
-    }
-
-    /**
-     * Renders all D3 visualizations. This is called when the visualization area
-     * changes size (e.g., when results pane is toggled or on initial transition).
-     */
-    function renderAllVisualizations() {
-        createD3Visualization1();
-        createD3Visualization2();
-        createD3Visualization3();
-        // Call any other visualization rendering functions here
-    }
-
-    /**
-     * Creates and displays a comparison chart of the user's score against a fictional population distribution.
-     * Uses D3.js for visualization.
-     * @param {number} userScore - The user's predicted Mini-BESTest score.
-     */
-    function createComparisonChart(userScore) {
-        const chartContainer = d3.select('#comparisonChart');
-        chartContainer.selectAll("*").remove(); // Clear previous chart to prevent duplication
-
-        const svg = chartContainer
-            .append('svg')
-            .attr('viewBox', `0 0 600 350`); // Use viewBox for responsiveness
-
-        const width = 600;
-        const height = 350;
-        const margin = {top: 40, right: 30, bottom: 60, left: 60};
-
-        // Sample data representing study population distribution (fictional)
-        const data = [
-            {range: '0-7', count: 5, color: '#ff6b6b'},
-            {range: '8-15', count: 15, color: '#feca57'},
-            {range: '16-23', count: 45, color: '#48dbfb'},
-            {range: '24-28', count: 35, color: '#1dd1a1'}
-        ];
-
-        const x = d3.scaleBand()
-            .domain(data.map(d => d.range))
-            .range([margin.left, width - margin.right])
-            .padding(0.1);
-
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.count) * 1.1]) // Add some padding to the top
-            .range([height - margin.bottom, margin.top]);
-
-        // Draw bars
-        svg.selectAll('rect')
-            .data(data)
-            .enter()
-            .append('rect')
-            .attr('x', d => x(d.range))
-            .attr('y', d => y(d.count))
-            .attr('width', x.bandwidth())
-            .attr('height', d => height - margin.bottom - y(d.count))
-            .attr('fill', d => d.color)
-            .attr('opacity', 0.8);
-
-        // Add user score indicator
-        const userRange = userScore <= 7 ? '0-7' :
-                         userScore <= 15 ? '8-15' :
-                         userScore <= 23 ? '16-23' : '24-28';
-
-        const userXPos = x(userRange) + x.bandwidth() / 2;
-
-        svg.append('line')
-            .attr('x1', userXPos)
-            .attr('x2', userXPos)
-            .attr('y1', y(d3.max(data, d => d.count) * 1.05)) // Start above highest bar
-            .attr('y2', height - margin.bottom)
-            .attr('stroke', '#2c3e50')
-            .attr('stroke-width', 3)
-            .attr('stroke-dasharray', '5,5');
-
-        svg.append('text')
-            .attr('x', userXPos)
-            .attr('y', y(d3.max(data, d => d.count) * 1.05) - 10)
-            .attr('text-anchor', 'middle')
-            .attr('font-weight', 'bold')
-            .attr('fill', '#2c3e50')
-            .text('Your Score');
-
-        // Add axes
-        svg.append('g')
-            .attr('transform', `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(x))
-            .selectAll("text")
-            .style("font-size", "12px");
-
-        svg.append('g')
-            .attr('transform', `translate(${margin.left},0)`)
-            .call(d3.axisLeft(y).tickFormat(d => `${d}%`)) // Assuming percentages
-            .selectAll("text")
-            .style("font-size", "12px");
-
-        // Add labels
-        svg.append('text')
-            .attr('x', width / 2)
-            .attr('y', height - 10)
-            .attr('text-anchor', 'middle')
-            .style("font-size", "14px")
-            .style("font-weight", "bold")
-            .text('Mini-BESTest Score Range');
-
-        svg.append('text')
-            .attr('transform', 'rotate(-90)')
-            .attr('x', -height / 2)
-            .attr('y', 20)
-            .attr('text-anchor', 'middle')
-            .style("font-size", "14px")
-            .style("font-weight", "bold")
-            .text('Number of Participants (%)');
-
-        // Title
-        svg.append("text")
-            .attr("x", (width / 2))
-            .attr("y", margin.top / 2 + 5)
-            .attr("text-anchor", "middle")
-            .style("font-size", "18px")
-            .style("font-weight", "bold")
-            .text("Your Score vs. Population Distribution");
-    }
-
-//     async function createD3Visualization1() {
-//   const svg = d3.select("#viz1 svg");
-//   svg.selectAll("*").remove();
-
-//   const width = parseInt(svg.style("width"));
-//   const height = parseInt(svg.style("height"));
-//   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
-
-//   const innerWidth = width - margin.left - margin.right;
-//   const innerHeight = height - margin.top - margin.bottom;
-
-//   // Load and normalize data
-//   const data = await d3.csv("BDSinfo.csv", d => {
-//     let gender = d.Gender?.trim().toLowerCase();
-//     if (gender === "m" || gender === "male") gender = "Male";
-//     else if (gender === "f" || gender === "female") gender = "Female";
-//     else gender = null; // Exclude unrecognized/other categories
-
-//     return {
-//       Age: +d.Age,
-//       Best_T: +d.Best_T,
-//       Gender: gender
-//     };
-//   });
-
-//   // Filter for valid entries only
-//   const filtered = data.filter(d =>
-//     !isNaN(d.Age) &&
-//     !isNaN(d.Best_T) &&
-//     (d.Gender === "Male" || d.Gender === "Female")
-//   );
-
-//   const x = d3.scaleLinear()
-//     .domain(d3.extent(filtered, d => d.Age)).nice()
-//     .range([margin.left, width - margin.right]);
-
-//   const y = d3.scaleLinear()
-//     .domain([0, 28])
-//     .range([height - margin.bottom, margin.top]);
-
-//   const color = d3.scaleOrdinal()
-//     .domain(["Male", "Female"])
-//     .range(["#000080", "#C11C84"]);
-
-//   // Axes
-//   svg.append("g")
-//     .attr("transform", `translate(0,${height - margin.bottom})`)
-//     .call(d3.axisBottom(x))
-//     .append("text")
-//     .attr("x", innerWidth / 2 + margin.left)
-//     .attr("y", 40)
-//     .attr("fill", "#000")
-//     .attr("text-anchor", "middle")
-//     .text("Age");
-
-//   svg.append("g")
-//     .attr("transform", `translate(${margin.left},0)`)
-//     .call(d3.axisLeft(y))
-//     .append("text")
-//     .attr("x", -innerHeight / 2)
-//     .attr("y", -45)
-//     .attr("transform", "rotate(-90)")
-//     .attr("fill", "#000")
-//     .attr("text-anchor", "middle")
-//     .text("Balance Score (Best_T)");
-
-//   // Points
-//   svg.selectAll("circle")
-//     .data(filtered)
-//     .enter()
-//     .append("circle")
-//     .attr("cx", d => x(d.Age))
-//     .attr("cy", d => y(d.Best_T))
-//     .attr("r", 4)
-//     .attr("fill", d => color(d.Gender))
-//     .attr("opacity", 0.7);
-
-//   // Legend
-//   const legend = svg.selectAll(".legend")
-//     .data(color.domain())
-//     .enter()
-//     .append("g")
-//     .attr("class", "legend")
-//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
-
-//   legend.append("rect")
-//     .attr("width", 10)
-//     .attr("height", 10)
-//     .attr("fill", d => color(d));
-
-//   legend.append("text")
-//     .attr("x", 15)
-//     .attr("y", 9)
-//     .text(d => d)
-//     .attr("font-size", "12px");
-// }
-
-// async function createD3Visualization1() {
-//   const svg = d3.select("#viz1 svg");
-//   svg.selectAll("*").remove();
-
-//   const width = parseInt(svg.style("width"));
-//   const height = parseInt(svg.style("height"));
-//   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
-
-//   const innerWidth = width - margin.left - margin.right;
-//   const innerHeight = height - margin.top - margin.bottom;
-
-//   // Load and normalize data
-//   const data = await d3.csv("BDSinfo.csv", d => {
-//     let gender = d.Gender?.trim().toLowerCase();
-//     if (gender === "m" || gender === "male") gender = "Male";
-//     else if (gender === "f" || gender === "female") gender = "Female";
-//     else gender = null; // Exclude unrecognized/other categories
-
-//     return {
-//       Age: +d.Age,
-//       Best_T: +d.Best_T,
-//       Gender: gender
-//     };
-//   });
-
-//   // Filter for valid entries only
-//   const filtered = data.filter(d =>
-//     !isNaN(d.Age) &&
-//     !isNaN(d.Best_T) &&
-//     (d.Gender === "Male" || d.Gender === "Female")
-//   );
-
-//   const x = d3.scaleLinear()
-//     .domain(d3.extent(filtered, d => d.Age)).nice()
-//     .range([margin.left, width - margin.right]);
-
-//   const y = d3.scaleLinear()
-//     .domain([0, 28])
-//     .range([height - margin.bottom, margin.top]);
-
-//   const color = d3.scaleOrdinal()
-//     .domain(["Male", "Female"])
-//     .range(["#000080", "#C11C84"]);
-
-//   // Linear regression function
-//   function linearRegression(xData, yData) {
-//     const n = xData.length;
-//     const sumX = d3.sum(xData);
-//     const sumY = d3.sum(yData);
-//     const sumXY = d3.sum(xData.map((x, i) => x * yData[i]));
-//     const sumXX = d3.sum(xData.map(x => x * x));
-    
-//     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-//     const intercept = (sumY - slope * sumX) / n;
-    
-//     return { slope, intercept };
-//   }
-
-//   // Calculate regression lines for each gender
-//   const genderData = d3.group(filtered, d => d.Gender);
-//   const regressionLines = [];
-
-//   genderData.forEach((values, gender) => {
-//     const xData = values.map(d => d.Age);
-//     const yData = values.map(d => d.Best_T);
-//     const regression = linearRegression(xData, yData);
-    
-//     const xExtent = d3.extent(xData);
-//     const lineData = [
-//       { x: xExtent[0], y: regression.slope * xExtent[0] + regression.intercept },
-//       { x: xExtent[1], y: regression.slope * xExtent[1] + regression.intercept }
-//     ];
-    
-//     regressionLines.push({
-//       gender: gender,
-//       data: lineData,
-//       regression: regression
-//     });
-//   });
-
-//   // Axes
-//   svg.append("g")
-//     .attr("transform", `translate(0,${height - margin.bottom})`)
-//     .call(d3.axisBottom(x))
-//     .append("text")
-//     .attr("x", innerWidth / 2 + margin.left)
-//     .attr("y", 40)
-//     .attr("fill", "#000")
-//     .attr("text-anchor", "middle")
-//     .text("Age");
-
-//   svg.append("g")
-//     .attr("transform", `translate(${margin.left},0)`)
-//     .call(d3.axisLeft(y))
-//     .append("text")
-//     .attr("x", -innerHeight / 2)
-//     .attr("y", -45)
-//     .attr("transform", "rotate(-90)")
-//     .attr("fill", "#000")
-//     .attr("text-anchor", "middle")
-//     .text("Balance Score (Best_T)");
-
-//   // Add regression lines
-//   const line = d3.line()
-//     .x(d => x(d.x))
-//     .y(d => y(d.y));
-
-//   svg.selectAll(".regression-line")
-//     .data(regressionLines)
-//     .enter()
-//     .append("path")
-//     .attr("class", "regression-line")
-//     .attr("d", d => line(d.data))
-//     .attr("stroke", d => color(d.gender))
-//     .attr("stroke-width", 2)
-//     .attr("fill", "none")
-//     .attr("stroke-dasharray", "5,5")
-//     .attr("opacity", 0.8);
-
-//   // Points (drawn after lines so they appear on top)
-//   svg.selectAll("circle")
-//     .data(filtered)
-//     .enter()
-//     .append("circle")
-//     .attr("cx", d => x(d.Age))
-//     .attr("cy", d => y(d.Best_T))
-//     .attr("r", 4)
-//     .attr("fill", d => color(d.Gender))
-//     .attr("opacity", 0.7);
-
-//   // Legend
-//   const legend = svg.selectAll(".legend")
-//     .data(color.domain())
-//     .enter()
-//     .append("g")
-//     .attr("class", "legend")
-//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
-
-//   legend.append("rect")
-//     .attr("width", 10)
-//     .attr("height", 10)
-//     .attr("fill", d => color(d));
-
-//   legend.append("text")
-//     .attr("x", 15)
-//     .attr("y", 9)
-//     .text(d => d)
-//     .attr("font-size", "12px");
-
-//   // Add regression line indicators to legend
-//   const regressionLegend = svg.selectAll(".regression-legend")
-//     .data(color.domain())
-//     .enter()
-//     .append("g")
-//     .attr("class", "regression-legend")
-//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + 50 + i * 20})`);
-
-//   regressionLegend.append("line")
-//     .attr("x1", 0)
-//     .attr("x2", 10)
-//     .attr("y1", 5)
-//     .attr("y2", 5)
-//     .attr("stroke", d => color(d))
-//     .attr("stroke-width", 2)
-//     .attr("stroke-dasharray", "2,2");
-
-//   regressionLegend.append("text")
-//     .attr("x", 15)
-//     .attr("y", 9)
-//     .text(d => `${d} Trend`)
-//     .attr("font-size", "11px")
-//     .attr("fill", "#666");
-
-//   // Display regression equations (optional)
-//   console.log("Regression Analysis:");
-//   regressionLines.forEach(line => {
-//     console.log(`${line.gender}: y = ${line.regression.slope.toFixed(4)}x + ${line.regression.intercept.toFixed(4)}`);
-//   });
-// }
-
-async function createD3Visualization1() {
-  const svg = d3.select("#viz1 svg");
-  svg.selectAll("*").remove();
-
-  const width = parseInt(svg.style("width"));
-  const height = parseInt(svg.style("height"));
-  const margin = { top: 30, right: 30, bottom: 50, left: 60 };
-
-  const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
-
-  // Load and normalize data
-  const data = await d3.csv("BDSinfo.csv", d => {
-    let gender = d.Gender?.trim().toLowerCase();
-    if (gender === "m" || gender === "male") gender = "Male";
-    else if (gender === "f" || gender === "female") gender = "Female";
-    else gender = null; // Exclude unrecognized/other categories
-
-    return {
-      Age: +d.Age,
-      Best_T: +d.Best_T,
-      Gender: gender
-    };
-  });
-
-  // Filter for valid entries only
-  const filtered = data.filter(d =>
-    !isNaN(d.Age) &&
-    !isNaN(d.Best_T) &&
-    (d.Gender === "Male" || d.Gender === "Female")
-  );
-
-  const x = d3.scaleLinear()
-    .domain(d3.extent(filtered, d => d.Age)).nice()
-    .range([margin.left, width - margin.right]);
-
-  const y = d3.scaleLinear()
-    .domain([0, 28])
-    .range([height - margin.bottom, margin.top]);
-
-  const color = d3.scaleOrdinal()
-    .domain(["Male", "Female"])
-    .range(["#000080", "#C11C84"]);
-
-  // Linear regression function
-  function linearRegression(xData, yData) {
-    const n = xData.length;
-    const sumX = d3.sum(xData);
-    const sumY = d3.sum(yData);
-    const sumXY = d3.sum(xData.map((x, i) => x * yData[i]));
-    const sumXX = d3.sum(xData.map(x => x * x));
-    
-    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-    
-    return { slope, intercept };
-  }
-
-  // Calculate single regression line for all data
-  const xData = filtered.map(d => d.Age);
-  const yData = filtered.map(d => d.Best_T);
-  const regression = linearRegression(xData, yData);
-  
-  const xExtent = d3.extent(xData);
-  const regressionLine = [
-    { x: xExtent[0], y: regression.slope * xExtent[0] + regression.intercept },
-    { x: xExtent[1], y: regression.slope * xExtent[1] + regression.intercept }
-  ];
-
-  // Axes
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x))
-    .append("text")
-    .attr("x", innerWidth / 2 + margin.left)
-    .attr("y", 40)
-    .attr("fill", "#000")
-    .attr("text-anchor", "middle")
-    .text("Age");
-
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y))
-    .append("text")
-    .attr("x", -innerHeight / 2)
-    .attr("y", -45)
-    .attr("transform", "rotate(-90)")
-    .attr("fill", "#000")
-    .attr("text-anchor", "middle")
-    .text("Balance Score (Best_T)");
-
-  // Add single regression line
-  const line = d3.line()
-    .x(d => x(d.x))
-    .y(d => y(d.y));
-
-  svg.append("path")
-    .datum(regressionLine)
-    .attr("class", "regression-line")
-    .attr("d", line)
-    .attr("stroke", "#333")
-    .attr("stroke-width", 2)
-    .attr("fill", "none")
-    .attr("stroke-dasharray", "5,5")
-    .attr("opacity", 0.8);
-
-  // Points (drawn after lines so they appear on top)
-  svg.selectAll("circle")
-    .data(filtered)
-    .enter()
-    .append("circle")
-    .attr("cx", d => x(d.Age))
-    .attr("cy", d => y(d.Best_T))
-    .attr("r", 4)
-    .attr("fill", d => color(d.Gender))
-    .attr("opacity", 0.7);
-
-  // Legend
-  const legend = svg.selectAll(".legend")
-    .data(color.domain())
-    .enter()
-    .append("g")
-    .attr("class", "legend")
-    .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
-
-  legend.append("rect")
-    .attr("width", 10)
-    .attr("height", 10)
-    .attr("fill", d => color(d));
-
-  legend.append("text")
-    .attr("x", 15)
-    .attr("y", 9)
-    .text(d => d)
-    .attr("font-size", "12px");
-
-  // Add regression line indicator to legend
-  const regressionLegend = svg.append("g")
-    .attr("class", "regression-legend")
-    .attr("transform", `translate(${width - margin.right - 100},${margin.top + 50})`);
-
-  regressionLegend.append("line")
-    .attr("x1", 0)
-    .attr("x2", 10)
-    .attr("y1", 5)
-    .attr("y2", 5)
-    .attr("stroke", "#333")
-    .attr("stroke-width", 2)
-    .attr("stroke-dasharray", "2,2");
-
-  regressionLegend.append("text")
-    .attr("x", 15)
-    .attr("y", 9)
-    .text("Trend Line")
-    .attr("font-size", "11px")
-    .attr("fill", "#666");
-
-  // Display regression equation
-  console.log(`Regression Analysis: y = ${regression.slope.toFixed(4)}x + ${regression.intercept.toFixed(4)}`);
-}
-
-
-
-   
-async function createD3Visualization2() {
-  const svg = d3.select("#viz2 svg");
-  svg.selectAll("*").remove();
-
-  const width = parseInt(svg.style("width"));
-  const height = parseInt(svg.style("height"));
-  const margin = { top: 30, right: 30, bottom: 60, left: 60 };
-
-  const data = await d3.csv("BDSinfo.csv", d => ({
-    Prosthesis: d["Ortho-Prosthesis"]?.trim(),
-    Best_T: +d.Best_T
-  }));
-
-  const grouped = d3.rollups(
-    data.filter(d => d.Prosthesis && !isNaN(d.Best_T)),
-    v => d3.mean(v, d => d.Best_T),
-    d => d.Prosthesis
-  ).map(([group, avg]) => ({ Prosthesis: group, avgBalance: avg }));
-
-  const x = d3.scaleBand()
-    .domain(grouped.map(d => d.Prosthesis))
-    .range([margin.left, width - margin.right])
-    .padding(0.2);
-
-  const y = d3.scaleLinear()
-    .domain([0, 28])
-    .range([height - margin.bottom, margin.top]);
-
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "rotate(-35)")
-    .style("text-anchor", "end");
-
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
-
-  svg.selectAll("rect")
-    .data(grouped)
-    .enter()
-    .append("rect")
-    .attr("x", d => x(d.Prosthesis))
-    .attr("y", d => y(d.avgBalance))
-    .attr("width", x.bandwidth())
-    .attr("height", d => height - margin.bottom - y(d.avgBalance))
-    .attr("fill", "#FF9800");
-}
-
-
-async function createD3Visualization3() {
-  const svg = d3.select("#viz3 svg");
-  svg.selectAll("*").remove();
-
-  const width = parseInt(svg.style("width"));
-  const height = parseInt(svg.style("height"));
-  const margin = { top: 30, right: 30, bottom: 80, left: 60 };
-
-  const data = await d3.csv("BDSinfo.csv", d => ({
-    Footwear: d.Footwear?.trim(),
-    Best_T: +d.Best_T
-  }));
-
-  const grouped = d3.rollups(
-    data.filter(d => d.Footwear && !isNaN(d.Best_T)),
-    v => d3.mean(v, d => d.Best_T),
-    d => d.Footwear
-  ).map(([footwear, avgBalance]) => ({ Footwear: footwear, avgBalance }));
-
-  // Sort by highest balance
-  grouped.sort((a, b) => b.avgBalance - a.avgBalance);
-
-  const x = d3.scaleBand()
-    .domain(grouped.map(d => d.Footwear))
-    .range([margin.left, width - margin.right])
-    .padding(0.2);
-
-  const y = d3.scaleLinear()
-    .domain([0, 28])
-    .range([height - margin.bottom, margin.top]);
-
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "rotate(-35)")
-    .style("text-anchor", "end");
-
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
-
-  svg.selectAll("rect")
-    .data(grouped)
-    .enter()
-    .append("rect")
-    .attr("x", d => x(d.Footwear))
-    .attr("y", d => y(d.avgBalance))
-    .attr("width", x.bandwidth())
-    .attr("height", d => height - margin.bottom - y(d.avgBalance))
-    .attr("fill", "#4CAF50");
-
-  // Optional: Add values above bars
-  svg.selectAll(".label")
-    .data(grouped)
-    .enter()
-    .append("text")
-    .attr("x", d => x(d.Footwear) + x.bandwidth() / 2)
-    .attr("y", d => y(d.avgBalance) - 5)
-    .attr("text-anchor", "middle")
-    .attr("font-size", "11px")
-    .attr("fill", "#333")
-    .text(d => d.avgBalance.toFixed(1));
-}
-
-
-
-
-
-    /**
-     * Downloads the complete assessment results as a JSON file.
-     */
-    function downloadResults() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assessmentData, null, 2));
-        const dlAnchor = document.createElement('a');
-        dlAnchor.setAttribute("href", dataStr);
-        dlAnchor.setAttribute("download", "balance_assessment_full_results.json");
-        dlAnchor.click();
-    }
-
-    /**
-     * Downloads a summary of the predicted score and recommendations as a plain text file.
-     */
-    function downloadScore() {
-        if (finalPredictedScore === null) {
-            alert("Score not yet calculated. Please complete the quiz.");
-            return;
-        }
-
-        const scoreText = `Your Predicted Mini-BESTest Score: ${finalPredictedScore.toFixed(1)}\n` +
-                          `Interpretation: ${document.getElementById('scoreInterpretation').textContent}\n` +
-                          `Recommendations: ${document.getElementById('recommendations').textContent.replace('Recommendations:', '').trim()}`;
-
-        const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(scoreText);
-        const dlAnchor = document.createElement('a');
-        dlAnchor.setAttribute("href", dataStr);
-        dlAnchor.setAttribute("download", "balance_score_summary.txt");
-        dlAnchor.click();
-    }
-
-    /**
-     * Toggles the results pane between expanded (sidebar) and minimized (corner) states.
-     * This function is primarily used on the visualization page.
-     */
-    function toggleResultsPane() {
-        const resultsPane = document.getElementById('resultsPane');
-        const visualizationArea = document.getElementById('visualizationArea');
-        const toggleButton = resultsPane.querySelector('.toggle-button');
-
-        // Clear any automatic transition timeout if a manual toggle occurs
-        clearTimeout(autoTransitionTimeout);
-
-        if (resultsPane.classList.contains('minimized')) {
-            // Expand the pane (split-screen mode)
-            resultsPane.classList.remove('minimized');
-            toggleButton.textContent = 'Minimize Results';
-
-            // Restore resultsPane to sidebar flex properties
-            resultsPane.style.position = 'relative'; // Important for flexbox layout
-            resultsPane.style.width = 'auto'; // Let flex-basis manage width
-            resultsPane.style.height = '100vh'; // Fill height
-            resultsPane.style.bottom = 'auto'; // Remove fixed positioning
-            resultsPane.style.right = 'auto'; // Remove fixed positioning
-            resultsPane.style.flex = '0 0 350px'; // Set to sidebar width
-            resultsPane.style.padding = '20px'; // Restore original padding
-
-            // Make sure visualization area is visible when expanded
-            visualizationArea.style.display = 'flex'; // Ensure it's flex
-
-            // Re-draw ALL D3 visualizations to fit the new (shrunk) visualization area size
-            renderAllVisualizations();
-
-        } else {
-            // Minimize the pane (full-screen visualization mode)
-            resultsPane.classList.add('minimized');
-            toggleButton.textContent = 'Expand Results';
-
-            // When resultsPane gets 'position: fixed', it's taken out of the flex flow.
-            // visualizationArea, which has 'flex-grow: 1', will then naturally expand
-            // to fill the entire remaining space of 'mainContent', thus becoming full screen.
-            // No explicit style changes needed on visualizationArea for 'full-screen'.
-
-            // Make sure visualization area is visible when minimized
-            visualizationArea.style.display = 'flex'; // Ensure it's flex
-
-            // Re-draw ALL D3 visualizations to fit the new (expanded) visualization area size
-            renderAllVisualizations();
-        }
-    }
-
-    /**
-     * Resets the entire assessment, clearing all data and returning to the welcome screen.
-     */
-    function resetAssessment() {
-        // Clear any pending timeouts
-        clearTimeout(autoTransitionTimeout);
-
-        currentStep = 0; // Reset to welcome screen
-        assessmentData = {};
-        tmtCompleted = false;
-        tmtCurrentNumber = 1;
-        tmtStartTime = null;
-        finalPredictedScore = null; // Clear stored score
-
-        // Reset all steps visibility
-        document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-        document.getElementById('step0').classList.add('active'); // Show welcome screen
-
-        // Clear all input fields and selections
-        document.querySelectorAll('input').forEach(input => {
-            if (input.type === 'number' || input.type === 'text') {
-                input.value = '';
-            }
-        });
-        document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-        document.querySelectorAll('.likert-option').forEach(opt => opt.classList.remove('selected'));
-
-        // Reset TMT display
-        initializeTMT(); // This will clear and re-render the grid
-
-        // Clear results section content in resultsPane
-        document.getElementById('predictedScore').textContent = '';
-        document.getElementById('scoreInterpretation').innerHTML = '';
-        document.getElementById('recommendations').innerHTML = '';
-        d3.select('#comparisonChart').selectAll("*").remove(); // Clear D3 comparison chart
-
-        // Also clear visualizations in the visualization area
-        d3.select('#viz1 svg').selectAll("*").remove();
-        d3.select('#viz2 svg').selectAll("*").remove();
-        d3.select('#viz3 svg').selectAll("*").remove();
-
-
-        // Reset resultsPane and visualizationArea styles to initial (hidden/default) state
-        const resultsPane = document.getElementById('resultsPane');
-        const visualizationArea = document.getElementById('visualizationArea');
-        const toggleButton = resultsPane.querySelector('.toggle-button');
-
-        resultsPane.classList.remove('full-screen-results', 'minimized');
-        resultsPane.style.display = 'flex'; // Default display for resultsPane
-        resultsPane.style.flex = '0 0 350px'; // Default flex
-        resultsPane.style.position = 'relative'; // Default position
-        resultsPane.style.width = 'auto'; // Default width
-        resultsPane.style.height = '100vh'; // Default height
-        resultsPane.style.bottom = 'auto'; // Reset fixed position properties
-        resultsPane.style.right = 'auto'; // Reset fixed position properties
-        resultsPane.style.padding = '20px'; // Default padding
-        toggleButton.style.display = 'block'; // Ensure toggle button is visible (will be hidden by .full-screen-results later)
-
-        // *** CRITICAL FIX HERE: Ensure visualizationArea is hidden before mainContent is hidden ***
-        visualizationArea.style.display = 'none'; // Hide visualization area explicitly
-
-        // Hide main content split view with a fade-out and disable interactions
-        document.getElementById('mainContent').style.opacity = 0;
-        document.getElementById('mainContent').style.pointerEvents = 'none';
-        setTimeout(() => {
-            document.getElementById('mainContent').style.display = 'none'; // Hide mainContent after fade-out
-        }, 500);
-
-        // Show quiz container with a fade-in
-        document.getElementById('quizContainer').style.display = 'block';
-        document.getElementById('quizContainer').style.opacity = 1;
-
-        // Reset the scroll position of the quiz container
-        document.getElementById('quizContainer').scrollTop = 0;
-
-        updateProgress();
-    }
-
-  </script>
 </body>
 </html>
