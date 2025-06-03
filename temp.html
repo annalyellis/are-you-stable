@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Age of Balance: Joe's Journey Through Life with Scrollama</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Balance Journey</title> <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/scrollama"></script>
-    <style>
+    <script src="https://d3js.org/d3.v7.min.js"></script> <link rel="stylesheet" href="style.css" /> <style>
         body {
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
@@ -75,77 +74,7 @@
             margin-bottom: 2rem;
         }
 
-        /* Quiz Section (outside scrolly container) */
-        .quiz-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            background-color: #e2e8f0;
-            color: #1a202c;
-        }
-        .quiz-container {
-            background-color: white;
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 700px;
-            width: 100%;
-        }
-        .quiz-question {
-            margin-bottom: 1.5rem;
-        }
-        .quiz-options label {
-            display: block;
-            background-color: #f8fafc;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-            border: 1px solid #cbd5e1;
-        }
-        .quiz-options label:hover {
-            background-color: #e0f2fe;
-            border-color: #90cdf4;
-        }
-        .quiz-options input[type="radio"] {
-            margin-right: 0.75rem;
-            accent-color: #3b82f6;
-        }
-        .quiz-options input[type="radio"]:checked + span {
-            font-weight: 600;
-            color: #1e40af;
-        }
-        .quiz-submit-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            border: none;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
-        }
-        .quiz-submit-btn:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        .quiz-submit-btn:active {
-            transform: translateY(0);
-        }
-        .quiz-results {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #e0f2fe;
-            border-radius: 0.75rem;
-            border: 1px solid #90cdf4;
-            color: #1e40af;
-        }
-
+        /* Quiz Section (outside scrolly container) - OLD QUIZ, REMOVED */
         /* Custom Modal Styling */
         .modal-overlay {
             position: fixed;
@@ -236,10 +165,88 @@
                 min-height: 75vh;
             }
         }
+        /* Additional styles for combined layout if needed */
+        #introSection, #quizContainer, #mainContent {
+            /* Ensure these sections are visible and structured correctly in the combined page */
+            /* For initial state, #introSection should be visible, others hidden by JS */
+            display: flex; /* or block, depending on desired layout for intro */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Make sure they take full viewport height */
+            padding: 2rem;
+            text-align: center;
+            background-color: #f0f4f8; /* default background */
+            color: #334155;
+        }
+        #quizContainer, #mainContent {
+            display: none; /* Hidden by default, shown by JS */
+        }
+        .full-screen-results {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: white; /* Or match a theme */
+            z-index: 999;
+            overflow: auto; /* Allow scrolling for content that exceeds screen height */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .minimized {
+            position: fixed !important;
+            bottom: 20px;
+            right: 20px;
+            width: 300px; /* Smaller width */
+            height: 200px; /* Smaller height */
+            overflow: auto;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            padding: 15px;
+            box-sizing: border-box;
+            display: block !important; /* Override initial display: none */
+        }
+        .minimized .toggle-button {
+            display: block !important;
+            margin-bottom: 10px;
+        }
+        .minimized h2, .minimized p, .minimized .download-button, .minimized #comparisonChart {
+            /* Hide or shrink content within minimized pane */
+            display: none;
+        }
+        .minimized #predictedScore {
+            display: inline; /* Keep score visible */
+        }
+        /* Specific styles for the explore button */
+        .explore-results-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
+            margin-top: 2rem;
+        }
+        .explore-results-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .explore-results-btn:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
-
     <div class="scrolly-container">
         <div class="scrolly-graphic">
             <canvas id="main-canvas"></canvas>
@@ -287,28 +294,172 @@
 
             <div class="scrolly-section" data-age="80">
                 <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 80+: Prioritizing Safety</h2>
-                    <p class="text-lg text-gray-700">Into his 80s, Joe prioritizes safety and independence. He might use assistive devices like a cane or walker, and he's more cautious about his environment. Simple home modifications and consistent, gentle exercise help him stay active and minimize fall risks. Maintaining balance is now a conscious effort and a key to his quality of life.</p>
-                    <p class="text-md text-gray-600 mt-4">Increased risk of falls, slower reflexes, and potential chronic conditions can impact balance significantly at this age.</p>
+                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 80+: The Unforeseen Fall</h2>
+                    <p class="text-lg text-gray-700">Into his 80s, Joe's balance becomes severely compromised. Despite his best efforts to stay active and cautious, a sudden loss of stability leads to a fall. This moment highlights the critical importance of fall prevention strategies and the impact of age on our physical autonomy.</p>
+                    <p class="text-md text-gray-600 mt-4">Falls in older adults can have significant consequences, emphasizing the need for environmental modifications, regular strength and balance training, and medical consultation.</p>
                 </div>
             </div>
-        </div> </div> <div class="quiz-section" id="quiz-section">
-        <div class="quiz-container">
-            <h2 class="text-4xl font-bold mb-6 text-gray-800 text-center">Assess Your Own Balance Journey</h2>
-            <p class="text-lg text-gray-700 mb-8 text-center">Answer these questions to get insights into your balance and discover personalized tips.</p>
+        </div>
 
-            <form id="balance-quiz">
-                </form>
+        <header>
+            <nav>
+                </nav>
+        </header>
+        <section id = "introSection" class="intro-section">
+            <h1>Are you stable?</h1>
+            <p>
+            Balance is a crucial aspect of physical health 
+            that enables safe movement, coordination, and stability in 
+            everyday activities. As we age, maintaining good balance becomes 
+            increasingly important to prevent falls and support long-term 
+            mobility and independence.
+            </p>
+            <div class="navigation-buttons">
+            <button id="toQuizbtn">Let's Find Out!</button>
+            </div>
+        </section>
+        <div id="quizContainer">
+            <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+            </div>
 
-            <button type="button" id="submit-quiz" class="quiz-submit-btn w-full">Get My Balance Insights</button>
+            <div id="step0" class="step active">
+            <h2>Welcome to the Balance Assessment!</h2>
+            <p>This quiz will assess your balance and provide personalized insights. It involves several steps, including questions about your physical activity and a simple motor test.</p>
+            <div class="navigation-buttons">
+                <button id="startQuizBtn" onclick="goToStep(1)">Start Quiz</button>
+            </div>
+            </div>
 
-            <div id="quiz-results" class="quiz-results hidden">
-                <h3 class="text-2xl font-semibold mb-3">Your Balance Insights:</h3>
-                <p id="result-text" class="text-lg"></p>
-                <p class="text-md mt-4 font-medium">Remember, balance can always be improved or maintained with conscious effort and appropriate exercises!</p>
+            <div id="step1" class="step">
+            <h2>1. Personal Information</h2>
+            <div class="question">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" min="1" max="120" required>
+            </div>
+            <div class="question">
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="height">Height (inches):</label>
+                <input type="number" id="height" name="height" min="20" max="100" step="0.1" required>
+            </div>
+            <div class="question">
+                <label for="weight">Weight (pounds):</label>
+                <input type="number" id="weight" name="weight" min="50" max="1000" step="0.1" required>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn1" onclick="prevStep()" style="display: none;">Previous</button>
+                <button id="nextBtn1" onclick="nextStep()">Next</button>
+            </div>
+            </div>
+
+            <div id="step2" class="step">
+            <h2>2. Falls Efficacy Scale - International (FES-I)</h2>
+            <p>Please indicate your level of concern about falling during the following activities:</p>
+            <div id="fesQuestions">
+                </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn2" onclick="prevStep()">Previous</button>
+                <button id="nextBtn2" onclick="nextStep()">Next</button>
+            </div>
+            </div>
+
+            <div id="step3" class="step">
+            <h2>3. International Physical Activity Questionnaire (IPAQ)</h2>
+            <div class="question">
+                <label for="ipaq1a">In the last 7 days, on how many days did you do **vigorous** physical activities like heavy lifting, digging, aerobics, or fast bicycling?</label>
+                <input type="number" id="ipaq1a" name="ipaq1a" min="0" max="7" required>
+            </div>
+            <div class="question">
+                <label for="ipaq1b">How much time did you spend on one of those days doing vigorous physical activities? (minutes per day)</label>
+                <input type="number" id="ipaq1b" name="ipaq1b" min="0" required>
+            </div>
+            <div class="question">
+                <label for="ipaq2a">In the last 7 days, on how many days did you do **moderate** physical activities like carrying light loads, bicycling at a regular pace, or doubles tennis? (Don't include walking)</label>
+                <input type="number" id="ipaq2a" name="ipaq2a" min="0" max="7" required>
+            </div>
+            <div class="question">
+                <label for="ipaq2b">How much time did you spend on one of those days doing moderate physical activities? (minutes per day)</label>
+                <input type="number" id="ipaq2b" name="ipaq2b" min="0" required>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn3" onclick="prevStep()">Previous</button>
+                <button id="nextBtn3" onclick="nextStep()">Next</button>
+            </div>
+            </div>
+
+            <div id="step4" class="step">
+            <h2>4. Trail Making Test (TMT) - Part A (Numbers)</h2>
+            <p>Click on the numbers in ascending order (1, 2, 3, ...). The timer starts when you click 'Start'.</p>
+            <div class="tmt-grid" id="tmtGrid">
+                </div>
+            <div class="tmt-timer" id="tmtTimer">Ready to start</div>
+            <div class="navigation-buttons">
+                <button id="tmtStartBtn" onclick="startTMT()">Start Test</button>
+                <button id="prevBtn4" onclick="prevStep()">Previous</button>
+                <button id="tmtNextBtn" onclick="nextStep()" disabled>Next</button>
+            </div>
+            </div>
+
+            <div id="step5" class="step">
+            <h2>5. Submit Assessment</h2>
+            <p>Click 'Submit' to calculate your balance score and see your personalized results.</p>
+            <div class="navigation-buttons">
+                <button id="prevBtn5" onclick="prevStep()">Previous</button>
+                <button id="submitBtn" onclick="calculateResults()">Submit</button>
+            </div>
             </div>
         </div>
-    </div>
+
+        <div id="mainContent">
+            <div id="resultsPane">
+                <button class="toggle-button" onclick="toggleResultsPane()">Minimize Results</button>
+                <h2>Your Predicted Mini-BESTest Score: <span id="predictedScore"></span></h2>
+                <div id="scoreInterpretation"></div>
+                <div id="recommendations"></div>
+                <div id="comparisonChart"></div> <div style="text-align: center; margin-top: 20px;">
+                    <button class="download-button" onclick="downloadScore()">Download My Score</button>
+                    <a href="#" id="downloadResultsBtn" class="download-button" onclick="downloadResults()">Download All Results (JSON)</a>
+                    <button class="download-button" onclick="resetAssessment()">Start New Assessment</button>
+                </div>
+            </div>
+            <div id="visualizationArea">
+                <div id="viz1" class="viz-container">
+                    <h2>Balance Over Time (By Gender)</h2>
+                    <div class="viz-content">
+                        <p>This graph illustrates the trend in balance performance one could experience throughout their lifetime.
+                            It is based on the Best_t score, the same score you recieved by taking the quiz.
+                        </p>
+                        <svg width="100%" height="300"></svg> <p>Consider how you compare to others your age and gender. Remember that consistent activity often leads to
+                            more stable balance over time.
+                        </p>
+                    </div>
+                </div>
+                <div id="viz2" class="viz-container">
+                    <h2>Balance with vs. without prosthetics</h2>
+                    <div class="viz-content">
+                        <p>This visualization informs us of how those of us who wear prosthetics might have different balance scores compared to those of us who don't</p>
+                        <svg width="100%" height="300"></svg>
+                        <p></p>
+                    </div>
+                </div>
+                <div id="viz3" class="viz-container">
+                    <h2>How do shoes affect your balance?</h2>
+                    <div class="viz-content">
+                        <p>This bar chart breaks down which combinations of commonly worn footwear lead to different balance scores.</p>
+                        <svg width="100%" height="300"></svg>
+                        <p>For good balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?></p>
+                    </div>
+                </div>
+                </div>
+        </div>
 
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
@@ -324,9 +475,12 @@
             </div>
         </div>
     </div>
-
+    <script src="global.js"></script>
     <script>
-        // Custom Modal Functions
+        // --- NEW VERSION LOADED ---
+        console.log("--- NEW VERSION LOADED ---");
+
+        // Custom Modal Functions from temp.html
         const customModal = document.getElementById('customModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
@@ -352,7 +506,7 @@
         });
 
 
-        // Canvas Drawing Logic
+        // Canvas Drawing Logic from temp.html
         const mainCanvas = document.getElementById('main-canvas');
         const mainCtx = mainCanvas.getContext('2d');
         let currentActiveAge = null; // Stores the age for the current active graphic
@@ -363,69 +517,111 @@
          * The origin (0,0) in this function's local coordinate system is the base of Joe's body (where legs start).
          * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
          * @param {number} x - The x-coordinate for the center of Joe (at his base).
-         * @param {number} yBase - The y-coordinate for the base of Joe's feet.
+         * @param {number} yBase - The y-coordinate for the base of Joe's feet (or ground for fallen).
          * @param {number} scale - Scaling factor for Joe's size relative to base drawing units.
-         * @param {number} tiltAngle - Angle in radians to tilt Joe.
+         * @param {number} tiltAngle - Angle in radians to tilt Joe (overall rotation).
          * @param {number} wobble - Magnitude of the sinusoidal wobble animation.
          * @param {boolean} hasBraces - True if Joe should be drawn with braces.
          * @param {number} stoopAngle - Angle in radians to apply a forward stoop/lean to the body.
+         * @param {boolean} isFallen - True if Joe should be drawn in a fallen pose.
          */
-        function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0) {
+        function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0, isFallen = false) {
             ctx.save();
-            ctx.translate(x, yBase); // Translate to the base of Joe's feet
+            ctx.translate(x, yBase); // Translate to the base of Joe's feet or ground position
             ctx.rotate(tiltAngle);
 
             const headRadius = 10 * scale;
             const bodyLength = 40 * scale;
             const limbLength = 30 * scale;
 
-            const currentWobble = Math.sin(Date.now() * 0.005) * wobble;
-            ctx.rotate(currentWobble);
+            if (isFallen) {
+                // Drawing for fallen Joe
+                ctx.save();
+                // Adjust translation for a fallen figure to appear on the ground line
+                // Rotate 90 degrees to lie horizontally
+                ctx.rotate(Math.PI / 2);
 
-            ctx.lineWidth = 2 * scale;
-            ctx.strokeStyle = '#334155';
-            ctx.fillStyle = '#334155';
+                // Body (horizontal, centered at the new origin)
+                ctx.beginPath();
+                ctx.moveTo(-bodyLength / 2, 0);
+                ctx.lineTo(bodyLength / 2, 0);
+                ctx.stroke();
 
-            // Legs: drawn downwards from the origin (0,0) which is Joe's hip/base
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-limbLength * 0.5, limbLength);
-            ctx.moveTo(0, 0);
-            ctx.lineTo(limbLength * 0.5, limbLength);
-            ctx.stroke();
+                // Head (at one end of the body, adjusted for rotation)
+                ctx.beginPath();
+                ctx.arc(bodyLength / 2 + headRadius, 0, headRadius, 0, Math.PI * 2);
+                ctx.fill();
 
-            // Body: drawn upwards from the origin, applying stoopAngle
-            ctx.save(); // Save context before applying stoop rotation
-            ctx.rotate(-stoopAngle); // Rotate for the stoop
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, -bodyLength);
-            ctx.stroke();
+                // Legs (bent, relative to the horizontal body)
+                ctx.beginPath();
+                ctx.moveTo(bodyLength / 4, 0); // Start from hip
+                ctx.lineTo(bodyLength / 4 + limbLength * 0.5, limbLength * 0.5); // Bent leg 1
+                ctx.moveTo(bodyLength / 4, 0); // Start from hip
+                ctx.lineTo(bodyLength / 4 + limbLength * 0.5, -limbLength * 0.5); // Bent leg 2
+                ctx.stroke();
 
-            // Arms: drawn from a point on the body (relative to stooped body)
-            ctx.beginPath();
-            ctx.moveTo(0, -bodyLength * 0.75); // Roughly shoulder height
-            ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5); // Arms angled down
-            ctx.moveTo(0, -bodyLength * 0.75);
-            ctx.lineTo(limbLength * 0.7, -bodyLength * 0.5);
-            ctx.stroke();
+                // Arms (splayed, relative to the horizontal body)
+                ctx.beginPath();
+                ctx.moveTo(-bodyLength / 4, 0); // Start from shoulder
+                ctx.lineTo(-bodyLength / 4 - limbLength * 0.5, limbLength * 0.5); // Splayed arm 1
+                ctx.moveTo(-bodyLength / 4, 0); // Start from shoulder
+                ctx.lineTo(-bodyLength / 4 - limbLength * 0.5, -limbLength * 0.5); // Splayed arm 2
+                ctx.stroke();
 
-            // Head: drawn above the body (relative to stooped body)
-            ctx.beginPath();
-            ctx.arc(0, -bodyLength - headRadius, headRadius, 0, Math.PI * 2);
-            ctx.fill();
+                ctx.restore(); // Restore context after drawing fallen Joe
+            } else {
+                // Existing drawing logic for standing Joe
+                const currentWobble = Math.sin(Date.now() * 0.005) * wobble;
+                ctx.rotate(currentWobble);
 
-            // Add braces if requested
-            if (hasBraces) {
-                ctx.fillStyle = '#a0aec0'; // Light gray for braces color
-                const braceWidth = 16 * scale; // Even wider for visibility
-                const braceHeight = 3 * scale; // Even thicker for visibility
-                // Position relative to head, near the mouth area
-                ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.5 + 5 * scale, braceWidth, braceHeight);
-                ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.4 + 5 * scale, braceWidth, braceHeight);
+                ctx.lineWidth = 2 * scale;
+                ctx.strokeStyle = '#334155';
+                ctx.fillStyle = '#334155';
+
+                // Legs: drawn downwards from the origin (0,0) which is Joe's hip/base
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(-limbLength * 0.5, limbLength);
+                ctx.moveTo(0, 0);
+                ctx.lineTo(limbLength * 0.5, limbLength);
+                ctx.stroke();
+
+                // Body: drawn upwards from the origin, applying stoopAngle
+                ctx.save(); // Save context before applying stoop rotation
+                ctx.rotate(-stoopAngle); // Rotate for the stoop
+                ctx.beginPath();
+                ctx.moveTo(0, 0); // Start at hip
+                ctx.lineTo(0, -bodyLength); // Draw body upwards
+                ctx.stroke();
+
+                // Arms: drawn from a point on the body (relative to stooped body)
+                ctx.beginPath();
+                ctx.moveTo(0, -bodyLength * 0.75); // Roughly shoulder height
+                ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5); // Arms angled down
+                ctx.moveTo(0, -bodyLength * 0.75);
+                ctx.lineTo(limbLength * 0.7, -bodyLength * 0.5);
+                ctx.stroke();
+
+                // Head: drawn above the body (relative to stooped body)
+                ctx.beginPath();
+                ctx.arc(0, -bodyLength - headRadius, headRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Add braces if requested
+                if (hasBraces) {
+                    ctx.fillStyle = '#4a5568'; // Darker gray for braces color
+                    const braceWidth = 25 * scale; // Even wider for visibility
+                    const braceHeight = 5 * scale; // Even thicker for visibility
+                    // Position relative to head, near the mouth area
+                    ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.5 + 8 * scale, braceWidth, braceHeight);
+                    ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.4 + 8 * scale, braceWidth, braceHeight);
+                }
+                ctx.restore(); // Restore context after stoop rotation
             }
-            ctx.restore(); // Restore context after stoop rotation
-            ctx.restore(); // Restore main context
+            ctx.restore(); // Restore main context (from initial translate/rotate)
+
+            // Log parameters received by drawJoe
+            console.log(`drawJoe received: scale: ${scale.toFixed(2)}, tiltAngle: ${tiltAngle.toFixed(2)}, wobble: ${wobble.toFixed(2)}, hasBraces: ${hasBraces}, stoopAngle: ${stoopAngle.toFixed(2)}, isFallen: ${isFallen}`);
         }
 
         /**
@@ -456,6 +652,7 @@
             let hasBraces = false;
             let showCane = false; // Flag to show cane
             let stoopAngle = 0; // Angle for Joe's forward stoop/lean
+            let isFallen = false; // New flag for fallen state
 
             switch (age) {
                 case 'intro': // Baby Joe (newborn)
@@ -465,48 +662,56 @@
                 case 'toddler': // Toddler Joe
                     joeImageScale = 0.5; // Larger than baby, smaller than adult
                     balanceColor = '#facc15'; // Yellow, indicating learning/wobbly
-                    joeTilt = Math.sin(Date.now() * 0.008) * 0.25; // More frequent and larger wobble
-                    joeWobble = 0.15;
-                    balanceLineOffset = Math.sin(Date.now() * 0.006) * 50 * baseScale; // More deviation
+                    joeTilt = 0.3; // More frequent and larger wobble
+                    joeWobble = 0.2;
+                    balanceLineOffset = Math.sin(Date.now() * 0.006) * 60 * baseScale; // More deviation
                     break;
                 case 20:
                     joeImageScale = 1.0; // Full height
                     hasBraces = true; // Joe has braces
                     balanceColor = '#22c55e'; // Green for peak balance
+                    joeTilt = 0; // No tilt for peak stability
+                    joeWobble = 0; // No wobble for peak stability
+                    balanceLineOffset = 0; // Centered balance ball
+                    stoopAngle = 0; // No stoop
                     break;
                 case 40:
                     joeImageScale = 1.0; // Full height, subtle changes in balance
+                    hasBraces = false; // No braces
                     balanceColor = '#facc15'; // Yellow for subtle shifts
-                    joeTilt = Math.sin(Date.now() * 0.003) * 0.2; // More noticeable tilt
-                    joeWobble = 0.1; // More noticeable wobble
-                    balanceLineOffset = Math.sin(Date.now() * 0.002) * 40 * baseScale; // More noticeable line deviation
-                    stoopAngle = 0.05; // Very slight forward lean
+                    joeTilt = 0.4; // More noticeable tilt
+                    joeWobble = 0.2; // More noticeable wobble
+                    balanceLineOffset = Math.sin(Date.now() * 0.002) * 70 * baseScale; // More noticeable line deviation
+                    stoopAngle = 0.2; // More pronounced forward lean
                     break;
                 case 60:
                     joeImageScale = 1.0; // Full height, more noticeable changes
+                    hasBraces = false; // No braces
                     balanceColor = '#f97316'; // Orange for noticeable changes
-                    joeTilt = Math.sin(Date.now() * 0.004) * 0.4; // Significantly more noticeable tilt
-                    joeWobble = 0.2; // Significantly more noticeable wobble
-                    balanceLineOffset = Math.sin(Date.now() * 0.003) * 80 * baseScale; // Significantly more noticeable line deviation
-                    stoopAngle = 0.2; // More pronounced forward lean
+                    joeTilt = 0.6; // Significantly more noticeable tilt
+                    joeWobble = 0.3; // Significantly more noticeable wobble
+                    balanceLineOffset = Math.sin(Date.now() * 0.003) * 120 * baseScale; // Significantly more noticeable line deviation
+                    stoopAngle = 0.4; // More pronounced forward lean
                     break;
                 case 80:
                     joeImageScale = 0.6; // Significantly shorter height for 80s
+                    hasBraces = false; // No braces
                     balanceColor = '#ef4444'; // Red for significant challenges
-                    joeTilt = Math.sin(Date.now() * 0.005) * 0.6; // Dramatically exaggerated tilt
-                    joeWobble = 0.3; // Dramatically exaggerated wobble
-                    balanceLineOffset = Math.sin(Date.now() * 0.004) * 120 * baseScale; // Dramatically exaggerated line deviation
-                    showCane = true; // Show cane for 80+
-                    stoopAngle = 0.35; // Maximum forward lean
+                    joeTilt = 0; // No tilt for fallen state
+                    joeWobble = 0; // No wobble for fallen state
+                    balanceLineOffset = 0; // Centered balance ball (not relevant for fallen, but keep for consistency)
+                    showCane = false; // No cane when fallen
+                    stoopAngle = 0; // No stoop when fallen
+                    isFallen = true; // Joe is fallen
                     break;
             }
 
-            // Log parameters to console for debugging
-            console.log(`Drawing for age: ${age}, joeImageScale: ${joeImageScale.toFixed(2)}, hasBraces: ${hasBraces}, showCane: ${showCane}, stoopAngle: ${stoopAngle.toFixed(2)}`);
+            // Log parameters to console for debugging before calling drawJoe
+            console.log(`drawBalanceVisualization sending: age: ${age}, joeImageScale: ${joeImageScale.toFixed(2)}, hasBraces: ${hasBraces}, showCane: ${showCane}, stoopAngle: ${stoopAngle.toFixed(2)}, joeTilt: ${joeTilt.toFixed(2)}, joeWobble: ${joeWobble.toFixed(2)}, isFallen: ${isFallen}`);
 
 
             // Draw Joe with the age-adjusted scale, braces status, and stoop angle
-            drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle);
+            drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle, isFallen);
 
             // Draw a stable base line
             ctx.beginPath();
@@ -517,17 +722,21 @@
             ctx.stroke();
 
             // Draw balance indicator (its position and size still relative to baseScale)
-            ctx.beginPath();
-            ctx.arc(centerX + balanceLineOffset, joeGroundY, 8 * baseScale, 0, Math.PI * 2);
-            ctx.fillStyle = balanceColor;
-            ctx.fill();
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 1 * baseScale;
-            ctx.stroke();
+            // Only draw if Joe is not fallen, as it's not relevant for a fallen figure
+            if (!isFallen) {
+                ctx.beginPath();
+                ctx.arc(centerX + balanceLineOffset, joeGroundY, 8 * baseScale, 0, Math.PI * 2);
+                ctx.fillStyle = balanceColor;
+                ctx.fill();
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1 * baseScale;
+                ctx.stroke();
+            }
 
-            // Draw assistive devices if flags are true
-            if (showCane) {
-                ctx.font = `${55 * baseScale}px "Font Awesome 6 Free"`; // Even larger icon
+
+            // Draw assistive devices if flags are true (only if not fallen)
+            if (showCane && !isFallen) {
+                ctx.font = `${65 * baseScale}px "Font Awesome 6 Free"`; // Even larger icon
                 ctx.fillStyle = '#475569';
                 // Position cane next to Joe at the ground level, adjusted for his shorter scale
                 // The X position is adjusted slightly to the right of Joe's center, scaled by joeImageScale
@@ -541,7 +750,7 @@
             }
         }
 
-        // Scrollama Setup
+        // Scrollama Setup from temp.html
         const scroller = scrollama();
 
         function handleStepEnter(response) {
@@ -580,135 +789,53 @@
             // Scrollama handles its own resizing internally.
         }
 
-        // Quiz Logic
-        const quizQuestions = [
-            {
-                question: "How often do you feel unsteady or lose your balance during daily activities?",
-                options: [
-                    { text: "Never or almost never", value: 5 },
-                    { text: "Rarely (a few times a year)", value: 4 },
-                    { text: "Occasionally (a few times a month)", value: 3 },
-                    { text: "Sometimes (a few times a week)", value: 2 },
-                    { text: "Frequently (daily or almost daily)", value: 1 }
-                ]
-            },
-            {
-                question: "When walking, do you tend to look down at your feet or around at your surroundings?",
-                options: [
-                    { text: "Around at my surroundings", value: 5 },
-                    { text: "Mostly around, sometimes down", value: 4 },
-                    { text: "About half and half", value: 3 },
-                    { text: "Mostly down at my feet", value: 2 },
-                    { text: "Always down at my feet", value: 1 }
-                ]
-            },
-            {
-                question: "How easily can you stand on one leg for 10 seconds (without holding onto anything)?",
-                options: [
-                    { text: "Very easily", value: 5 },
-                    { text: "Easily", value: 4 },
-                    { text: "With some difficulty", value: 3 },
-                    { text: "With great difficulty", value: 2 },
-                    { text: "Cannot do it", value: 1 }
-                ]
-            },
-            {
-                question: "How often do you engage in activities that challenge your balance (e.g., yoga, tai chi, dancing, walking on uneven surfaces)?",
-                options: [
-                    { text: "Daily or almost daily", value: 5 },
-                    { text: "Several times a week", value: 4 },
-                    { text: "Once a week", value: 3 },
-                    { text: "Rarely", value: 2 },
-                    { text: "Never", value: 1 }
-                ]
-            },
-            {
-                question: "Do you have any medical conditions or take medications that you know affect your balance?",
-                options: [
-                    { text: "No, none that I know of", value: 5 },
-                    { text: "Possibly, but I'm not sure", value: 3 },
-                    { text: "Yes, one or more conditions/medications", value: 1 }
-                ]
-            }
-        ];
-
-        const quizForm = document.getElementById('balance-quiz');
-        const submitQuizBtn = document.getElementById('submit-quiz');
-        const quizResultsDiv = document.getElementById('quiz-results');
-        const resultText = document.getElementById('result-text');
-
-        function renderQuiz() {
-            quizForm.innerHTML = '';
-            quizQuestions.forEach((q, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.classList.add('quiz-question');
-                questionDiv.innerHTML = `
-                    <p class="text-xl font-semibold mb-3 text-gray-800">${index + 1}. ${q.question}</p>
-                    <div class="quiz-options">
-                        ${q.options.map((option, optIndex) => `
-                            <label>
-                                <input type="radio" name="question${index}" value="${option.value}" required>
-                                <span>${option.text}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                `;
-                quizForm.appendChild(questionDiv);
-            });
+        // Function from index.html to start the quiz
+        function startQuizFromIntro() {
+            // Hide the intro section
+            document.getElementById('introSection').style.display = 'none';
+            
+            // Show the quiz container
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            // Make sure we're at step 0 (welcome page)
+            goToStep(0);
         }
 
-        function calculateScore() {
-            let totalScore = 0;
-            let allAnswered = true;
-            quizQuestions.forEach((q, index) => {
-                const selectedOption = quizForm.querySelector(`input[name="question${index}"]:checked`);
-                if (selectedOption) {
-                    totalScore += parseInt(selectedOption.value);
-                } else {
-                    allAnswered = false;
-                }
-            });
-            return { score: totalScore, allAnswered: allAnswered };
-        }
-
-        function displayResults(score) {
-            let message = '';
-            if (score >= 20) {
-                message = `Excellent Balance! Your score of ${score} indicates strong balance. Keep up your active lifestyle and continue to challenge your balance regularly.`;
-            } else if (score >= 15) {
-                message = `Good Balance! Your score of ${score} suggests good balance. Consider incorporating more balance-specific exercises like yoga or tai chi to maintain and further improve your stability.`;
-            } else if (score >= 10) {
-                message = `Moderate Balance. Your score of ${score} indicates that your balance could use some attention. Focus on exercises that strengthen your core and legs, and practice standing on one leg with support. Consult a healthcare professional if you have concerns.`;
-            } else {
-                message = `Balance Concerns. Your score of ${score} suggests significant balance challenges. It's highly recommended to consult a doctor or physical therapist to assess your balance and create a personalized plan to improve your stability and reduce fall risk.`;
-            }
-            resultText.textContent = message;
-            quizResultsDiv.classList.remove('hidden');
-        }
-
-        submitQuizBtn.addEventListener('click', () => {
-            const { score, allAnswered } = calculateScore();
-            if (allAnswered) {
-                displayResults(score);
-                quizResultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                showCustomModal('Incomplete Quiz', 'Please answer all questions before submitting.');
-            }
-        });
-
-        // Initialize on window load
-        window.onload = function() {
+        // Unified DOMContentLoaded handler
+        document.addEventListener('DOMContentLoaded', function() {
             // Initial canvas size setup (it will be updated on every draw)
             if (mainCanvas) {
                 mainCanvas.width = mainCanvas.offsetWidth;
                 mainCanvas.height = mainCanvas.offsetHeight;
             }
             setupScrollama(); // Set up Scrollama
-            renderQuiz(); // Render the quiz questions
             // Trigger initial draw for the intro section
             currentActiveAge = 'intro';
             drawBalanceVisualization(mainCtx, currentActiveAge);
-        };
+
+            // Hook up the "Let's Find Out!" button
+            const toQuizbtn = document.getElementById('toQuizbtn');
+            if (toQuizbtn) {
+                toQuizbtn.addEventListener('click', startQuizFromIntro);
+            }
+
+            // Initially hide quiz and results/visualization areas
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'none';
+        });
+
+        // Resize canvas function (originally part of temp.html's window.onload)
+        function resizeCanvas() {
+            if (mainCanvas) {
+                mainCanvas.width = mainCanvas.offsetWidth;
+                mainCanvas.height = mainCanvas.offsetHeight;
+                // Redraw current graphic to fit new size if visible
+                if (currentActiveAge) {
+                    drawBalanceVisualization(mainCtx, currentActiveAge);
+                }
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
 
     </script>
 </body>
