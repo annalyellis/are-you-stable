@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Age of Balance: Joe's Journey Through Life with Scrollama</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Balance Journey</title> <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
@@ -283,10 +282,88 @@
                 min-height: 75vh;
             }
         }
+        /* Additional styles for combined layout if needed */
+        #introSection, #quizContainer, #mainContent {
+            /* Ensure these sections are visible and structured correctly in the combined page */
+            /* For initial state, #introSection should be visible, others hidden by JS */
+            display: flex; /* or block, depending on desired layout for intro */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Make sure they take full viewport height */
+            padding: 2rem;
+            text-align: center;
+            background-color: #f0f4f8; /* default background */
+            color: #334155;
+        }
+        #quizContainer, #mainContent {
+            display: none; /* Hidden by default, shown by JS */
+        }
+        .full-screen-results {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: white; /* Or match a theme */
+            z-index: 999;
+            overflow: auto; /* Allow scrolling for content that exceeds screen height */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .minimized {
+            position: fixed !important;
+            bottom: 20px;
+            right: 20px;
+            width: 300px; /* Smaller width */
+            height: 200px; /* Smaller height */
+            overflow: auto;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            padding: 15px;
+            box-sizing: border-box;
+            display: block !important; /* Override initial display: none */
+        }
+        .minimized .toggle-button {
+            display: block !important;
+            margin-bottom: 10px;
+        }
+        .minimized h2, .minimized p, .minimized .download-button, .minimized #comparisonChart {
+            /* Hide or shrink content within minimized pane */
+            display: none;
+        }
+        .minimized #predictedScore {
+            display: inline; /* Keep score visible */
+        }
+        /* Specific styles for the explore button */
+        .explore-results-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
+            margin-top: 2rem;
+        }
+        .explore-results-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .explore-results-btn:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
-
     <div class="scrolly-container">
         <div class="scrolly-graphic">
             <canvas id="main-canvas"></canvas>
@@ -341,9 +418,9 @@
 
             <div class="scrolly-section" data-age="80">
                 <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 80+: Prioritizing Safety</h2>
-                    <p class="text-lg text-gray-700">Into his 80s, Joe prioritizes safety and independence. He might use assistive devices like a cane or walker, and he's more cautious about his environment. Simple home modifications and consistent, gentle exercise help him stay active and minimize fall risks. Maintaining balance is now a conscious effort and a key to his quality of life.</p>
-                    <p class="text-md text-gray-600 mt-4">Increased risk of falls, slower reflexes, and potential chronic conditions can impact balance significantly at this age.</p>
+                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 80+: The Unforeseen Fall</h2>
+                    <p class="text-lg text-gray-700">Into his 80s, Joe's balance becomes severely compromised. Despite his best efforts to stay active and cautious, a sudden loss of stability leads to a fall. This moment highlights the critical importance of fall prevention strategies and the impact of age on our physical autonomy.</p>
+                    <p class="text-md text-gray-600 mt-4">Falls in older adults can have significant consequences, emphasizing the need for environmental modifications, regular strength and balance training, and medical consultation.</p>
                 </div>
             </div>
         </div> 
@@ -357,15 +434,143 @@
             <form id="balance-quiz">
             </form>
 
-            <button type="button" id="submit-quiz" class="quiz-submit-btn w-full">Get My Balance Insights</button>
+            <div id="step0" class="step active">
+            <h2>Welcome to the Balance Assessment!</h2>
+            <p>This quiz will assess your balance and provide personalized insights. It involves several steps, including questions about your physical activity and a simple motor test.</p>
+            <div class="navigation-buttons">
+                <button id="startQuizBtn" onclick="goToStep(1)">Start Quiz</button>
+            </div>
+            </div>
 
-            <div id="quiz-results" class="quiz-results hidden">
-                <h3 class="text-2xl font-semibold mb-3">Your Balance Insights:</h3>
-                <p id="result-text" class="text-lg"></p>
-                <p class="text-md mt-4 font-medium">Remember, balance can always be improved or maintained with conscious effort and appropriate exercises!</p>
+            <div id="step1" class="step">
+            <h2>1. Personal Information</h2>
+            <div class="question">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" min="1" max="120" required>
+            </div>
+            <div class="question">
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="question">
+                <label for="height">Height (inches):</label>
+                <input type="number" id="height" name="height" min="20" max="100" step="0.1" required>
+            </div>
+            <div class="question">
+                <label for="weight">Weight (pounds):</label>
+                <input type="number" id="weight" name="weight" min="50" max="1000" step="0.1" required>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn1" onclick="prevStep()" style="display: none;">Previous</button>
+                <button id="nextBtn1" onclick="nextStep()">Next</button>
+            </div>
+            </div>
+
+            <div id="step2" class="step">
+            <h2>2. Falls Efficacy Scale - International (FES-I)</h2>
+            <p>Please indicate your level of concern about falling during the following activities:</p>
+            <div id="fesQuestions">
+                </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn2" onclick="prevStep()">Previous</button>
+                <button id="nextBtn2" onclick="nextStep()">Next</button>
+            </div>
+            </div>
+
+            <div id="step3" class="step">
+            <h2>3. International Physical Activity Questionnaire (IPAQ)</h2>
+            <div class="question">
+                <label for="ipaq1a">In the last 7 days, on how many days did you do **vigorous** physical activities like heavy lifting, digging, aerobics, or fast bicycling?</label>
+                <input type="number" id="ipaq1a" name="ipaq1a" min="0" max="7" required>
+            </div>
+            <div class="question">
+                <label for="ipaq1b">How much time did you spend on one of those days doing vigorous physical activities? (minutes per day)</label>
+                <input type="number" id="ipaq1b" name="ipaq1b" min="0" required>
+            </div>
+            <div class="question">
+                <label for="ipaq2a">In the last 7 days, on how many days did you do **moderate** physical activities like carrying light loads, bicycling at a regular pace, or doubles tennis? (Don't include walking)</label>
+                <input type="number" id="ipaq2a" name="ipaq2a" min="0" max="7" required>
+            </div>
+            <div class="question">
+                <label for="ipaq2b">How much time did you spend on one of those days doing moderate physical activities? (minutes per day)</label>
+                <input type="number" id="ipaq2b" name="ipaq2b" min="0" required>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevBtn3" onclick="prevStep()">Previous</button>
+                <button id="nextBtn3" onclick="nextStep()">Next</button>
+            </div>
+            </div>
+
+            <div id="step4" class="step">
+            <h2>4. Trail Making Test (TMT) - Part A (Numbers)</h2>
+            <p>Click on the numbers in ascending order (1, 2, 3, ...). The timer starts when you click 'Start'.</p>
+            <div class="tmt-grid" id="tmtGrid">
+                </div>
+            <div class="tmt-timer" id="tmtTimer">Ready to start</div>
+            <div class="navigation-buttons">
+                <button id="tmtStartBtn" onclick="startTMT()">Start Test</button>
+                <button id="prevBtn4" onclick="prevStep()">Previous</button>
+                <button id="tmtNextBtn" onclick="nextStep()" disabled>Next</button>
+            </div>
+            </div>
+
+            <div id="step5" class="step">
+            <h2>5. Submit Assessment</h2>
+            <p>Click 'Submit' to calculate your balance score and see your personalized results.</p>
+            <div class="navigation-buttons">
+                <button id="prevBtn5" onclick="prevStep()">Previous</button>
+                <button id="submitBtn" onclick="calculateResults()">Submit</button>
+            </div>
             </div>
         </div>
-    </div>
+
+        <div id="mainContent">
+            <div id="resultsPane">
+                <button class="toggle-button" onclick="toggleResultsPane()">Minimize Results</button>
+                <h2>Your Predicted Mini-BESTest Score: <span id="predictedScore"></span></h2>
+                <div id="scoreInterpretation"></div>
+                <div id="recommendations"></div>
+                <div id="comparisonChart"></div> <div style="text-align: center; margin-top: 20px;">
+                    <button class="download-button" onclick="downloadScore()">Download My Score</button>
+                    <a href="#" id="downloadResultsBtn" class="download-button" onclick="downloadResults()">Download All Results (JSON)</a>
+                    <button class="download-button" onclick="resetAssessment()">Start New Assessment</button>
+                </div>
+            </div>
+            <div id="visualizationArea">
+                <div id="viz1" class="viz-container">
+                    <h2>Balance Over Time (By Gender)</h2>
+                    <div class="viz-content">
+                        <p>This graph illustrates the trend in balance performance one could experience throughout their lifetime.
+                            It is based on the Best_t score, the same score you recieved by taking the quiz.
+                        </p>
+                        <svg width="100%" height="300"></svg> <p>Consider how you compare to others your age and gender. Remember that consistent activity often leads to
+                            more stable balance over time.
+                        </p>
+                    </div>
+                </div>
+                <div id="viz2" class="viz-container">
+                    <h2>Balance with vs. without prosthetics</h2>
+                    <div class="viz-content">
+                        <p>This visualization informs us of how those of us who wear prosthetics might have different balance scores compared to those of us who don't</p>
+                        <svg width="100%" height="300"></svg>
+                        <p></p>
+                    </div>
+                </div>
+                <div id="viz3" class="viz-container">
+                    <h2>How do shoes affect your balance?</h2>
+                    <div class="viz-content">
+                        <p>This bar chart breaks down which combinations of commonly worn footwear lead to different balance scores.</p>
+                        <svg width="100%" height="300"></svg>
+                        <p>For good balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?></p>
+                    </div>
+                </div>
+                </div>
+        </div>
 
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
@@ -381,9 +586,12 @@
             </div>
         </div>
     </div>
-
+    <script src="global.js"></script>
     <script>
-        // Custom Modal Functions
+        // --- NEW VERSION LOADED ---
+        console.log("--- NEW VERSION LOADED ---");
+
+        // Custom Modal Functions from temp.html
         const customModal = document.getElementById('customModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
@@ -434,7 +642,7 @@
         /**
          * Draws Joe's stick figure on the canvas.
          */
-        function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0) {
+        function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0, isFallen = false) {
             ctx.save();
             ctx.translate(x, yBase);
             ctx.rotate(tiltAngle);
@@ -442,6 +650,45 @@
             const headRadius = 10 * scale;
             const bodyLength = 40 * scale;
             const limbLength = 30 * scale;
+
+            if (isFallen) {
+                // Drawing for fallen Joe
+                ctx.save();
+                // Adjust translation for a fallen figure to appear on the ground line
+                // Rotate 90 degrees to lie horizontally
+                ctx.rotate(Math.PI / 2);
+
+                // Body (horizontal, centered at the new origin)
+                ctx.beginPath();
+                ctx.moveTo(-bodyLength / 2, 0);
+                ctx.lineTo(bodyLength / 2, 0);
+                ctx.stroke();
+
+                // Legs (relative to horizontal body)
+                ctx.beginPath();
+                ctx.moveTo(-bodyLength * 0.2, 0);
+                ctx.lineTo(-bodyLength * 0.2 - limbLength * 0.5, limbLength * 0.7);
+                ctx.moveTo(bodyLength * 0.2, 0);
+                ctx.lineTo(bodyLength * 0.2 + limbLength * 0.5, limbLength * 0.7);
+                ctx.stroke();
+
+                // Arms (relative to horizontal body)
+                ctx.beginPath();
+                ctx.moveTo(-bodyLength * 0.3, 0);
+                ctx.lineTo(-bodyLength * 0.3 - limbLength * 0.4, -limbLength * 0.6);
+                ctx.moveTo(bodyLength * 0.3, 0);
+                ctx.lineTo(bodyLength * 0.3 + limbLength * 0.4, -limbLength * 0.6);
+                ctx.stroke();
+
+                // Head (relative to horizontal body)
+                ctx.beginPath();
+                ctx.arc(bodyLength / 2 + headRadius, 0, headRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore(); // Restore from fallen position
+                ctx.restore(); // Restore main context
+                return;
+            }
 
             const currentWobble = Math.sin(Date.now() * 0.005) * wobble;
             ctx.rotate(currentWobble);
@@ -512,6 +759,7 @@
             let hasBraces = false;
             let showCane = false;
             let stoopAngle = 0;
+            let isFallen = false;
 
             switch (age) {
                 case 'intro':
@@ -521,6 +769,7 @@
                     hasBraces = false;
                     showCane = false;
                     stoopAngle = 0;
+                    isFallen = false;
                     break;
                 case 'toddler':
                     joeImageScale = 0.6;
@@ -529,6 +778,7 @@
                     hasBraces = false;
                     showCane = false;
                     stoopAngle = 0;
+                    isFallen = false;
                     break;
                 case 20:
                     joeImageScale = 1.0;
@@ -537,6 +787,7 @@
                     joeWobble = 0;
                     showCane = false;
                     stoopAngle = 0;
+                    isFallen = false;
                     break;
                 case 40:
                     joeImageScale = 1.0;
@@ -545,6 +796,7 @@
                     hasBraces = false;
                     showCane = false;
                     stoopAngle = 0.05;
+                    isFallen = false;
                     break;
                 case 60:
                     joeImageScale = 1.0;
@@ -553,6 +805,7 @@
                     hasBraces = false;
                     showCane = false;
                     stoopAngle = 0.2;
+                    isFallen = false;
                     break;
                 case 80:
                     joeImageScale = 0.8;
@@ -561,11 +814,13 @@
                     hasBraces = false;
                     showCane = true;
                     stoopAngle = 0.35;
+                    // Show fallen Joe occasionally to represent the fall
+                    isFallen = Math.sin(Date.now() * 0.002) > 0.7;
                     break;
             }
 
             // Draw Joe
-            drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle);
+            drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle, isFallen);
 
             // Draw ground line
             ctx.beginPath();
@@ -575,8 +830,8 @@
             ctx.strokeStyle = '#64748b';
             ctx.stroke();
 
-            // Draw cane if needed
-            if (showCane) {
+            // Draw cane if needed and not fallen
+            if (showCane && !isFallen) {
                 ctx.font = `${45 * baseScale}px "Font Awesome 6 Free"`;
                 ctx.fillStyle = '#8B4513';
                 ctx.fillText('\uf787', centerX + 35 * baseScale * joeImageScale, joeGroundY + 5 * baseScale);
@@ -669,122 +924,6 @@
             checkScroll();
         }
 
-        // Quiz Logic
-        const quizQuestions = [
-            {
-                question: "How often do you feel unsteady or lose your balance during daily activities?",
-                options: [
-                    { text: "Never or almost never", value: 5 },
-                    { text: "Rarely (a few times a year)", value: 4 },
-                    { text: "Occasionally (a few times a month)", value: 3 },
-                    { text: "Sometimes (a few times a week)", value: 2 },
-                    { text: "Frequently (daily or almost daily)", value: 1 }
-                ]
-            },
-            {
-                question: "When walking, do you tend to look down at your feet or around at your surroundings?",
-                options: [
-                    { text: "Around at my surroundings", value: 5 },
-                    { text: "Mostly around, sometimes down", value: 4 },
-                    { text: "About half and half", value: 3 },
-                    { text: "Mostly down at my feet", value: 2 },
-                    { text: "Always down at my feet", value: 1 }
-                ]
-            },
-            {
-                question: "How easily can you stand on one leg for 10 seconds (without holding onto anything)?",
-                options: [
-                    { text: "Very easily", value: 5 },
-                    { text: "Easily", value: 4 },
-                    { text: "With some difficulty", value: 3 },
-                    { text: "With great difficulty", value: 2 },
-                    { text: "Cannot do it", value: 1 }
-                ]
-            },
-            {
-                question: "How often do you engage in activities that challenge your balance (e.g., yoga, tai chi, dancing, walking on uneven surfaces)?",
-                options: [
-                    { text: "Daily or almost daily", value: 5 },
-                    { text: "Several times a week", value: 4 },
-                    { text: "Once a week", value: 3 },
-                    { text: "Rarely", value: 2 },
-                    { text: "Never", value: 1 }
-                ]
-            },
-            {
-                question: "Do you have any medical conditions or take medications that you know affect your balance?",
-                options: [
-                    { text: "No, none that I know of", value: 5 },
-                    { text: "Possibly, but I'm not sure", value: 3 },
-                    { text: "Yes, one or more conditions/medications", value: 1 }
-                ]
-            }
-        ];
-
-        const quizForm = document.getElementById('balance-quiz');
-        const submitQuizBtn = document.getElementById('submit-quiz');
-        const quizResultsDiv = document.getElementById('quiz-results');
-        const resultText = document.getElementById('result-text');
-
-        function renderQuiz() {
-            quizForm.innerHTML = '';
-            quizQuestions.forEach((q, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.classList.add('quiz-question');
-                questionDiv.innerHTML = `
-                    <p class="text-xl font-semibold mb-3 text-gray-800">${index + 1}. ${q.question}</p>
-                    <div class="quiz-options">
-                        ${q.options.map((option, optIndex) => `
-                            <label>
-                                <input type="radio" name="question${index}" value="${option.value}" required>
-                                <span>${option.text}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                `;
-                quizForm.appendChild(questionDiv);
-            });
-        }
-
-        function calculateScore() {
-            let totalScore = 0;
-            let allAnswered = true;
-            quizQuestions.forEach((q, index) => {
-                const selectedOption = quizForm.querySelector(`input[name="question${index}"]:checked`);
-                if (selectedOption) {
-                    totalScore += parseInt(selectedOption.value);
-                } else {
-                    allAnswered = false;
-                }
-            });
-            return { score: totalScore, allAnswered: allAnswered };
-        }
-
-        function displayResults(score) {
-            let message = '';
-            if (score >= 20) {
-                message = `Excellent Balance! Your score of ${score} indicates strong balance. Keep up your active lifestyle and continue to challenge your balance regularly.`;
-            } else if (score >= 15) {
-                message = `Good Balance! Your score of ${score} suggests good balance. Consider incorporating more balance-specific exercises like yoga or tai chi to maintain and further improve your stability.`;
-            } else if (score >= 10) {
-                message = `Moderate Balance. Your score of ${score} indicates that your balance could use some attention. Focus on exercises that strengthen your core and legs, and practice standing on one leg with support. Consult a healthcare professional if you have concerns.`;
-            } else {
-                message = `Balance Concerns. Your score of ${score} suggests significant balance challenges. It's highly recommended to consult a doctor or physical therapist to assess your balance and create a personalized plan to improve your stability and reduce fall risk.`;
-            }
-            resultText.textContent = message;
-            quizResultsDiv.classList.remove('hidden');
-        }
-
-        submitQuizBtn.addEventListener('click', () => {
-            const { score, allAnswered } = calculateScore();
-            if (allAnswered) {
-                displayResults(score);
-                quizResultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                showCustomModal('Incomplete Quiz', 'Please answer all questions before submitting.');
-            }
-        });
-
         // Initialize on window load
         window.onload = function() {
             console.log('Window loaded, initializing...');
@@ -802,8 +941,6 @@
                 console.log('Scrollama not available, using fallback');
                 useScrollFallback();
             }
-            
-            renderQuiz();
             
             // Initialize with intro
             currentActiveAge = 'intro';
