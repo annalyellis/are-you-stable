@@ -1,861 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balance Journey</title> <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
-    <script src="global.js"></script>
-    <title>Balance Quiz & Visualization</title>
+  <meta charset="UTF-8">
+  <title>Balance Quiz & Visualization</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <link rel="stylesheet" href="style.css" />
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            scroll-behavior: smooth;
-            background-color: #d6f1d1;
-            color: #334155;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Scrollytelling Container */
-        .scrolly-container {
-            display: flex;
-            align-items: flex-start;
-            position: relative;
-            min-height: 100vh;
-            background-color :#d6f1d1;
-        }
-
-        /* Graphic Area - Stays Fixed/Sticky */
-        .scrolly-graphic {
-            position: sticky;
-            top: 0;
-            width: 50%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8fafc;
-            z-index: 5;
-            overflow: hidden;
-        }
-
-        .scrolly-graphic canvas {
-            width: 100%;
-            height: 80%;
-            display: block;
-        }
-
-        /* Balance scale visualization */
-        .balance-scale {
-            width: 80%;
-            max-width: 400px;
-            height: 60px;
-            margin-top: 20px;
-            position: relative;
-            background: linear-gradient(to right, #ef4444 0%, #f97316 25%, #facc15 50%, #22c55e 75%, #22c55e 100%);
-            border-radius: 30px;
-            border: 2px solid #334155;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .balance-indicator {
-            position: absolute;
-            top: -5px;
-            width: 20px;
-            height: 70px;
-            background-color: #334155;
-            border-radius: 10px;
-            transition: left 0.8s ease-in-out;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .balance-indicator::after {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 10px solid #334155;
-        }
-
-        .balance-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #64748b;
-            font-weight: 600;
-        }
-
-        /* Text Area - Scrolls */
-        .scrolly-text {
-            width: 50%;
-            z-index: 10;
-            background-color: white;
-            box-shadow: -5px 0 15px -3px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Individual Step Sections */
-        .scrolly-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .scrolly-section:last-of-type {
-            border-bottom: none;
-        }
-
-        .section-content {
-            max-width: 800px;
-            margin-bottom: 2rem;
-        }
-
-        /* Quiz Section */
-        .quiz-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            background-color: #e2e8f0;
-            color: #1a202c;
-        }
-        .quiz-container {
-            background-color: white;
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 700px;
-            width: 100%;
-        }
-        .quiz-question {
-            margin-bottom: 1.5rem;
-        }
-        .quiz-options label {
-            display: block;
-            background-color: #f8fafc;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-            border: 1px solid #cbd5e1;
-        }
-        .quiz-options label:hover {
-            background-color: #e0f2fe;
-            border-color: #90cdf4;
-        }
-        .quiz-options input[type="radio"] {
-            margin-right: 0.75rem;
-            accent-color: #3b82f6;
-        }
-        .quiz-options input[type="radio"]:checked + span {
-            font-weight: 600;
-            color: #1e40af;
-        }
-        .quiz-submit-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            border: none;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
-        }
-        .quiz-submit-btn:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        .quiz-submit-btn:active {
-            transform: translateY(0);
-        }
-        .quiz-results {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #e0f2fe;
-            border-radius: 0.75rem;
-            border: 1px solid #90cdf4;
-            color: #1e40af;
-        }
-
-        /* Custom Modal Styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            max-width: 450px;
-            width: 90%;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease-in-out;
-        }
-        .modal-overlay.show .modal-content {
-            transform: translateY(0);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1e40af;
-        }
-        .modal-close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #64748b;
-            transition: color 0.2s;
-        }
-        .modal-close-btn:hover {
-            color: #334155;
-        }
-        .modal-body {
-            margin-bottom: 1.5rem;
-            color: #475569;
-        }
-        .modal-footer {
-            text-align: right;
-        }
-        .modal-ok-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .modal-ok-btn:hover {
-            background-color: #2563eb;
-        }
-
-        /* Media queries for responsiveness */
-        @media (max-width: 768px) {
-            .scrolly-container {
-                flex-direction: column;
-            }
-            .scrolly-graphic, .scrolly-text {
-                width: 100%;
-            }
-            .scrolly-graphic {
-                height: 50vh;
-                position: sticky;
-                top: 0;
-            }
-            .scrolly-section {
-                min-height: 75vh;
-            }
-        }
-        /* Additional styles for combined layout if needed */
-        #introSection, #quizContainer, #mainContent {
-            /* Ensure these sections are visible and structured correctly in the combined page */
-            /* For initial state, #introSection should be visible, others hidden by JS */
-            display: flex; /* or block, depending on desired layout for intro */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Make sure they take full viewport height */
-            padding: 2rem;
-            text-align: center;
-            background-color: #f0f4f8; /* default background */
-            color: #334155;
-        }
-        #quizContainer, #mainContent {
-            display: none; /* Hidden by default, shown by JS */
-        }
-        .full-screen-results {
-            display: flex !important;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: white; /* Or match a theme */
-            z-index: 999;
-            overflow: auto; /* Allow scrolling for content that exceeds screen height */
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .minimized {
-            position: fixed !important;
-            bottom: 20px;
-            right: 20px;
-            width: 300px; /* Smaller width */
-            height: 200px; /* Smaller height */
-            overflow: auto;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            border-radius: 8px;
-            z-index: 1000;
-            padding: 15px;
-            box-sizing: border-box;
-            display: block !important; /* Override initial display: none */
-        }
-        .minimized .toggle-button {
-            display: block !important;
-            margin-bottom: 10px;
-        }
-        .minimized h2, .minimized p, .minimized .download-button, .minimized #comparisonChart {
-            /* Hide or shrink content within minimized pane */
-            display: none;
-        }
-        .minimized #predictedScore {
-            display: inline; /* Keep score visible */
-        }
-        /* Specific styles for the explore button */
-        .explore-results-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            border: none;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.1);
-            margin-top: 2rem;
-        }
-        .explore-results-btn:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        .explore-results-btn:active {
-            transform: translateY(0);
-        }
-    </style>
+  <style>
+  </style>
 </head>
+<header>
+  <nav>
+    <!-- <ul>
+      <li><a href="../index.html" class="active">Home</a></li>
+      <li><a href="../second/index.html">Second</a></li>
+      <li><a href="../third/index.html">Third</a></li>
+      <li><a href="../fourth/index.html">Fourth</a></li>
+      <li><a href="../fifth/index.html">Fifth</a></li>
+    </ul> -->
+  </nav>
+</header>
 <body>
-    <div class="scrolly-container">
-        <div class="scrolly-graphic">
-            <canvas id="main-canvas"></canvas>
-            <div class="balance-scale">
-                <div class="balance-indicator" id="balance-indicator"></div>
-            </div>
-            <div class="balance-labels">
-                <span>Poor Balance</span>
-                <span>Excellent Balance</span>
-            </div>
-        </div>
-        <div class="scrolly-text">
-            <div class="scrolly-section" data-age="intro">
-                <div class="section-content">
-                    <h1 class="text-5xl font-bold mb-6 text-gray-800">The Age of Balance: Joe's Journey Through Life</h1>
-                    <p class="text-xl text-gray-600 mb-8">Scroll down to follow Joe's fascinating journey and discover how balance evolves throughout our lives. Watch the balance meter on the left!</p>
-                    <i class="fas fa-chevron-down text-4xl text-blue-500 animate-bounce"></i>
-                </div>
-            </div>
-
-            <div class="scrolly-section" data-age="toddler">
-                <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe as a Toddler: Wobbly Beginnings</h2>
-                    <p class="text-lg text-gray-700">From crawling to taking his first steps, Joe's toddler years are a masterclass in learning balance. Every stumble is a lesson, as his brain and muscles work tirelessly to coordinate movements and maintain an upright posture. It's a period of rapid development, filled with adorable wobbles and triumphant steps.</p>
-                    <p class="text-md text-gray-600 mt-4">At this stage, core strength, visual input, and trial-and-error are crucial for building foundational balance skills.</p>
-                </div>
-            </div>
-
-            <div class="scrolly-section" data-age="20">
-                <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 20: The Peak of Stability</h2>
-                    <p class="text-lg text-gray-700">At 20, Joe feels invincible. His balance is at its peak, rarely a second thought. Whether he's playing sports, dancing, or just navigating a crowded street, his body's systems work in perfect harmony to keep him upright and agile.</p>
-                    <p class="text-md text-gray-600 mt-4">This is when proprioception (body awareness), vestibular function (inner ear balance), and strong muscles are all working optimally.</p>
-                </div>
-            </div>
-
-            <div class="scrolly-section" data-age="40">
-                <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 40: Subtle Shifts Begin</h2>
-                    <p class="text-lg text-gray-700">By 40, life gets busy. Joe might not notice it, but his reaction time and spatial awareness begin a subtle, gradual decline. He might occasionally stumble over an unseen obstacle or feel a slight wobble when standing on one leg. These changes are often imperceptible in daily life but mark the beginning of age-related balance shifts.</p>
-                    <p class="text-md text-gray-600 mt-4">Factors like reduced muscle mass, less flexible joints, and minor changes in sensory input can contribute to these early shifts.</p>
-                </div>
-            </div>
-
-            <div class="scrolly-section" data-age="60">
-                <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 60: Noticing the Changes</h2>
-                    <p class="text-lg text-gray-700">At 60, Joe's body is changing more noticeably. He might find himself reaching for support more often, especially on uneven surfaces or in low light. Regular exercise and mindful movement become crucial for maintaining his stability and preventing falls. He's more aware of the need to be careful.</p>
-                    <p class="text-md text-gray-600 mt-4">Vision changes, slower nerve impulses, and decreased strength in core and leg muscles play a significant role here.</p>
-                </div>
-            </div>
-
-            <div class="scrolly-section" data-age="80">
-                <div class="section-content">
-                    <h2 class="text-4xl font-bold mb-4 text-gray-800">Joe at 80+: The Unforeseen Fall</h2>
-                    <p class="text-lg text-gray-700">Into his 80s, Joe's balance becomes severely compromised. Despite his best efforts to stay active and cautious, a sudden loss of stability leads to a fall. This moment highlights the critical importance of fall prevention strategies and the impact of age on our physical autonomy.</p>
-                    <p class="text-md text-gray-600 mt-4">Falls in older adults can have significant consequences, emphasizing the need for environmental modifications, regular strength and balance training, and medical consultation.</p>
-                </div>
-            </div>
-        </div> 
-    </div> 
-    
-    
-       
-        <div id="mainContent">
-            <div id="resultsPane">
-                <button class="toggle-button" onclick="toggleResultsPane()">Minimize Results</button>
-                <h2>Your Predicted Mini-BESTest Score: <span id="predictedScore"></span></h2>
-                <div id="scoreInterpretation"></div>
-                <div id="recommendations"></div>
-                <div id="comparisonChart"></div> <div style="text-align: center; margin-top: 20px;">
-                    <button class="download-button" onclick="downloadScore()">Download My Score</button>
-                    <a href="#" id="downloadResultsBtn" class="download-button" onclick="downloadResults()">Download All Results (JSON)</a>
-                    <button class="download-button" onclick="resetAssessment()">Start New Assessment</button>
-                </div>
-            </div>
-            <div id="visualizationArea">
-                <div id="viz1" class="viz-container">
-                    <h2>Balance Over Time (By Gender)</h2>
-                    <div class="viz-content">
-                        <p>This graph illustrates the trend in balance performance one could experience throughout their lifetime.
-                            It is based on the Best_t score, the same score you recieved by taking the quiz.
-                        </p>
-                        <svg width="100%" height="300"></svg> <p>Consider how you compare to others your age and gender. Remember that consistent activity often leads to
-                            more stable balance over time.
-                        </p>
-                    </div>
-                </div>
-                <div id="viz2" class="viz-container">
-                    <h2>Balance with vs. without prosthetics</h2>
-                    <div class="viz-content">
-                        <p>This visualization informs us of how those of us who wear prosthetics might have different balance scores compared to those of us who don't</p>
-                        <svg width="100%" height="300"></svg>
-                        <p></p>
-                    </div>
-                </div>
-                <div id="viz3" class="viz-container">
-                    <h2>How do shoes affect your balance?</h2>
-                    <div class="viz-content">
-                        <p>This bar chart breaks down which combinations of commonly worn footwear lead to different balance scores.</p>
-                        <svg width="100%" height="300"></svg>
-                        <p>For good balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?></p>
-                    </div>
-                </div>
-                </div>
-        </div>
-
-    <div id="customModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="modalTitle">Message</span>
-                <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                This is a custom message.
-            </div>
-            <div class="modal-footer">
-                <button class="modal-ok-btn" id="modalOkBtn">OK</button>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // --- NEW VERSION LOADED ---
-        console.log("--- NEW VERSION LOADED ---");
-
-        // Custom Modal Functions from temp.html
-        let customModal = document.getElementById('customModal');
-        let modalTitle = document.getElementById('modalTitle');
-        let modalBody = document.getElementById('modalBody');
-        let modalCloseBtn = document.getElementById('modalCloseBtn');
-        let modalOkBtn = document.getElementById('modalOkBtn');
-
-        function showCustomModal(title, message) {
-            modalTitle.textContent = title;
-            modalBody.textContent = message;
-            customModal.classList.add('show');
-        }
-
-        function hideCustomModal() {
-            customModal.classList.remove('show');
-        }
-
-        modalCloseBtn.addEventListener('click', hideCustomModal);
-        modalOkBtn.addEventListener('click', hideCustomModal);
-        customModal.addEventListener('click', (e) => {
-            if (e.target === customModal) {
-                hideCustomModal();
-            }
-        });
-
-        // Canvas Drawing Logic
-        mainCanvas = document.getElementById('main-canvas');
-        mainCtx = mainCanvas.getContext('2d');
-        balanceIndicator = document.getElementById('balance-indicator');
-        currentActiveAge = null;
-        animationFrameId = null;
-
-        // Balance scale position mapping
-        balancePositions = {
-            'intro': 50, // Neutral/center
-            'toddler': 25, // Learning stage - wobbling
-            20: 85, // Peak balance
-            40: 70, // Good balance
-            60: 40, // Declining balance
-            80: 15  // Poor balance
-        };
-
-        function updateBalanceIndicator(age) {
-            const position = balancePositions[age] || 50;
-            balanceIndicator.style.left = `calc(${position}% - 10px)`;
-            console.log(`Balance indicator moved to ${position}% for age ${age}`);
-        }
-
-        /**
-         * Draws Joe's stick figure on the canvas.
-         */
-        function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0, isFallen = false) {
-            ctx.save();
-            ctx.translate(x, yBase);
-            ctx.rotate(tiltAngle);
-
-            const headRadius = 10 * scale;
-            const bodyLength = 40 * scale;
-            const limbLength = 30 * scale;
-
-            if (isFallen) {
-                // Drawing for fallen Joe
-                ctx.save();
-                // Adjust translation for a fallen figure to appear on the ground line
-                // Rotate 90 degrees to lie horizontally
-                ctx.rotate(Math.PI / 2);
-
-                // Body (horizontal, centered at the new origin)
-                ctx.beginPath();
-                ctx.moveTo(-bodyLength / 2, 0);
-                ctx.lineTo(bodyLength / 2, 0);
-                ctx.stroke();
-
-                // Legs (relative to horizontal body)
-                ctx.beginPath();
-                ctx.moveTo(-bodyLength * 0.2, 0);
-                ctx.lineTo(-bodyLength * 0.2 - limbLength * 0.5, limbLength * 0.7);
-                ctx.moveTo(bodyLength * 0.2, 0);
-                ctx.lineTo(bodyLength * 0.2 + limbLength * 0.5, limbLength * 0.7);
-                ctx.stroke();
-
-                // Arms (relative to horizontal body)
-                ctx.beginPath();
-                ctx.moveTo(-bodyLength * 0.3, 0);
-                ctx.lineTo(-bodyLength * 0.3 - limbLength * 0.4, -limbLength * 0.6);
-                ctx.moveTo(bodyLength * 0.3, 0);
-                ctx.lineTo(bodyLength * 0.3 + limbLength * 0.4, -limbLength * 0.6);
-                ctx.stroke();
-
-                // Head (relative to horizontal body)
-                ctx.beginPath();
-                ctx.arc(bodyLength / 2 + headRadius, 0, headRadius, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore(); // Restore from fallen position
-                ctx.restore(); // Restore main context
-                return;
-            }
-
-            const currentWobble = Math.sin(Date.now() * 0.005) * wobble;
-            ctx.rotate(currentWobble);
-
-            ctx.lineWidth = 2 * scale;
-            ctx.strokeStyle = '#334155';
-            ctx.fillStyle = '#334155';
-
-            // Legs
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-limbLength * 0.5, limbLength);
-            ctx.moveTo(0, 0);
-            ctx.lineTo(limbLength * 0.5, limbLength);
-            ctx.stroke();
-
-            // Body with stoop
-            ctx.save();
-            ctx.rotate(-stoopAngle);
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, -bodyLength);
-            ctx.stroke();
-
-            // Arms
-            ctx.beginPath();
-            ctx.moveTo(0, -bodyLength * 0.75);
-            ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5);
-            ctx.moveTo(0, -bodyLength * 0.75);
-            ctx.lineTo(limbLength * 0.7, -bodyLength * 0.5);
-            ctx.stroke();
-
-            // Head
-            ctx.beginPath();
-            ctx.arc(0, -bodyLength - headRadius, headRadius, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Braces if needed
-            if (hasBraces) {
-                ctx.fillStyle = '#a0aec0';
-                const braceWidth = 16 * scale;
-                const braceHeight = 3 * scale;
-                ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.5 + 5 * scale, braceWidth, braceHeight);
-                ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.4 + 5 * scale, braceWidth, braceHeight);
-            }
-            ctx.restore();
-            ctx.restore();
-        }
-
-        /**
-         * Draws the balance visualization based on age.
-         */
-        function drawBalanceVisualization(ctx, age) {
-            if (!ctx) return;
-
-            ctx.canvas.width = ctx.canvas.offsetWidth;
-            ctx.canvas.height = ctx.canvas.offsetHeight;
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-            const centerX = ctx.canvas.width / 2;
-            const joeGroundY = ctx.canvas.height * 0.8;
-            const baseScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 300;
-
-            // Age-specific parameters
-            let joeTilt = 0;
-            let joeWobble = 0;
-            let joeImageScale = 1;
-            let hasBraces = false;
-            let showCane = false;
-            let stoopAngle = 0;
-            let isFallen = false;
-
-            switch (age) {
-                case 'intro':
-                    joeImageScale = 0.3;
-                    joeTilt = 0;
-                    joeWobble = 0;
-                    hasBraces = false;
-                    showCane = false;
-                    stoopAngle = 0;
-                    isFallen = false;
-                    break;
-                case 'toddler':
-                    joeImageScale = 0.6;
-                    joeTilt = Math.sin(Date.now() * 0.008) * 0.25;
-                    joeWobble = 0.15;
-                    hasBraces = false;
-                    showCane = false;
-                    stoopAngle = 0;
-                    isFallen = false;
-                    break;
-                case 20:
-                    joeImageScale = 1.0;
-                    hasBraces = true;
-                    joeTilt = 0;
-                    joeWobble = 0;
-                    showCane = false;
-                    stoopAngle = 0;
-                    isFallen = false;
-                    break;
-                case 40:
-                    joeImageScale = 1.0;
-                    joeTilt = Math.sin(Date.now() * 0.003) * 0.1;
-                    joeWobble = 0.05;
-                    hasBraces = false;
-                    showCane = false;
-                    stoopAngle = 0.05;
-                    isFallen = false;
-                    break;
-                case 60:
-                    joeImageScale = 1.0;
-                    joeTilt = Math.sin(Date.now() * 0.004) * 0.2;
-                    joeWobble = 0.1;
-                    hasBraces = false;
-                    showCane = false;
-                    stoopAngle = 0.2;
-                    isFallen = false;
-                    break;
-                case 80:
-                    joeImageScale = 0.8;
-                    joeTilt = Math.sin(Date.now() * 0.005) * 0.3;
-                    joeWobble = 0.15;
-                    hasBraces = false;
-                    showCane = true;
-                    stoopAngle = 0.35;
-                    // Show fallen Joe occasionally to represent the fall
-                    isFallen = Math.sin(Date.now() * 0.002) > 0.7;
-                    break;
-            }
-
-            // Draw Joe
-            drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle, isFallen);
-
-            // Draw ground line
-            ctx.beginPath();
-            ctx.moveTo(centerX - 100 * baseScale, joeGroundY);
-            ctx.lineTo(centerX + 100 * baseScale, joeGroundY);
-            ctx.lineWidth = 3 * baseScale;
-            ctx.strokeStyle = '#64748b';
-            ctx.stroke();
-
-            // Draw cane if needed and not fallen
-            if (showCane && !isFallen) {
-                ctx.font = `${45 * baseScale}px "Font Awesome 6 Free"`;
-                ctx.fillStyle = '#8B4513';
-                ctx.fillText('\uf787', centerX + 35 * baseScale * joeImageScale, joeGroundY + 5 * baseScale);
-            }
-
-            // Continue animation if this is the active age
-            if (age === currentActiveAge) {
-                animationFrameId = requestAnimationFrame(() => drawBalanceVisualization(ctx, age));
-            }
-        }
-
-        // Scrollama Setup
-        function handleStepEnter(response) {
-            console.log('Step entered:', response.element.dataset.age);
-            
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-
-            const age = response.element.dataset.age;
-            currentActiveAge = age;
-            
-            // Update balance indicator
-            updateBalanceIndicator(age);
-            
-            // Start animation
-            drawBalanceVisualization(mainCtx, age);
-        }
-
-        function setupScrollama() {
-            if (typeof scrollama === 'undefined') {
-                console.error('Scrollama not available, using fallback');
-                useScrollFallback();
-                return;
-            }
-
-            try {
-                const scroller = scrollama();
-                scroller
-                    .setup({
-                        step: '.scrolly-section',
-                        offset: 0.5,
-                    })
-                    .onStepEnter(handleStepEnter);
-                
-                console.log('Scrollama setup complete');
-            } catch (error) {
-                console.error('Scrollama setup failed:', error);
-                useScrollFallback();
-            }
-        }
-
-        function useScrollFallback() {
-            console.log('Using basic scroll fallback');
-            
-            function checkScroll() {
-                const sections = document.querySelectorAll('.scrolly-section');
-                const windowHeight = window.innerHeight;
-                
-                sections.forEach(section => {
-                    const rect = section.getBoundingClientRect();
-                    const isVisible = rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5;
-                    
-                    if (isVisible) {
-                        const age = section.dataset.age;
-                        if (age !== currentActiveAge) {
-                            if (animationFrameId) {
-                                cancelAnimationFrame(animationFrameId);
-                                animationFrameId = null;
-                            }
-                            
-                            currentActiveAge = age;
-                            updateBalanceIndicator(age);
-                            drawBalanceVisualization(mainCtx, currentActiveAge);
-                            console.log('Fallback: Switched to age', age);
-                        }
-                    }
-                });
-            }
-            
-            let scrollTimeout;
-            window.addEventListener('scroll', function() {
-                if (scrollTimeout) {
-                    clearTimeout(scrollTimeout);
-                }
-                scrollTimeout = setTimeout(checkScroll, 50);
-            });
-            
-            checkScroll();
-        }
-
-        // Initialize on window load
-        window.onload = function() {
-            console.log('Window loaded, initializing...');
-            
-            if (mainCanvas) {
-                mainCanvas.width = mainCanvas.offsetWidth;
-                mainCanvas.height = mainCanvas.offsetHeight;
-                console.log('Canvas initialized:', mainCanvas.width, 'x', mainCanvas.height);
-            }
-            
-            if (typeof scrollama !== 'undefined') {
-                console.log('Scrollama available, setting up normally');
-                setupScrollama();
-            } else {
-                console.log('Scrollama not available, using fallback');
-                useScrollFallback();
-            }
-            
-            // Initialize with intro
-            currentActiveAge = 'intro';
-            updateBalanceIndicator('intro');
-            drawBalanceVisualization(mainCtx, currentActiveAge);
-            console.log('Initial draw triggered for intro');
-        };
-
-    </script>
-
-
-<section id = "introSection" class="intro-section">
+  <!-- <section id = "introSection" class="intro-section">
     <h1>Are you stable?</h1>
     <p>
       Balance is a crucial aspect of physical health 
@@ -865,11 +30,9 @@
       mobility and independence.
     </p>
     <div class="navigation-buttons">
-      
-     
-    <button id="toQuizbtn" onclick="window.location.href='index.html'">Let's Find Out!</button>
+      <button id="toQuizbtn">Let's Find Out!</button>
     </div>
-  </section>
+  </section> -->
   <div id="quizContainer">
     <div class="progress-bar">
       <div id="progressFill" class="progress-fill"></div>
@@ -1013,374 +176,7 @@
         </div>
   </div>
 
-
-  
-
-
-  
   <script>
-    // --- NEW VERSION LOADED ---
-    console.log("--- NEW VERSION LOADED ---");
-
-    // Custom Modal Functions from temp.html    
-    customModal = document.getElementById('customModal');
-    modalTitle = document.getElementById('modalTitle');
-    modalBody = document.getElementById('modalBody');
-    modalCloseBtn = document.getElementById('modalCloseBtn');
-    modalOkBtn = document.getElementById('modalOkBtn');
-
-    function showCustomModal(title, message) {
-        modalTitle.textContent = title;
-        modalBody.textContent = message;
-        customModal.classList.add('show');
-    }
-
-    function hideCustomModal() {
-        customModal.classList.remove('show');
-    }
-
-    modalCloseBtn.addEventListener('click', hideCustomModal);
-    modalOkBtn.addEventListener('click', hideCustomModal);
-    customModal.addEventListener('click', (e) => {
-        if (e.target === customModal) {
-            hideCustomModal();
-        }
-    });
-
-    // Canvas Drawing Logic
-    const mainCanvas = document.getElementById('main-canvas');
-    const mainCtx = mainCanvas.getContext('2d');
-    const balanceIndicator = document.getElementById('balance-indicator');
-    let currentActiveAge = null;
-    let animationFrameId = null;
-
-    // Balance scale position mapping
-    const balancePositions = {
-        'intro': 50, // Neutral/center
-        'toddler': 25, // Learning stage - wobbling
-        20: 85, // Peak balance
-        40: 70, // Good balance
-        60: 40, // Declining balance
-        80: 15  // Poor balance
-    };
-
-    function updateBalanceIndicator(age) {
-        const position = balancePositions[age] || 50;
-        balanceIndicator.style.left = `calc(${position}% - 10px)`;
-        console.log(`Balance indicator moved to ${position}% for age ${age}`);
-    }
-
-    /**
-     * Draws Joe's stick figure on the canvas.
-     */
-    function drawJoe(ctx, x, yBase, scale, tiltAngle = 0, wobble = 0, hasBraces = false, stoopAngle = 0, isFallen = false) {
-        ctx.save();
-        ctx.translate(x, yBase);
-        ctx.rotate(tiltAngle);
-
-        const headRadius = 10 * scale;
-        const bodyLength = 40 * scale;
-        const limbLength = 30 * scale;
-
-        if (isFallen) {
-            // Drawing for fallen Joe
-            ctx.save();
-            // Adjust translation for a fallen figure to appear on the ground line
-            // Rotate 90 degrees to lie horizontally
-            ctx.rotate(Math.PI / 2);
-
-            // Body (horizontal, centered at the new origin)
-            ctx.beginPath();
-            ctx.moveTo(-bodyLength / 2, 0);
-            ctx.lineTo(bodyLength / 2, 0);
-            ctx.stroke();
-
-            // Legs (relative to horizontal body)
-            ctx.beginPath();
-            ctx.moveTo(-bodyLength * 0.2, 0);
-            ctx.lineTo(-bodyLength * 0.2 - limbLength * 0.5, limbLength * 0.7);
-            ctx.moveTo(bodyLength * 0.2, 0);
-            ctx.lineTo(bodyLength * 0.2 + limbLength * 0.5, limbLength * 0.7);
-            ctx.stroke();
-
-            // Arms (relative to horizontal body)
-            ctx.beginPath();
-            ctx.moveTo(-bodyLength * 0.3, 0);
-            ctx.lineTo(-bodyLength * 0.3 - limbLength * 0.4, -limbLength * 0.6);
-            ctx.moveTo(bodyLength * 0.3, 0);
-            ctx.lineTo(bodyLength * 0.3 + limbLength * 0.4, -limbLength * 0.6);
-            ctx.stroke();
-
-            // Head (relative to horizontal body)
-            ctx.beginPath();
-            ctx.arc(bodyLength / 2 + headRadius, 0, headRadius, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.restore(); // Restore from fallen position
-            ctx.restore(); // Restore main context
-            return;
-        }
-
-        const currentWobble = Math.sin(Date.now() * 0.005) * wobble;
-        ctx.rotate(currentWobble);
-
-        ctx.lineWidth = 2 * scale;
-        ctx.strokeStyle = '#334155';
-        ctx.fillStyle = '#334155';
-
-        // Legs
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(-limbLength * 0.5, limbLength);
-        ctx.moveTo(0, 0);
-        ctx.lineTo(limbLength * 0.5, limbLength);
-        ctx.stroke();
-
-        // Body with stoop
-        ctx.save();
-        ctx.rotate(-stoopAngle);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -bodyLength);
-        ctx.stroke();
-
-        // Arms
-        ctx.beginPath();
-        ctx.moveTo(0, -bodyLength * 0.75);
-        ctx.lineTo(-limbLength * 0.7, -bodyLength * 0.5);
-        ctx.moveTo(0, -bodyLength * 0.75);
-        ctx.lineTo(limbLength * 0.7, -bodyLength * 0.5);
-        ctx.stroke();
-
-        // Head
-        ctx.beginPath();
-        ctx.arc(0, -bodyLength - headRadius, headRadius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Braces if needed
-        if (hasBraces) {
-            ctx.fillStyle = '#a0aec0';
-            const braceWidth = 16 * scale;
-            const braceHeight = 3 * scale;
-            ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.5 + 5 * scale, braceWidth, braceHeight);
-            ctx.fillRect(-braceWidth / 2, -bodyLength - headRadius * 0.4 + 5 * scale, braceWidth, braceHeight);
-        }
-        ctx.restore();
-        ctx.restore();
-    }
-
-    /**
-     * Draws the balance visualization based on age.
-     */
-    function drawBalanceVisualization(ctx, age) {
-        if (!ctx) return;
-
-        ctx.canvas.width = ctx.canvas.offsetWidth;
-        ctx.canvas.height = ctx.canvas.offsetHeight;
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        const centerX = ctx.canvas.width / 2;
-        const joeGroundY = ctx.canvas.height * 0.8;
-        const baseScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 300;
-
-        // Age-specific parameters
-        let joeTilt = 0;
-        let joeWobble = 0;
-        let joeImageScale = 1;
-        let hasBraces = false;
-        let showCane = false;
-        let stoopAngle = 0;
-        let isFallen = false;
-
-        switch (age) {
-            case 'intro':
-                joeImageScale = 0.3;
-                joeTilt = 0;
-                joeWobble = 0;
-                hasBraces = false;
-                showCane = false;
-                stoopAngle = 0;
-                isFallen = false;
-                break;
-            case 'toddler':
-                joeImageScale = 0.6;
-                joeTilt = Math.sin(Date.now() * 0.008) * 0.25;
-                joeWobble = 0.15;
-                hasBraces = false;
-                showCane = false;
-                stoopAngle = 0;
-                isFallen = false;
-                break;
-            case 20:
-                joeImageScale = 1.0;
-                hasBraces = true;
-                joeTilt = 0;
-                joeWobble = 0;
-                showCane = false;
-                stoopAngle = 0;
-                isFallen = false;
-                break;
-            case 40:
-                joeImageScale = 1.0;
-                joeTilt = Math.sin(Date.now() * 0.003) * 0.1;
-                joeWobble = 0.05;
-                hasBraces = false;
-                showCane = false;
-                stoopAngle = 0.05;
-                isFallen = false;
-                break;
-            case 60:
-                joeImageScale = 1.0;
-                joeTilt = Math.sin(Date.now() * 0.004) * 0.2;
-                joeWobble = 0.1;
-                hasBraces = false;
-                showCane = false;
-                stoopAngle = 0.2;
-                isFallen = false;
-                break;
-            case 80:
-                joeImageScale = 0.8;
-                joeTilt = Math.sin(Date.now() * 0.005) * 0.3;
-                joeWobble = 0.15;
-                hasBraces = false;
-                showCane = true;
-                stoopAngle = 0.35;
-                // Show fallen Joe occasionally to represent the fall
-                isFallen = Math.sin(Date.now() * 0.002) > 0.7;
-                break;
-        }
-
-        // Draw Joe
-        drawJoe(ctx, centerX, joeGroundY, baseScale * joeImageScale, joeTilt, joeWobble, hasBraces, stoopAngle, isFallen);
-
-        // Draw ground line
-        ctx.beginPath();
-        ctx.moveTo(centerX - 100 * baseScale, joeGroundY);
-        ctx.lineTo(centerX + 100 * baseScale, joeGroundY);
-        ctx.lineWidth = 3 * baseScale;
-        ctx.strokeStyle = '#64748b';
-        ctx.stroke();
-
-        // Draw cane if needed and not fallen
-        if (showCane && !isFallen) {
-            ctx.font = `${45 * baseScale}px "Font Awesome 6 Free"`;
-            ctx.fillStyle = '#8B4513';
-            ctx.fillText('\uf787', centerX + 35 * baseScale * joeImageScale, joeGroundY + 5 * baseScale);
-        }
-
-        // Continue animation if this is the active age
-        if (age === currentActiveAge) {
-            animationFrameId = requestAnimationFrame(() => drawBalanceVisualization(ctx, age));
-        }
-    }
-
-    // Scrollama Setup
-    function handleStepEnter(response) {
-        console.log('Step entered:', response.element.dataset.age);
-        
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-
-        const age = response.element.dataset.age;
-        currentActiveAge = age;
-        
-        // Update balance indicator
-        updateBalanceIndicator(age);
-        
-        // Start animation
-        drawBalanceVisualization(mainCtx, age);
-    }
-
-    function setupScrollama() {
-        if (typeof scrollama === 'undefined') {
-            console.error('Scrollama not available, using fallback');
-            useScrollFallback();
-            return;
-        }
-
-        try {
-            const scroller = scrollama();
-            scroller
-                .setup({
-                    step: '.scrolly-section',
-                    offset: 0.5,
-                })
-                .onStepEnter(handleStepEnter);
-            
-            console.log('Scrollama setup complete');
-        } catch (error) {
-            console.error('Scrollama setup failed:', error);
-            useScrollFallback();
-        }
-    }
-
-    function useScrollFallback() {
-        console.log('Using basic scroll fallback');
-        
-        function checkScroll() {
-            const sections = document.querySelectorAll('.scrolly-section');
-            const windowHeight = window.innerHeight;
-            
-            sections.forEach(section => {
-                const rect = section.getBoundingClientRect();
-                const isVisible = rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5;
-                
-                if (isVisible) {
-                    const age = section.dataset.age;
-                    if (age !== currentActiveAge) {
-                        if (animationFrameId) {
-                            cancelAnimationFrame(animationFrameId);
-                            animationFrameId = null;
-                        }
-                        
-                        currentActiveAge = age;
-                        updateBalanceIndicator(age);
-                        drawBalanceVisualization(mainCtx, currentActiveAge);
-                        console.log('Fallback: Switched to age', age);
-                    }
-                }
-            });
-        }
-        
-        let scrollTimeout;
-        window.addEventListener('scroll', function() {
-            if (scrollTimeout) {
-                clearTimeout(scrollTimeout);
-            }
-            scrollTimeout = setTimeout(checkScroll, 50);
-        });
-        
-        checkScroll();
-    }
-
-    // Initialize on window load
-    window.onload = function() {
-        console.log('Window loaded, initializing...');
-        
-        if (mainCanvas) {
-            mainCanvas.width = mainCanvas.offsetWidth;
-            mainCanvas.height = mainCanvas.offsetHeight;
-            console.log('Canvas initialized:', mainCanvas.width, 'x', mainCanvas.height);
-        }
-        
-        if (typeof scrollama !== 'undefined') {
-            console.log('Scrollama available, setting up normally');
-            setupScrollama();
-        } else {
-            console.log('Scrollama not available, using fallback');
-            useScrollFallback();
-        }
-        
-        // Initialize with intro
-        currentActiveAge = 'intro';
-        updateBalanceIndicator('intro');
-        drawBalanceVisualization(mainCtx, currentActiveAge);
-        console.log('Initial draw triggered for intro');
-    };
-
-
     let currentStep = 0;
     let assessmentData = {};
     let tmtStartTime = null;
@@ -1998,7 +794,282 @@
             .text("Your Score vs. Population Distribution");
     }
 
+//     async function createD3Visualization1() {
+//   const svg = d3.select("#viz1 svg");
+//   svg.selectAll("*").remove();
 
+//   const width = parseInt(svg.style("width"));
+//   const height = parseInt(svg.style("height"));
+//   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+
+//   const innerWidth = width - margin.left - margin.right;
+//   const innerHeight = height - margin.top - margin.bottom;
+
+//   // Load and normalize data
+//   const data = await d3.csv("BDSinfo.csv", d => {
+//     let gender = d.Gender?.trim().toLowerCase();
+//     if (gender === "m" || gender === "male") gender = "Male";
+//     else if (gender === "f" || gender === "female") gender = "Female";
+//     else gender = null; // Exclude unrecognized/other categories
+
+//     return {
+//       Age: +d.Age,
+//       Best_T: +d.Best_T,
+//       Gender: gender
+//     };
+//   });
+
+//   // Filter for valid entries only
+//   const filtered = data.filter(d =>
+//     !isNaN(d.Age) &&
+//     !isNaN(d.Best_T) &&
+//     (d.Gender === "Male" || d.Gender === "Female")
+//   );
+
+//   const x = d3.scaleLinear()
+//     .domain(d3.extent(filtered, d => d.Age)).nice()
+//     .range([margin.left, width - margin.right]);
+
+//   const y = d3.scaleLinear()
+//     .domain([0, 28])
+//     .range([height - margin.bottom, margin.top]);
+
+//   const color = d3.scaleOrdinal()
+//     .domain(["Male", "Female"])
+//     .range(["#000080", "#C11C84"]);
+
+//   // Axes
+//   svg.append("g")
+//     .attr("transform", `translate(0,${height - margin.bottom})`)
+//     .call(d3.axisBottom(x))
+//     .append("text")
+//     .attr("x", innerWidth / 2 + margin.left)
+//     .attr("y", 40)
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Age");
+
+//   svg.append("g")
+//     .attr("transform", `translate(${margin.left},0)`)
+//     .call(d3.axisLeft(y))
+//     .append("text")
+//     .attr("x", -innerHeight / 2)
+//     .attr("y", -45)
+//     .attr("transform", "rotate(-90)")
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Balance Score (Best_T)");
+
+//   // Points
+//   svg.selectAll("circle")
+//     .data(filtered)
+//     .enter()
+//     .append("circle")
+//     .attr("cx", d => x(d.Age))
+//     .attr("cy", d => y(d.Best_T))
+//     .attr("r", 4)
+//     .attr("fill", d => color(d.Gender))
+//     .attr("opacity", 0.7);
+
+//   // Legend
+//   const legend = svg.selectAll(".legend")
+//     .data(color.domain())
+//     .enter()
+//     .append("g")
+//     .attr("class", "legend")
+//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
+
+//   legend.append("rect")
+//     .attr("width", 10)
+//     .attr("height", 10)
+//     .attr("fill", d => color(d));
+
+//   legend.append("text")
+//     .attr("x", 15)
+//     .attr("y", 9)
+//     .text(d => d)
+//     .attr("font-size", "12px");
+// }
+
+// async function createD3Visualization1() {
+//   const svg = d3.select("#viz1 svg");
+//   svg.selectAll("*").remove();
+
+//   const width = parseInt(svg.style("width"));
+//   const height = parseInt(svg.style("height"));
+//   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+
+//   const innerWidth = width - margin.left - margin.right;
+//   const innerHeight = height - margin.top - margin.bottom;
+
+//   // Load and normalize data
+//   const data = await d3.csv("BDSinfo.csv", d => {
+//     let gender = d.Gender?.trim().toLowerCase();
+//     if (gender === "m" || gender === "male") gender = "Male";
+//     else if (gender === "f" || gender === "female") gender = "Female";
+//     else gender = null; // Exclude unrecognized/other categories
+
+//     return {
+//       Age: +d.Age,
+//       Best_T: +d.Best_T,
+//       Gender: gender
+//     };
+//   });
+
+//   // Filter for valid entries only
+//   const filtered = data.filter(d =>
+//     !isNaN(d.Age) &&
+//     !isNaN(d.Best_T) &&
+//     (d.Gender === "Male" || d.Gender === "Female")
+//   );
+
+//   const x = d3.scaleLinear()
+//     .domain(d3.extent(filtered, d => d.Age)).nice()
+//     .range([margin.left, width - margin.right]);
+
+//   const y = d3.scaleLinear()
+//     .domain([0, 28])
+//     .range([height - margin.bottom, margin.top]);
+
+//   const color = d3.scaleOrdinal()
+//     .domain(["Male", "Female"])
+//     .range(["#000080", "#C11C84"]);
+
+//   // Linear regression function
+//   function linearRegression(xData, yData) {
+//     const n = xData.length;
+//     const sumX = d3.sum(xData);
+//     const sumY = d3.sum(yData);
+//     const sumXY = d3.sum(xData.map((x, i) => x * yData[i]));
+//     const sumXX = d3.sum(xData.map(x => x * x));
+    
+//     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+//     const intercept = (sumY - slope * sumX) / n;
+    
+//     return { slope, intercept };
+//   }
+
+//   // Calculate regression lines for each gender
+//   const genderData = d3.group(filtered, d => d.Gender);
+//   const regressionLines = [];
+
+//   genderData.forEach((values, gender) => {
+//     const xData = values.map(d => d.Age);
+//     const yData = values.map(d => d.Best_T);
+//     const regression = linearRegression(xData, yData);
+    
+//     const xExtent = d3.extent(xData);
+//     const lineData = [
+//       { x: xExtent[0], y: regression.slope * xExtent[0] + regression.intercept },
+//       { x: xExtent[1], y: regression.slope * xExtent[1] + regression.intercept }
+//     ];
+    
+//     regressionLines.push({
+//       gender: gender,
+//       data: lineData,
+//       regression: regression
+//     });
+//   });
+
+//   // Axes
+//   svg.append("g")
+//     .attr("transform", `translate(0,${height - margin.bottom})`)
+//     .call(d3.axisBottom(x))
+//     .append("text")
+//     .attr("x", innerWidth / 2 + margin.left)
+//     .attr("y", 40)
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Age");
+
+//   svg.append("g")
+//     .attr("transform", `translate(${margin.left},0)`)
+//     .call(d3.axisLeft(y))
+//     .append("text")
+//     .attr("x", -innerHeight / 2)
+//     .attr("y", -45)
+//     .attr("transform", "rotate(-90)")
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Balance Score (Best_T)");
+
+//   // Add regression lines
+//   const line = d3.line()
+//     .x(d => x(d.x))
+//     .y(d => y(d.y));
+
+//   svg.selectAll(".regression-line")
+//     .data(regressionLines)
+//     .enter()
+//     .append("path")
+//     .attr("class", "regression-line")
+//     .attr("d", d => line(d.data))
+//     .attr("stroke", d => color(d.gender))
+//     .attr("stroke-width", 2)
+//     .attr("fill", "none")
+//     .attr("stroke-dasharray", "5,5")
+//     .attr("opacity", 0.8);
+
+//   // Points (drawn after lines so they appear on top)
+//   svg.selectAll("circle")
+//     .data(filtered)
+//     .enter()
+//     .append("circle")
+//     .attr("cx", d => x(d.Age))
+//     .attr("cy", d => y(d.Best_T))
+//     .attr("r", 4)
+//     .attr("fill", d => color(d.Gender))
+//     .attr("opacity", 0.7);
+
+//   // Legend
+//   const legend = svg.selectAll(".legend")
+//     .data(color.domain())
+//     .enter()
+//     .append("g")
+//     .attr("class", "legend")
+//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
+
+//   legend.append("rect")
+//     .attr("width", 10)
+//     .attr("height", 10)
+//     .attr("fill", d => color(d));
+
+//   legend.append("text")
+//     .attr("x", 15)
+//     .attr("y", 9)
+//     .text(d => d)
+//     .attr("font-size", "12px");
+
+//   // Add regression line indicators to legend
+//   const regressionLegend = svg.selectAll(".regression-legend")
+//     .data(color.domain())
+//     .enter()
+//     .append("g")
+//     .attr("class", "regression-legend")
+//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + 50 + i * 20})`);
+
+//   regressionLegend.append("line")
+//     .attr("x1", 0)
+//     .attr("x2", 10)
+//     .attr("y1", 5)
+//     .attr("y2", 5)
+//     .attr("stroke", d => color(d))
+//     .attr("stroke-width", 2)
+//     .attr("stroke-dasharray", "2,2");
+
+//   regressionLegend.append("text")
+//     .attr("x", 15)
+//     .attr("y", 9)
+//     .text(d => `${d} Trend`)
+//     .attr("font-size", "11px")
+//     .attr("fill", "#666");
+
+//   // Display regression equations (optional)
+//   console.log("Regression Analysis:");
+//   regressionLines.forEach(line => {
+//     console.log(`${line.gender}: y = ${line.regression.slope.toFixed(4)}x + ${line.regression.intercept.toFixed(4)}`);
+//   });
+// }
 
 async function createD3Visualization1() {
   const svg = d3.select("#viz1 svg");
