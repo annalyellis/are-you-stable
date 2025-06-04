@@ -676,18 +676,64 @@
      * Renders all D3 visualizations. This is called when the visualization area
      * changes size (e.g., when results pane is toggled or on initial transition).
      */
-    function renderAllVisualizations() {
-        createD3Visualization1();
-        createD3Visualization2();
-        createD3Visualization3();
-        // Call any other visualization rendering functions here
-    }
 
+     async function renderAllVisualizations() {
+  // Retrieve user data directly here, ensuring it's fresh after quiz submission
+  const userAge = parseInt(document.getElementById('age').value);
+
+  let userGender = document.getElementById('gender').value; // e.g., "male", "female", "other"
+  // Normalize gender to match the format used in your D3 visualization ("Male", "Female")
+  userGender = userGender?.trim().toLowerCase();
+  if (userGender === "m" || userGender === "male") userGender = "Male";
+  else if (userGender === "f" || userGender === "female") userGender = "Female";
+  else userGender = null; // Handle 'other' or unrecognized genders
+
+  // Access the calculated score. Assuming 'finalPredictedScore' is a global variable
+  // that is set by calculateResults() before renderAllVisualizations() is called.
+  const miniBESTestScore = finalPredictedScore; // This should now correctly hold the calculated score
+
+  // Log values to console for debugging!
+  console.log("Rendering Visualizations with:");
+  console.log("User Age:", userAge);
+  console.log("User Gender:", userGender);
+  console.log("Mini-BESTest Score:", miniBESTestScore);
+
+  // Call the personalized visualization function with await
+  if (userGender !== null && !isNaN(userAge) && !isNaN(miniBESTestScore)) {
+    await createD3Visualization1(userAge, userGender, miniBESTestScore);
+  } else {
+    console.warn("User data incomplete for personalized visualization. Displaying general trends.");
+    // Fallback: call the visualization without user-specific data if needed
+    await createD3Visualization1(null, null, null); // This will draw trends but no user dot
+  }
+
+  // Call your other visualization functions here (add await if they are async)
+  await createD3Visualization2(); // Assuming this is async if it loads CSV
+  await createD3Visualization3(); // Assuming this is async if it loads CSV
+}
+    // function renderAllVisualizations() {
+    //   if (userGender !== null && !isNaN(userAge) && !isNaN(miniBESTestScore)) {
+    //     createD3Visualization1(userAge, userGender, miniBESTestScore);
+    // } else {
+    //     console.warn("User data incomplete for personalized visualization. Displaying general trends.");
+    //     // You might want a fallback here, e.g., createD3Visualization1(null, null, null);
+    //     // which the function itself can handle by not drawing the user point.
+    //     createD3Visualization1(null, null, null); // Call without user specific data
+    // }
+    //     createD3Visualization2();
+    //     createD3Visualization3();
+    //     // Call any other visualization rendering functions here
+    // }
+
+
+    
     /**
      * Creates and displays a comparison chart of the user's score against a fictional population distribution.
      * Uses D3.js for visualization.
      * @param {number} userScore - The user's predicted Mini-BESTest score.
      */
+
+
     function createComparisonChart(userScore) {
         const chartContainer = d3.select('#comparisonChart');
         chartContainer.selectAll("*").remove(); // Clear previous chart to prevent duplication
@@ -1071,88 +1117,555 @@
 //   });
 // }
 
-async function createD3Visualization1() {
-  const svg = d3.select("#viz1 svg");
-  svg.selectAll("*").remove();
+//Correct ONEEE
 
-  const width = parseInt(svg.style("width"));
-  const height = parseInt(svg.style("height"));
+// async function createD3Visualization1() {
+//   const svg = d3.select("#viz1 svg");
+//   svg.selectAll("*").remove();
+
+//   const width = parseInt(svg.style("width"));
+//   const height = parseInt(svg.style("height"));
+//   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+
+//   const innerWidth = width - margin.left - margin.right;
+//   const innerHeight = height - margin.top - margin.bottom;
+
+//   // Load and normalize data
+//   const data = await d3.csv("BDSinfo.csv", d => {
+//     let gender = d.Gender?.trim().toLowerCase();
+//     if (gender === "m" || gender === "male") gender = "Male";
+//     else if (gender === "f" || gender === "female") gender = "Female";
+//     else gender = null; // Exclude unrecognized/other categories
+
+//     return {
+//       Age: +d.Age,
+//       Best_T: +d.Best_T,
+//       Gender: gender
+//     };
+//   });
+
+//   // Filter for valid entries only
+//   const filtered = data.filter(d =>
+//     !isNaN(d.Age) &&
+//     !isNaN(d.Best_T) &&
+//     (d.Gender === "Male" || d.Gender === "Female")
+//   );
+
+//   const x = d3.scaleLinear()
+//     .domain(d3.extent(filtered, d => d.Age)).nice()
+//     .range([margin.left, width - margin.right]);
+
+//   const y = d3.scaleLinear()
+//     .domain([0, 28])
+//     .range([height - margin.bottom, margin.top]);
+
+//   const color = d3.scaleOrdinal()
+//     .domain(["Male", "Female"])
+//     .range(["#000080", "#C11C84"]);
+
+//   // Linear regression function
+//   function linearRegression(xData, yData) {
+//     const n = xData.length;
+//     const sumX = d3.sum(xData);
+//     const sumY = d3.sum(yData);
+//     const sumXY = d3.sum(xData.map((x, i) => x * yData[i]));
+//     const sumXX = d3.sum(xData.map(x => x * x));
+    
+//     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+//     const intercept = (sumY - slope * sumX) / n;
+    
+//     return { slope, intercept };
+//   }
+
+//   // Calculate single regression line for all data
+//   const xData = filtered.map(d => d.Age);
+//   const yData = filtered.map(d => d.Best_T);
+//   const regression = linearRegression(xData, yData);
+  
+//   const xExtent = d3.extent(xData);
+//   const regressionLine = [
+//     { x: xExtent[0], y: regression.slope * xExtent[0] + regression.intercept },
+//     { x: xExtent[1], y: regression.slope * xExtent[1] + regression.intercept }
+//   ];
+
+//   // Axes
+//   svg.append("g")
+//     .attr("transform", `translate(0,${height - margin.bottom})`)
+//     .call(d3.axisBottom(x))
+//     .append("text")
+//     .attr("x", innerWidth / 2 + margin.left)
+//     .attr("y", 40)
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Age");
+
+//   svg.append("g")
+//     .attr("transform", `translate(${margin.left},0)`)
+//     .call(d3.axisLeft(y))
+//     .append("text")
+//     .attr("x", -innerHeight / 2)
+//     .attr("y", -45)
+//     .attr("transform", "rotate(-90)")
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Balance Score (Best_T)");
+
+//   // Add single regression line
+//   const line = d3.line()
+//     .x(d => x(d.x))
+//     .y(d => y(d.y));
+
+//   svg.append("path")
+//     .datum(regressionLine)
+//     .attr("class", "regression-line")
+//     .attr("d", line)
+//     .attr("stroke", "#333")
+//     .attr("stroke-width", 2)
+//     .attr("fill", "none")
+//     .attr("stroke-dasharray", "5,5")
+//     .attr("opacity", 0.8);
+
+//   // Points (drawn after lines so they appear on top)
+//   svg.selectAll("circle")
+//     .data(filtered)
+//     .enter()
+//     .append("circle")
+//     .attr("cx", d => x(d.Age))
+//     .attr("cy", d => y(d.Best_T))
+//     .attr("r", 4)
+//     .attr("fill", d => color(d.Gender))
+//     .attr("opacity", 0.7);
+
+//   // Legend
+//   const legend = svg.selectAll(".legend")
+//     .data(color.domain())
+//     .enter()
+//     .append("g")
+//     .attr("class", "legend")
+//     .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
+
+//   legend.append("rect")
+//     .attr("width", 10)
+//     .attr("height", 10)
+//     .attr("fill", d => color(d));
+
+//   legend.append("text")
+//     .attr("x", 15)
+//     .attr("y", 9)
+//     .text(d => d)
+//     .attr("font-size", "12px");
+
+//   // Add regression line indicator to legend
+//   const regressionLegend = svg.append("g")
+//     .attr("class", "regression-legend")
+//     .attr("transform", `translate(${width - margin.right - 100},${margin.top + 50})`);
+
+//   regressionLegend.append("line")
+//     .attr("x1", 0)
+//     .attr("x2", 10)
+//     .attr("y1", 5)
+//     .attr("y2", 5)
+//     .attr("stroke", "#333")
+//     .attr("stroke-width", 2)
+//     .attr("stroke-dasharray", "2,2");
+
+//   regressionLegend.append("text")
+//     .attr("x", 15)
+//     .attr("y", 9)
+//     .text("Trend Line")
+//     .attr("font-size", "11px")
+//     .attr("fill", "#666");
+
+//   // Display regression equation
+//   console.log(`Regression Analysis: y = ${regression.slope.toFixed(4)}x + ${regression.intercept.toFixed(4)}`);
+// }
+
+
+
+
+
+
+
+// async function createD3Visualization1(userAge, userGender, userScore) {
+//   const svg = d3.select("#viz1 svg");
+//   svg.selectAll("*").remove(); // Clear previous chart
+
+//   const width = parseInt(svg.style("width")) || 600;
+//   const height = parseInt(svg.style("height")) || 400;
+//   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+
+//   const innerWidth = width - margin.left - margin.right;
+//   const innerHeight = height - margin.top - margin.bottom;
+
+//   const chartGroup = svg.append("g")
+//       .attr("transform", `translate(${margin.left},${margin.top})`);
+
+//   const data = await d3.csv("BDSinfo.csv", d => {
+//     let gender = d.Gender?.trim().toLowerCase();
+//     if (gender === "m" || gender === "male") gender = "Male";
+//     else if (gender === "f" || gender === "female") gender = "Female";
+//     else gender = null;
+//     return { Age: +d.Age, Best_T: +d.Best_T, Gender: gender };
+//   });
+
+//   const filteredData = data.filter(d =>
+//     !isNaN(d.Age) &&
+//     !isNaN(d.Best_T) &&
+//     (d.Gender === "Male" || d.Gender === "Female")
+//   );
+
+//   const x = d3.scaleLinear()
+//     .domain(d3.extent(filteredData, d => d.Age)).nice()
+//     .range([0, innerWidth]);
+
+//   const y = d3.scaleLinear()
+//     .domain([0, 28])
+//     .range([innerHeight, 0]);
+
+//   const color = d3.scaleOrdinal()
+//     .domain(["Male", "Female"])
+//     .range(["#000080", "#C11C84"]);
+
+//   function linearRegression(xData, yData) {
+//     const n = xData.length;
+//     const sumX = d3.sum(xData);
+//     const sumY = d3.sum(yData);
+//     const sumXY = d3.sum(xData.map((x, i) => x * yData[i]));
+//     const sumXX = d3.sum(xData.map(x => x * x));
+//     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+//     const intercept = (sumY - slope * sumX) / n;
+//     return { slope, intercept };
+//   }
+
+//   const maleData = filteredData.filter(d => d.Gender === "Male");
+//   const femaleData = filteredData.filter(d => d.Gender === "Female");
+
+//   const maleRegression = linearRegression(maleData.map(d => d.Age), maleData.map(d => d.Best_T));
+//   const femaleRegression = linearRegression(femaleData.map(d => d.Age), femaleData.map(d => d.Best_T));
+
+//   const minAge = d3.min(filteredData, d => d.Age);
+//   const maxAge = d3.max(filteredData, d => d.Age);
+
+//   const maleRegressionLineData = [
+//     { x: minAge, y: maleRegression.slope * minAge + maleRegression.intercept },
+//     { x: maxAge, y: maleRegression.slope * maxAge + maleRegression.intercept }
+//   ];
+
+//   const femaleRegressionLineData = [
+//     { x: minAge, y: femaleRegression.slope * minAge + femaleRegression.intercept },
+//     { x: maxAge, y: femaleRegression.slope * maxAge + femaleRegression.intercept }
+//   ];
+
+//   const line = d3.line()
+//     .x(d => x(d.x))
+//     .y(d => y(d.y));
+
+//   chartGroup.append("path")
+//     .datum(maleRegressionLineData)
+//     .attr("class", "regression-line male-trend")
+//     .attr("d", line)
+//     .attr("stroke", color("Male"))
+//     .attr("stroke-width", 2)
+//     .attr("fill", "none")
+//     .attr("stroke-dasharray", "4,2");
+
+//   chartGroup.append("path")
+//     .datum(femaleRegressionLineData)
+//     .attr("class", "regression-line female-trend")
+//     .attr("d", line)
+//     .attr("stroke", color("Female"))
+//     .attr("stroke-width", 2)
+//     .attr("fill", "none")
+//     .attr("stroke-dasharray", "4,2");
+
+//   chartGroup.append("g")
+//     .attr("transform", `translate(0,${innerHeight})`)
+//     .call(d3.axisBottom(x))
+//     .append("text")
+//     .attr("x", innerWidth / 2)
+//     .attr("y", 40)
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Age");
+
+//   chartGroup.append("g")
+//     .call(d3.axisLeft(y))
+//     .append("text")
+//     .attr("x", -innerHeight / 2)
+//     .attr("y", -45)
+//     .attr("transform", "rotate(-90)")
+//     .attr("fill", "#000")
+//     .attr("text-anchor", "middle")
+//     .text("Balance Score (Best_T)");
+
+//   chartGroup.selectAll(".data-point")
+//     .data(filteredData)
+//     .enter()
+//     .append("circle")
+//     .attr("class", "data-point")
+//     .attr("cx", d => x(d.Age))
+//     .attr("cy", d => y(d.Best_T))
+//     .attr("r", 3)
+//     .attr("fill", d => color(d.Gender))
+//     .attr("opacity", 0.4);
+
+//   // Add the user's personalized point (initially at their current age)
+//   const userPointColor = (userGender === "Male") ? "#0000FF" : (userGender === "Female") ? "#FF00FF" : "purple";
+//   const userDot = chartGroup.append("circle")
+//     .attr("cx", x(userAge))
+//     .attr("cy", y(userScore))
+//     .attr("r", 8)
+//     .attr("fill", userPointColor)
+//     .attr("stroke", "white")
+//     .attr("stroke-width", 2)
+//     .attr("class", "user-point");
+
+//   const userLabel = chartGroup.append("text")
+//     .attr("x", x(userAge) + 12)
+//     .attr("y", y(userScore) + 4)
+//     .text("You")
+//     .attr("fill", userPointColor)
+//     .style("font-weight", "bold")
+//     .style("font-size", "14px")
+//     .attr("class", "user-label");
+
+//   userDot.append("title")
+//     .text(`Your Current Score: Age ${userAge}, Score ${userScore}`);
+
+//   // Legend (unchanged)
+//   const legendData = [
+//       { label: "Male Trend", color: color("Male"), dash: true },
+//       { label: "Female Trend", color: color("Female"), dash: true },
+//       { label: "All Data Points", color: "#666", dash: false, radius: 3 },
+//       { label: "Your Score", color: userPointColor, dash: false, radius: 8 }
+//   ];
+
+//   const legend = svg.selectAll(".legend")
+//     .data(legendData)
+//     .enter()
+//     .append("g")
+//     .attr("class", "legend")
+//     .attr("transform", (d, i) => `translate(${width - margin.right - 120},${margin.top + i * 20})`);
+
+//   legend.each(function(d) {
+//       const g = d3.select(this);
+//       if (d.dash) {
+//           g.append("line")
+//               .attr("x1", 0)
+//               .attr("x2", 15)
+//               .attr("y1", 5)
+//               .attr("y2", 5)
+//               .attr("stroke", d.color)
+//               .attr("stroke-width", 2)
+//               .attr("stroke-dasharray", "4,2");
+//       } else {
+//           g.append("circle")
+//               .attr("cx", 7.5)
+//               .attr("cy", 5)
+//               .attr("r", d.radius)
+//               .attr("fill", d.color);
+//       }
+//       g.append("text")
+//           .attr("x", 20)
+//           .attr("y", 9)
+//           .text(d.label)
+//           .attr("font-size", "12px")
+//           .attr("alignment-baseline", "middle");
+//   });
+
+//   // --- Animation Logic ---
+//   // Create a button to trigger the animation (or you can make it auto-play)
+//   const viz1Container = d3.select("#viz1");
+//   let animateButton = viz1Container.select(".animate-button");
+//   if (animateButton.empty()) { // Create button only if it doesn't exist
+//     animateButton = viz1Container.append("button")
+//       .attr("class", "animate-button")
+//       .style("position", "absolute")
+//       .style("bottom", "10px")
+//       .style("left", "50%")
+//       .style("transform", "translateX(-50%)")
+//       .style("padding", "8px 15px")
+//       .style("background-color", "#4CAF50")
+//       .style("color", "white")
+//       .style("border", "none")
+//       .style("border-radius", "5px")
+//       .style("cursor", "pointer")
+//       .style("font-size", "14px")
+//       .text("Simulate Aging");
+//   } else {
+//       animateButton.text("Simulate Aging"); // Reset text if exists
+//   }
+
+
+//   animateButton.on("click", () => {
+//     animateButton.attr("disabled", true).text("Aging..."); // Disable button during animation
+
+//     const targetAge = 80; // Age to animate up to
+//     const duration = 5000; // 5 seconds for the animation
+
+//     // Get the correct regression function for the user's gender
+//     const userRegression = (userGender === "Male") ? maleRegression : femaleRegression;
+
+//     // Transition the user's point
+//     userDot.transition()
+//       .duration(duration)
+//       .ease(d3.easeLinear)
+//       .attrTween("cx", function() {
+//         const i = d3.interpolate(userAge, targetAge);
+//         return function(t) {
+//           const currentAnimatedAge = i(t);
+//           // Calculate the corresponding score on the trend line
+//           const animatedScore = userRegression.slope * currentAnimatedAge + userRegression.intercept;
+//           // Clamp the score to stay within the y-domain (0-28)
+//           const clampedScore = Math.max(0, Math.min(28, animatedScore));
+//           d3.select(this).attr("cy", y(clampedScore)); // Update y position during interpolation
+//           return x(currentAnimatedAge);
+//         };
+//       })
+//       .on("end", () => {
+//           userDot.append("title")
+//               .text(`Projected Score at Age ${targetAge}: ${(userRegression.slope * targetAge + userRegression.intercept).toFixed(2)}`);
+//           animateButton.attr("disabled", null).text("Simulate Aging"); // Re-enable button
+//       });
+
+//     // Transition the user's label
+//     userLabel.transition()
+//       .duration(duration)
+//       .ease(d3.easeLinear)
+//       .attrTween("x", function() {
+//         const i = d3.interpolate(userAge, targetAge);
+//         return function(t) {
+//           const currentAnimatedAge = i(t);
+//           return x(currentAnimatedAge) + 12; // Keep offset from dot
+//         };
+//       })
+//       .attrTween("y", function() {
+//         const i = d3.interpolate(userAge, targetAge);
+//         return function(t) {
+//           const currentAnimatedAge = i(t);
+//           const animatedScore = userRegression.slope * currentAnimatedAge + userRegression.intercept;
+//           const clampedScore = Math.max(0, Math.min(28, animatedScore));
+//           return y(clampedScore) + 4; // Keep offset from dot
+//         };
+//       })
+//       .tween("text", function() { // Animate the text content (age display)
+//           const that = d3.select(this);
+//           const i = d3.interpolateRound(userAge, targetAge); // Interpolate and round age
+//           return function(t) {
+//               that.text(`You (Age ${i(t)})`);
+//           };
+//       });
+//   });
+
+//   // Display regression equations (optional, for console logging/debugging)
+//   console.log(`Male Trend: y = ${maleRegression.slope.toFixed(4)}x + ${maleRegression.intercept.toFixed(4)}`);
+//   console.log(`Female Trend: y = ${femaleRegression.slope.toFixed(4)}x + ${femaleRegression.intercept.toFixed(4)}`);
+// }
+
+// Ensure you are using this exact createD3Visualization1 function
+async function createD3Visualization1(userAge, userGender, userScore) {
+  const svg = d3.select("#viz1 svg");
+  svg.selectAll("*").remove(); // Clear previous chart
+
+  const width = parseInt(svg.style("width")) || 600;
+  const height = parseInt(svg.style("height")) || 400;
   const margin = { top: 30, right: 30, bottom: 50, left: 60 };
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  // Load and normalize data
+  const chartGroup = svg.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
   const data = await d3.csv("BDSinfo.csv", d => {
     let gender = d.Gender?.trim().toLowerCase();
     if (gender === "m" || gender === "male") gender = "Male";
     else if (gender === "f" || gender === "female") gender = "Female";
-    else gender = null; // Exclude unrecognized/other categories
-
-    return {
-      Age: +d.Age,
-      Best_T: +d.Best_T,
-      Gender: gender
-    };
+    else gender = null;
+    return { Age: +d.Age, Best_T: +d.Best_T, Gender: gender };
   });
 
-  // Filter for valid entries only
-  const filtered = data.filter(d =>
+  const filteredData = data.filter(d =>
     !isNaN(d.Age) &&
     !isNaN(d.Best_T) &&
     (d.Gender === "Male" || d.Gender === "Female")
   );
 
   const x = d3.scaleLinear()
-    .domain(d3.extent(filtered, d => d.Age)).nice()
-    .range([margin.left, width - margin.right]);
+    .domain(d3.extent(filteredData, d => d.Age)).nice()
+    .range([0, innerWidth]);
 
   const y = d3.scaleLinear()
     .domain([0, 28])
-    .range([height - margin.bottom, margin.top]);
+    .range([innerHeight, 0]);
 
   const color = d3.scaleOrdinal()
     .domain(["Male", "Female"])
     .range(["#000080", "#C11C84"]);
 
-  // Linear regression function
   function linearRegression(xData, yData) {
     const n = xData.length;
     const sumX = d3.sum(xData);
     const sumY = d3.sum(yData);
     const sumXY = d3.sum(xData.map((x, i) => x * yData[i]));
     const sumXX = d3.sum(xData.map(x => x * x));
-    
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
-    
     return { slope, intercept };
   }
 
-  // Calculate single regression line for all data
-  const xData = filtered.map(d => d.Age);
-  const yData = filtered.map(d => d.Best_T);
-  const regression = linearRegression(xData, yData);
-  
-  const xExtent = d3.extent(xData);
-  const regressionLine = [
-    { x: xExtent[0], y: regression.slope * xExtent[0] + regression.intercept },
-    { x: xExtent[1], y: regression.slope * xExtent[1] + regression.intercept }
+  const maleData = filteredData.filter(d => d.Gender === "Male");
+  const femaleData = filteredData.filter(d => d.Gender === "Female");
+
+  const maleRegression = linearRegression(maleData.map(d => d.Age), maleData.map(d => d.Best_T));
+  const femaleRegression = linearRegression(femaleData.map(d => d.Age), femaleData.map(d => d.Best_T));
+
+  const minAge = d3.min(filteredData, d => d.Age);
+  const maxAge = d3.max(filteredData, d => d.Age);
+
+  const maleRegressionLineData = [
+    { x: minAge, y: maleRegression.slope * minAge + maleRegression.intercept },
+    { x: maxAge, y: maleRegression.slope * maxAge + maleRegression.intercept }
   ];
 
-  // Axes
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
+  const femaleRegressionLineData = [
+    { x: minAge, y: femaleRegression.slope * minAge + femaleRegression.intercept },
+    { x: maxAge, y: femaleRegression.slope * maxAge + femaleRegression.intercept }
+  ];
+
+  const line = d3.line()
+    .x(d => x(d.x))
+    .y(d => y(d.y));
+
+  chartGroup.append("path")
+    .datum(maleRegressionLineData)
+    .attr("class", "regression-line male-trend")
+    .attr("d", line)
+    .attr("stroke", color("Male"))
+    .attr("stroke-width", 2)
+    .attr("fill", "none")
+    .attr("stroke-dasharray", "4,2");
+
+  chartGroup.append("path")
+    .datum(femaleRegressionLineData)
+    .attr("class", "regression-line female-trend")
+    .attr("d", line)
+    .attr("stroke", color("Female"))
+    .attr("stroke-width", 2)
+    .attr("fill", "none")
+    .attr("stroke-dasharray", "4,2");
+
+  chartGroup.append("g")
+    .attr("transform", `translate(0,${innerHeight})`)
     .call(d3.axisBottom(x))
     .append("text")
-    .attr("x", innerWidth / 2 + margin.left)
+    .attr("x", innerWidth / 2)
     .attr("y", 40)
     .attr("fill", "#000")
     .attr("text-anchor", "middle")
     .text("Age");
 
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
+  chartGroup.append("g")
     .call(d3.axisLeft(y))
     .append("text")
     .attr("x", -innerHeight / 2)
@@ -1162,78 +1675,175 @@ async function createD3Visualization1() {
     .attr("text-anchor", "middle")
     .text("Balance Score (Best_T)");
 
-  // Add single regression line
-  const line = d3.line()
-    .x(d => x(d.x))
-    .y(d => y(d.y));
-
-  svg.append("path")
-    .datum(regressionLine)
-    .attr("class", "regression-line")
-    .attr("d", line)
-    .attr("stroke", "#333")
-    .attr("stroke-width", 2)
-    .attr("fill", "none")
-    .attr("stroke-dasharray", "5,5")
-    .attr("opacity", 0.8);
-
-  // Points (drawn after lines so they appear on top)
-  svg.selectAll("circle")
-    .data(filtered)
+  chartGroup.selectAll(".data-point")
+    .data(filteredData)
     .enter()
     .append("circle")
+    .attr("class", "data-point")
     .attr("cx", d => x(d.Age))
     .attr("cy", d => y(d.Best_T))
-    .attr("r", 4)
+    .attr("r", 3)
     .attr("fill", d => color(d.Gender))
-    .attr("opacity", 0.7);
+    .attr("opacity", 0.4);
+
+  // Add the user's personalized point (initially at their current age)
+  const userPointColor = (userGender === "Male") ? "#0000FF" : (userGender === "Female") ? "#FF00FF" : "purple";
+  const userDot = chartGroup.append("circle")
+    .attr("cx", x(userAge))
+    .attr("cy", y(userScore))
+    .attr("r", 8)
+    .attr("fill", userPointColor)
+    .attr("stroke", "white")
+    .attr("stroke-width", 2)
+    .attr("class", "user-point");
+
+  const userLabel = chartGroup.append("text")
+    .attr("x", x(userAge) + 12)
+    .attr("y", y(userScore) + 4)
+    .text("You")
+    .attr("fill", userPointColor)
+    .style("font-weight", "bold")
+    .style("font-size", "14px")
+    .attr("class", "user-label");
+
+  userDot.append("title")
+    .text(`Your Current Score: Age ${userAge}, Score ${userScore}`);
 
   // Legend
+  const legendData = [
+      { label: "Male Trend", color: color("Male"), dash: true },
+      { label: "Female Trend", color: color("Female"), dash: true },
+      { label: "All Data Points", color: "#666", dash: false, radius: 3 },
+      { label: "Your Score", color: userPointColor, dash: false, radius: 8 }
+  ];
+
   const legend = svg.selectAll(".legend")
-    .data(color.domain())
+    .data(legendData)
     .enter()
     .append("g")
     .attr("class", "legend")
-    .attr("transform", (d, i) => `translate(${width - margin.right - 100},${margin.top + i * 20})`);
+    .attr("transform", (d, i) => `translate(${width - margin.right - 120},${margin.top + i * 20})`);
 
-  legend.append("rect")
-    .attr("width", 10)
-    .attr("height", 10)
-    .attr("fill", d => color(d));
+  legend.each(function(d) {
+      const g = d3.select(this);
+      if (d.dash) {
+          g.append("line")
+              .attr("x1", 0)
+              .attr("x2", 15)
+              .attr("y1", 5)
+              .attr("y2", 5)
+              .attr("stroke", d.color)
+              .attr("stroke-width", 2)
+              .attr("stroke-dasharray", "4,2");
+      } else {
+          g.append("circle")
+              .attr("cx", 7.5)
+              .attr("cy", 5)
+              .attr("r", d.radius)
+              .attr("fill", d.color);
+      }
+      g.append("text")
+          .attr("x", 20)
+          .attr("y", 9)
+          .text(d.label)
+          .attr("font-size", "12px")
+          .attr("alignment-baseline", "middle");
+  });
 
-  legend.append("text")
-    .attr("x", 15)
-    .attr("y", 9)
-    .text(d => d)
-    .attr("font-size", "12px");
+  // --- Animation Logic ---
+  const viz1Container = d3.select("#viz1");
+  // IMPORTANT: Remove any existing button before creating a new one
+  viz1Container.select(".animate-button").remove();
 
-  // Add regression line indicator to legend
-  const regressionLegend = svg.append("g")
-    .attr("class", "regression-legend")
-    .attr("transform", `translate(${width - margin.right - 100},${margin.top + 50})`);
+  // Create the new button
+  let animateButton = viz1Container.append("button")
+      .attr("class", "animate-button")
+      .style("position", "absolute")
+      .style("bottom", "10px")
+      .style("left", "50%")
+      .style("transform", "translateX(-50%)")
+      .style("padding", "8px 15px")
+      .style("background-color", "#4CAF50")
+      .style("color", "white")
+      .style("border", "none")
+      .style("border-radius", "5px")
+      .style("cursor", "pointer")
+      .style("font-size", "14px")
+      .text("Simulate Aging");
 
-  regressionLegend.append("line")
-    .attr("x1", 0)
-    .attr("x2", 10)
-    .attr("y1", 5)
-    .attr("y2", 5)
-    .attr("stroke", "#333")
-    .attr("stroke-width", 2)
-    .attr("stroke-dasharray", "2,2");
+  // Attach the event listener to the NEWLY created button
+  animateButton.on("click", () => {
+    console.log("Simulate Aging button clicked!"); // Confirm click event fires
+    animateButton.attr("disabled", true).text("Aging..."); // Disable button during animation
 
-  regressionLegend.append("text")
-    .attr("x", 15)
-    .attr("y", 9)
-    .text("Trend Line")
-    .attr("font-size", "11px")
-    .attr("fill", "#666");
+    const targetAge = 80; // Age to animate up to
+    const duration = 5000; // 5 seconds for the animation
 
-  // Display regression equation
-  console.log(`Regression Analysis: y = ${regression.slope.toFixed(4)}x + ${regression.intercept.toFixed(4)}`);
+    // Get the correct regression function for the user's gender
+    const userRegression = (userGender === "Male") ? maleRegression : femaleRegression;
+
+    // Check if initial values are valid
+    console.log(`Animation start values - Age: ${userAge}, Score: ${userScore}`);
+    console.log(`Target values - Age: ${targetAge}`);
+    console.log(`User Regression Slope: ${userRegression.slope}, Intercept: ${userRegression.intercept}`);
+
+    // Transition the user's point
+    userDot.transition()
+      .duration(duration)
+      .ease(d3.easeLinear)
+      .attrTween("cx", function() {
+        const i = d3.interpolate(userAge, targetAge);
+        return function(t) {
+          const currentAnimatedAge = i(t);
+          // Calculate the corresponding score on the trend line
+          const animatedScore = userRegression.slope * currentAnimatedAge + userRegression.intercept;
+          // Clamp the score to stay within the y-domain (0-28)
+          const clampedScore = Math.max(0, Math.min(28, animatedScore));
+          d3.select(this).attr("cy", y(clampedScore)); // Update y position during interpolation
+          return x(currentAnimatedAge);
+        };
+      })
+      .on("end", () => {
+          // Update the title for the dot after animation ends
+          const finalProjectedScore = userRegression.slope * targetAge + userRegression.intercept;
+          userDot.select("title").text(`Projected Score at Age ${targetAge}: ${finalProjectedScore.toFixed(2)}`);
+
+          animateButton.attr("disabled", null).text("Simulate Aging"); // Re-enable button
+      });
+
+    // Transition the user's label
+    userLabel.transition()
+      .duration(duration)
+      .ease(d3.easeLinear)
+      .attrTween("x", function() {
+        const i = d3.interpolate(userAge, targetAge);
+        return function(t) {
+          const currentAnimatedAge = i(t);
+          return x(currentAnimatedAge) + 12; // Keep offset from dot
+        };
+      })
+      .attrTween("y", function() {
+        const i = d3.interpolate(userAge, targetAge);
+        return function(t) {
+          const currentAnimatedAge = i(t);
+          const animatedScore = userRegression.slope * currentAnimatedAge + userRegression.intercept;
+          const clampedScore = Math.max(0, Math.min(28, animatedScore));
+          return y(clampedScore) + 4; // Keep offset from dot
+        };
+      })
+      .tween("text", function() { // Animate the text content (age display)
+          const that = d3.select(this);
+          const i = d3.interpolateRound(userAge, targetAge); // Interpolate and round age
+          return function(t) {
+              that.text(`You (Age ${i(t)})`);
+          };
+      });
+  });
+
+  // Display regression equations (optional, for console logging/debugging)
+  console.log(`Male Trend: y = ${maleRegression.slope.toFixed(4)}x + ${maleRegression.intercept.toFixed(4)}`);
+  console.log(`Female Trend: y = ${femaleRegression.slope.toFixed(4)}x + ${femaleRegression.intercept.toFixed(4)}`);
 }
-
-
-
    
 async function createD3Visualization2() {
   const svg = d3.select("#viz2 svg");
