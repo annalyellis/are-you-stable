@@ -168,9 +168,16 @@
         <div id="viz3" class="viz-container">
             <h2>How do shoes affect your balance?</h2>
             <div class="viz-content">
-                <p>This bar chart breaks down which combinations of commonly worn footwear lead to different balance scores.</p>
-                <svg width="100%" height="300"></svg>
-                <p>For good balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?></p>
+                <p>For good long-term balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?</p>
+                <label for="footwearSelect"><strong>Select y  our most worn footwear:</strong></label>
+                <select id="footwearSelect">
+                  <option value="">-- Select Footwear --</option>
+                </select>
+                <svg width="100%" height="550"></svg>
+                <p>It looks like shoes with higher support, such as zero-drop tennis shoes or boots lead to good balance. Yet, orthopedic shoes perform poorly 
+                  while flip flops perform relatively well. This is due to the nature of our dataset - elderly people might be more inclined to wear orthopedic
+                  shoes while younger people might be more inclined to wear flip-flops.
+                </p>
             </div>
         </div>
         </div>
@@ -1899,23 +1906,43 @@ async function createD3Visualization2() {
 async function createD3Visualization3() {
   const svg = d3.select("#viz3 svg");
   svg.selectAll("*").remove();
+  d3.select("#footwearSelect").selectAll("option:not(:first-child)").remove(); // reset dropdown
 
   const width = parseInt(svg.style("width"));
   const height = parseInt(svg.style("height"));
   const margin = { top: 30, right: 30, bottom: 80, left: 60 };
 
-  const data = await d3.csv("BDSinfo.csv", d => ({
-    Footwear: d.Footwear?.trim(),
-    Best_T: +d.Best_T
-  }));
+  const excludedCategories = new Set([
+    'Walking shoes, Flip-Flops', 'Walking shoes, casual shoes', 'Walking shoes, Flip-Flops, Casual shoes',
+    'Walking shoes, Boots', 'Casual shoes, Dress shoes', 'Casual shoes, Flip-Flops',
+    'Walking shoes, Sandal', 'Sandal, Casual shoes', 'Casual shoes, Sandal'
+  ].map(d => d.toLowerCase().trim()));
+
+  const data = await d3.csv("BDSinfo.csv", d => {
+    const trimmedFootwear = d.Footwear?.trim();
+    return {
+      Footwear: trimmedFootwear,
+      normalizedFootwear: trimmedFootwear?.toLowerCase(),
+      Best_T: +d.Best_T
+    };
+  });
+
+  const filtered = data.filter(d =>
+    d.normalizedFootwear &&
+    !excludedCategories.has(d.normalizedFootwear) &&
+    !isNaN(d.Best_T)
+  );
 
   const grouped = d3.rollups(
-    data.filter(d => d.Footwear && !isNaN(d.Best_T)),
+    filtered,
     v => d3.mean(v, d => d.Best_T),
     d => d.Footwear
-  ).map(([footwear, avgBalance]) => ({ Footwear: footwear, avgBalance }));
+  ).map(([footwear, avgBalance]) => ({
+    Footwear: footwear,
+    normalizedFootwear: footwear.toLowerCase().trim(),
+    avgBalance
+  }));
 
-  // Sort by highest balance
   grouped.sort((a, b) => b.avgBalance - a.avgBalance);
 
   const x = d3.scaleBand()
@@ -1927,28 +1954,47 @@ async function createD3Visualization3() {
     .domain([0, 28])
     .range([height - margin.bottom, margin.top]);
 
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "rotate(-35)")
-    .style("text-anchor", "end");
+    svg.append("g")
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .each(function (d) {
+        const text = d3.select(this);
+        const words = d.split(" "); 
+        text.text(null);
+    
+        // Wrap words into 2-word lines
+        const lineLength = 2;
+        for (let i = 0; i < words.length; i += lineLength) {
+          text.append("tspan")
+            .text(words.slice(i, i + lineLength).join(" "))
+            .attr("x", 0)
+            .attr("dy", i === 0 ? 0 : "1em");
+        }
+    })
+  .attr("text-anchor", "end")
+  .attr("transform", "rotate(-35)")
+  .attr("dx", "-0.8em")
+  .attr("dy", "0.15em");
+
+
 
   svg.append("g")
     .attr("transform", `translate(${margin.left},0)`)
     .call(d3.axisLeft(y));
 
+  // Draw bars with class
   svg.selectAll("rect")
     .data(grouped)
     .enter()
     .append("rect")
+    .attr("class", d => "bar bar-" + d.normalizedFootwear.replace(/[^a-z0-9]/g, "-"))
     .attr("x", d => x(d.Footwear))
     .attr("y", d => y(d.avgBalance))
     .attr("width", x.bandwidth())
     .attr("height", d => height - margin.bottom - y(d.avgBalance))
-    .attr("fill", "#4CAF50");
+    .attr("fill", "#93C572");
 
-  // Optional: Add values above bars
   svg.selectAll(".label")
     .data(grouped)
     .enter()
@@ -1959,7 +2005,24 @@ async function createD3Visualization3() {
     .attr("font-size", "11px")
     .attr("fill", "#333")
     .text(d => d.avgBalance.toFixed(1));
+
+  // Populate dropdown
+  const dropdown = d3.select("#footwearSelect");
+  grouped.forEach(d => {
+    dropdown.append("option")
+      .attr("value", d.normalizedFootwear)
+      .text(d.Footwear);
+  });
+
+  // Highlight selected bar
+  dropdown.on("change", function () {
+    const selected = this.value;
+
+    svg.selectAll("rect")
+      .attr("fill", d => d.normalizedFootwear === selected ? "#B4C424" : "#93C572");
+  });
 }
+
 
 
 
