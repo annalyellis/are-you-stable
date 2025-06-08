@@ -158,18 +158,18 @@
             </div>
         </div>
         <div id="viz2" class="viz-container">
-            <h2>Balance with vs. without prosthetics</h2>
+            <h2>How to Improve Your Balance: More Exercise</h2>
             <div class="viz-content">
-                <p>This visualization informs us of how those of us who wear prosthetics might have different balance scores compared to those of us who don't</p>
+                <p>This visualization shows us that, on average, more minutes of moderate exercise is better for your balance.</p>
                 <svg width="100%" height="300"></svg>
-                <p></p>
+                <p>Where are you on the graph? Incorporating more moderate exercise into our daily lives can help us maintain stability as we age.</p>
             </div>
         </div>
         <div id="viz3" class="viz-container">
-            <h2>How do shoes affect your balance?</h2>
+            <h2>How to Improve Your Balance: Better Shoes</h2>
             <div class="viz-content">
-                <p>For good long-term balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?</p>
-                <label for="footwearSelect"><strong>Select y  our most worn footwear:</strong></label>
+                <p>How do shoes impact your balance? For good long-term balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?</p>
+                <label for="footwearSelect"><strong>Select your most worn footwear:</strong></label>
                 <select id="footwearSelect">
                   <option value="">-- Select Footwear --</option>
                 </select>
@@ -1861,46 +1861,108 @@ async function createD3Visualization2() {
   const margin = { top: 30, right: 30, bottom: 60, left: 60 };
 
   const data = await d3.csv("BDSinfo.csv", d => ({
-    Prosthesis: d["Ortho-Prosthesis"]?.trim(),
+    Age: +d.Age,
+    IPAQ_1b: +d.IPAQ_1b,
     Best_T: +d.Best_T
   }));
 
-  const grouped = d3.rollups(
-    data.filter(d => d.Prosthesis && !isNaN(d.Best_T)),
-    v => d3.mean(v, d => d.Best_T),
-    d => d.Prosthesis
-  ).map(([group, avg]) => ({ Prosthesis: group, avgBalance: avg }));
+  // Filter: people under 52
+  const young = data.filter(d => d.Age < 52 && !isNaN(d.IPAQ_1b) && !isNaN(d.Best_T));
 
-  const x = d3.scaleBand()
-    .domain(grouped.map(d => d.Prosthesis))
-    .range([margin.left, width - margin.right])
-    .padding(0.2);
+  // Group by IPAQ_1b, compute mean Best_T
+  const grouped = Array.from(
+    d3.rollup(
+      young,
+      v => d3.mean(v, d => d.Best_T),
+      d => d.IPAQ_1b
+    ),
+    ([IPAQ_1b, avgBalance]) => ({ IPAQ_1b: +IPAQ_1b, avgBalance })
+  ).sort((a, b) => a.IPAQ_1b - b.IPAQ_1b); // sort by IPAQ minutes
+
+  const x = d3.scaleLinear()
+    .domain(d3.extent(grouped, d => d.IPAQ_1b))
+    .range([margin.left, width - margin.right]);
 
   const y = d3.scaleLinear()
-    .domain([0, 28])
+    .domain([18, 28])
     .range([height - margin.bottom, margin.top]);
 
+  // X Axis
   svg.append("g")
     .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "rotate(-35)")
-    .style("text-anchor", "end");
+    .call(d3.axisBottom(x).ticks(6))
+    .append("text")
+    .attr("x", width - margin.right)
+    .attr("y", -10)
+    .attr("text-anchor", "end")
+    .attr("fill", "black")
+    .text("Moderate Activity (minutes)");
 
+  // Y Axis
   svg.append("g")
     .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("x", 0)
+    .attr("y", margin.top)
+    .attr("text-anchor", "start")
+    .attr("fill", "black")
+    .text("Avg Balance Score (Best_T)");
 
-  svg.selectAll("rect")
-    .data(grouped)
-    .enter()
-    .append("rect")
-    .attr("x", d => x(d.Prosthesis))
-    .attr("y", d => y(d.avgBalance))
-    .attr("width", x.bandwidth())
-    .attr("height", d => height - margin.bottom - y(d.avgBalance))
-    .attr("fill", "#FF9800");
+  // Line generator
+  const line = d3.line()
+    .x(d => x(d.IPAQ_1b))
+    .y(d => y(d.avgBalance));
+
+  // Draw line
+  svg.append("path")
+    .datum(grouped)
+    .attr("fill", "none")
+    .attr("stroke", "#9F2B68")
+    .attr("stroke-width", 2.5)
+    .attr("d", line);
+  
+    const userIPAQ = assessmentData?.ipaq1b;
+
+if (!isNaN(userIPAQ)) {
+  // Interpolate user's y-position from line
+  const xVals = grouped.map(d => d.IPAQ_1b);
+  const yVals = grouped.map(d => d.avgBalance);
+
+  // Find the two closest IPAQ points
+  let i = d3.bisector(d => d.IPAQ_1b).left(grouped, userIPAQ);
+  if (i > 0 && i < grouped.length) {
+    const left = grouped[i - 1];
+    const right = grouped[i];
+    const slope = (right.avgBalance - left.avgBalance) / (right.IPAQ_1b - left.IPAQ_1b);
+    var estimatedY = left.avgBalance + slope * (userIPAQ - left.IPAQ_1b);
+  } else {
+    // If out of bounds, just clamp to nearest
+    var estimatedY = grouped[i >= grouped.length ? grouped.length - 1 : 0].avgBalance;
+  }
+
+  // Draw user dot
+  svg.append("circle")
+    .attr("cx", x(userIPAQ))
+    .attr("cy", y(estimatedY))
+    .attr("r", 6)
+    .attr("fill", "#C3B1E1")
+    .attr("stroke", "#333")
+    .attr("stroke-width", 1.2);
+
+  // Add "You" label next to the dot
+  svg.append("text")
+    .attr("x", x(userIPAQ) + 8)
+    .attr("y", y(estimatedY) - 8)
+    .attr("fill", "#C3B1E1")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "start")
+    .text("You");
 }
+
+}
+
 
 
 async function createD3Visualization3() {
