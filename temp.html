@@ -180,6 +180,16 @@
                 </p>
             </div>
         </div>
+        <div id="viz4" class="viz-container">
+          <h2>Does Height Impact Balance?</h2>
+          <div class="viz-content">
+              <p>Exploring the relationship between participant height and Mini-BESTest scores</p>
+              <svg width="100%" height="300"></svg>
+              <p>This visualization explores the relationship between height (in inches) and balance ability as measured by the Mini-BESTest. 
+                The scatter plot shows individual data points, while the red regression line indicates a trend: taller individuals tend to score slightly higher on the Mini-BESTest. 
+                The shaded area around the line represents the 95% confidence interval. A Pearson correlation coefficient of 0.50 suggests a weak positive relationship between height and balance performance. However, variability in scores at all heights indicates that height alone does not fully determine balance ability</p>
+          </div>
+        </div>
         </div>
   </div>
 
@@ -603,6 +613,7 @@
             d3.select('#viz1 svg').selectAll("*").remove();
             d3.select('#viz2 svg').selectAll("*").remove();
             d3.select('#viz3 svg').selectAll("*").remove();
+            d3.select('#viz4 svg').selectAll("*").remove();
 
 
             // Clear previous results content in resultsPane
@@ -713,10 +724,11 @@
     // Fallback: call the visualization without user-specific data if needed
     await createD3Visualization1(null, null, null); // This will draw trends but no user dot
   }
-
+  const userHeight = parseFloat(document.getElementById('height').value);
   // Call your other visualization functions here (add await if they are async)
   await createD3Visualization2(); // Assuming this is async if it loads CSV
   await createD3Visualization3(); // Assuming this is async if it loads CSV
+  await createD3Visualization4(userHeight,miniBESTestScore);
 }
     // function renderAllVisualizations() {
     //   if (userGender !== null && !isNaN(userAge) && !isNaN(miniBESTestScore)) {
@@ -2086,9 +2098,250 @@ async function createD3Visualization3() {
 }
 
 
+async function createD3Visualization4(userHeight, miniBESTestScore) {
+  const svg = d3.select("#viz4 svg");
+  if (svg.empty()) {
+    console.error("Error: SVG element with ID 'viz4' or its nested SVG not found.");
+    return;
+  }
 
+  svg.selectAll("*").remove();
 
+  const width = parseInt(svg.style("width"));
+  const height = parseInt(svg.style("height"));
+  const margin = { top: 60, right: 30, bottom: 100, left: 80 };
 
+  const data = await d3.csv("BDSinfo.csv", d => ({
+    Height: +d.Height?.trim() * 0.393701,
+    Weight: +d.Weight?.trim(),
+    Best_T: +d.Best_T?.trim()
+  }));
+
+  const filtered = data.filter(d =>
+    !isNaN(d.Height) &&
+    !isNaN(d.Weight) &&
+    !isNaN(d.Best_T)
+  );
+
+  if (filtered.length === 0) {
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", height / 2)
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .text("No valid Height and Mini-BESTest data found.");
+    return;
+  }
+
+  const x = d3.scaleLinear()
+    .domain(d3.extent(filtered, d => d.Height)).nice()
+    .range([margin.left, width - margin.right]);
+
+  const y = d3.scaleLinear()
+    .domain(d3.extent(filtered, d => d.Best_T)).nice()
+    .range([height - margin.bottom, margin.top]);
+
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x));
+
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y));
+
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", height - 50)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Height (inches)");
+
+  svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", 25)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Mini-BESTest Score");
+
+  // Tooltip
+  const tooltip = d3.select("#viz4").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("background", "#fff")
+    .style("border", "1px solid #ccc")
+    .style("padding", "10px")
+    .style("border-radius", "6px")
+    .style("font-size", "13px")
+    .style("box-shadow", "0 2px 5px rgba(0,0,0,0.3)");
+
+  svg.on("click", event => {
+    if (event.target.tagName !== 'circle' && !event.target.closest("#viz4 div")) {
+      tooltip.style("visibility", "hidden");
+    }
+  });
+
+  svg.selectAll("circle.data-point")
+    .data(filtered)
+    .enter()
+    .append("circle")
+    .attr("class", "data-point")
+    .attr("cx", d => x(d.Height))
+    .attr("cy", d => y(d.Best_T))
+    .attr("r", 5)
+    .attr("fill", "#007acc")
+    .attr("opacity", 0.8)
+    .style("cursor", "pointer")
+    .on("click", (event, d) => {
+      if (!d || isNaN(d.Height) || isNaN(d.Best_T)) {
+        tooltip.style("visibility", "hidden");
+        return;
+      }
+
+      tooltip
+        .style("visibility", "visible")
+        .style("top", `${event.pageY - 60}px`)
+        .style("left", `${event.pageX + 10}px`)
+        .html(`
+          <div>
+            <strong>Height:</strong> ${d.Height.toFixed(1)} in<br/>
+            <strong>Mini-BESTest Score:</strong> ${d.Best_T.toFixed(1)}
+          </div>
+        `);
+    });
+
+  // Regression Line
+  const n = filtered.length;
+  const sumX = d3.sum(filtered, d => d.Height);
+  const sumY = d3.sum(filtered, d => d.Best_T);
+  const sumXY = d3.sum(filtered, d => d.Height * d.Best_T);
+  const sumX2 = d3.sum(filtered, d => d.Height * d.Height);
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  const predictions = filtered.map(d => {
+    const yPred = slope * d.Height + intercept;
+    return { ...d, predicted: yPred, residual: d.Best_T - yPred };
+  });
+
+  const se = Math.sqrt(d3.mean(predictions.map(d => d.residual ** 2)));
+  const xRange = d3.range(x.domain()[0], x.domain()[1], 0.5);
+  const meanX = sumX / n;
+
+  const confidenceData = xRange.map(xVal => {
+    const yVal = slope * xVal + intercept;
+    const seY = se * Math.sqrt(1 / n + (xVal - meanX) ** 2 / (sumX2 - (sumX ** 2) / n));
+    const margin = 1.96 * seY;
+    return {
+      x: xVal,
+      y: yVal,
+      yLow: yVal - margin,
+      yHigh: yVal + margin
+    };
+  });
+
+  svg.append("path")
+    .datum(confidenceData)
+    .attr("fill", "#fdd")
+    .attr("stroke", "none")
+    .attr("opacity", 0.4)
+    .attr("d", d3.area()
+      .x(d => x(d.x))
+      .y0(d => y(d.yLow))
+      .y1(d => y(d.yHigh))
+    );
+
+  svg.append("line")
+    .attr("x1", x(xRange[0]))
+    .attr("y1", y(slope * xRange[0] + intercept))
+    .attr("x2", x(xRange[xRange.length - 1]))
+    .attr("y2", y(slope * xRange[xRange.length - 1] + intercept))
+    .attr("stroke", "#e45756")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "5,5");
+
+  // "You" marker
+  if (!isNaN(userHeight) && !isNaN(miniBESTestScore)) {
+    const heightInInches = userHeight;
+    svg.append("circle")
+      .attr("cx", x(heightInInches))
+      .attr("cy", y(miniBESTestScore))
+      .attr("r", 6)
+      .attr("fill", "#e45756")
+      .attr("stroke", "#000")
+      .attr("stroke-width", 1.5);
+
+    svg.append("text")
+      .attr("x", x(heightInInches) + 8)
+      .attr("y", y(miniBESTestScore) - 8)
+      .text("You")
+      .style("font-size", "13px")
+      .style("font-weight", "bold")
+      .style("fill", "#e45756");
+  }
+
+ 
+  // Legend
+  const legend = svg.append("g")
+    .attr("transform", `translate(${width - 180}, ${margin.top})`);
+
+  legend.append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", 5)
+    .attr("fill", "#007acc");
+
+  legend.append("text")
+    .attr("x", 12)
+    .attr("y", 5)
+    .text("Data point")
+    .style("font-size", "12px");
+
+  legend.append("line")
+    .attr("x1", 0)
+    .attr("y1", 20)
+    .attr("x2", 20)
+    .attr("y2", 20)
+    .attr("stroke", "#e45756")
+    .attr("stroke-dasharray", "5,5")
+    .attr("stroke-width", 2);
+
+  legend.append("text")
+    .attr("x", 25)
+    .attr("y", 24)
+    .text("Regression line")
+    .style("font-size", "12px");
+
+  legend.append("rect")
+    .attr("x", 0)
+    .attr("y", 35)
+    .attr("width", 20)
+    .attr("height", 10)
+    .attr("fill", "#fdd")
+    .attr("opacity", 0.4);
+
+  legend.append("text")
+    .attr("x", 25)
+    .attr("y", 44)
+    .text("95% Confidence band")
+    .style("font-size", "12px");
+
+  legend.append("circle")
+    .attr("cx", 5)
+    .attr("cy", 60)
+    .attr("r", 6)
+    .attr("fill", "#e45756")
+    .attr("stroke", "#000");
+
+  legend.append("text")
+    .attr("x", 16)
+    .attr("y", 64)
+    .text('"You"')
+    .style("font-size", "12px")
+    .style("font-weight", "bold");
+}
 
     /**
      * Downloads the complete assessment results as a JSON file.
@@ -2211,6 +2464,7 @@ async function createD3Visualization3() {
         d3.select('#viz1 svg').selectAll("*").remove();
         d3.select('#viz2 svg').selectAll("*").remove();
         d3.select('#viz3 svg').selectAll("*").remove();
+        d3.select('#viz4 svg').selectAll("*").remove();
 
 
         // Reset resultsPane and visualizationArea styles to initial (hidden/default) state
