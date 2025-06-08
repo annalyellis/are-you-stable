@@ -190,6 +190,13 @@
                 The shaded area around the line represents the 95% confidence interval. A Pearson correlation coefficient of 0.50 suggests a weak positive relationship between height and balance performance. However, variability in scores at all heights indicates that height alone does not fully determine balance ability</p>
           </div>
         </div>
+        <div id="viz5" class="viz-container">
+          <h2>How Lifestyle Choices Change Your Balance Over Time</h2>
+          <div class="viz-content">
+            <p>This chart compares two scenarios: "Average Joe if he continued his normal habits" vs. "Average Joe if he engaged in more exercise and wore better footwear." The lines show how balance scores change with age for each group.</p>
+            <svg width="100%" height="350"></svg>
+          </div>
+        </div>
         </div>
   </div>
 
@@ -219,7 +226,7 @@
         "Visiting friends or relatives",
         "Going to a place with stairs or steps",
         "Going for a social event (e.g. club, religious meeting, party)",
-        "Going to the doctor’s clinic or hospital"
+        "Going to the doctor's clinic or hospital"
     ];
 
 
@@ -614,6 +621,7 @@
             d3.select('#viz2 svg').selectAll("*").remove();
             d3.select('#viz3 svg').selectAll("*").remove();
             d3.select('#viz4 svg').selectAll("*").remove();
+            d3.select('#viz5 svg').selectAll("*").remove();
 
 
             // Clear previous results content in resultsPane
@@ -729,6 +737,7 @@
   await createD3Visualization2(); // Assuming this is async if it loads CSV
   await createD3Visualization3(); // Assuming this is async if it loads CSV
   await createD3Visualization4(userHeight,miniBESTestScore);
+  await createD3Visualization5();
 }
     // function renderAllVisualizations() {
     //   if (userGender !== null && !isNaN(userAge) && !isNaN(miniBESTestScore)) {
@@ -1744,6 +1753,7 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
         d3.select('#viz2 svg').selectAll("*").remove();
         d3.select('#viz3 svg').selectAll("*").remove();
         d3.select('#viz4 svg').selectAll("*").remove();
+        d3.select('#viz5 svg').selectAll("*").remove();
 
 
         // Reset resultsPane and visualizationArea styles to initial (hidden/default) state
@@ -1782,6 +1792,213 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
         updateProgress();
     }
 
+    async function createD3Visualization5() {
+  const svg = d3.select("#viz5 svg");
+  svg.selectAll("*").remove();
+
+  const width = parseInt(svg.style("width")) || 600;
+  const height = parseInt(svg.style("height")) || 350;
+  const margin = { top: 60, right: 40, bottom: 60, left: 60 };
+
+  // Load and preprocess data
+  const data = await d3.csv("BDSinfo.csv", d => ({
+    Age: +d.Age,
+    Best_T: +d.Best_T,
+    IPAQ_1b: +d.IPAQ_1b,
+    Footwear: d.Footwear?.toLowerCase().trim()
+  }));
+
+  // Define "better" exercise and footwear (stricter criteria)
+  const goodExercise = d => d.IPAQ_1b >= 45; // 45+ min moderate activity
+  const goodFootwear = d => d.Footwear && (
+    d.Footwear.includes("tennis") ||
+    d.Footwear.includes("athletic") ||
+    d.Footwear.includes("boot") ||
+    d.Footwear.includes("zero-drop")
+  );
+
+  // Group 1: "Better lifestyle" (good exercise AND good footwear)
+  const group1 = data.filter(d => goodExercise(d) && goodFootwear(d) && !isNaN(d.Age) && !isNaN(d.Best_T));
+  // Group 2: "Average" (everyone else, but still valid)
+  const group2 = data.filter(d => (!goodExercise(d) || !goodFootwear(d)) && !isNaN(d.Age) && !isNaN(d.Best_T));
+
+  // Find the full set of age bins across both groups
+  const allAgesSet = new Set([
+    ...group1.map(d => Math.round(d.Age / 5) * 5),
+    ...group2.map(d => Math.round(d.Age / 5) * 5)
+  ]);
+  const allAgesSorted = Array.from(allAgesSet).sort((a, b) => a - b);
+
+  // Bin by age (5-year bins), but ensure all bins are present for both groups
+  function binByAgeFull(group, allAges) {
+    const meanByAge = d3.rollups(
+      group,
+      v => d3.mean(v, d => d.Best_T),
+      d => Math.round(d.Age / 5) * 5
+    );
+    const meanMap = new Map(meanByAge);
+    return allAges.map(age => ({ age, avg: meanMap.has(age) ? meanMap.get(age) : null }));
+  }
+  const binned1 = binByAgeFull(group1, allAgesSorted);
+  const binned2 = binByAgeFull(group2, allAgesSorted);
+
+  // Carry forward last known value for missing bins
+  function carryForward(binned) {
+    let last = null;
+    return binned.map(d => {
+      if (d.avg == null) {
+        return { age: d.age, avg: last };
+      } else {
+        last = d.avg;
+        return d;
+      }
+    });
+  }
+  const binned1_cf = carryForward(binned1);
+  const binned2_cf = carryForward(binned2);
+
+  // Scales
+  const allAges = [...binned1_cf.map(d => d.age), ...binned2_cf.map(d => d.age)];
+  const x = d3.scaleLinear()
+    .domain([d3.min(allAges), d3.max(allAges)])
+    .range([margin.left, width - margin.right]);
+  const y = d3.scaleLinear()
+    .domain([0, 28])
+    .range([height - margin.bottom, margin.top]);
+
+  // Axes
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).ticks(8))
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", 40)
+    .attr("fill", "#222")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "15px")
+    .text("Age");
+
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("x", -height / 2)
+    .attr("y", -45)
+    .attr("transform", "rotate(-90)")
+    .attr("fill", "#222")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "15px")
+    .text("Mini-BESTest Score");
+
+  // Lines
+  const line = d3.line()
+    .x(d => x(d.age))
+    .y(d => y(d.avg));
+
+  svg.append("path")
+    .datum(binned2_cf)
+    .attr("fill", "none")
+    .attr("stroke", "#888")
+    .attr("stroke-width", 3)
+    .attr("d", line);
+
+  svg.append("path")
+    .datum(binned1_cf)
+    .attr("fill", "none")
+    .attr("stroke", "#2b7a0b")
+    .attr("stroke-width", 3)
+    .attr("d", line);
+
+  // Annotations
+  if (binned1_cf.length > 0) {
+    const first = binned1_cf[0];
+    const last = binned1_cf[binned1_cf.length - 1];
+    svg.append("text")
+      .attr("x", x(first.age) + 10)
+      .attr("y", y(first.avg) - 10)
+      .attr("fill", "#2b7a0b")
+      .attr("font-size", "13px")
+      .attr("font-weight", "bold")
+      .text("More Exercise + Better Shoes");
+    svg.append("text")
+      .attr("x", x(last.age) - 120)
+      .attr("y", y(last.avg) - 10)
+      .attr("fill", "#2b7a0b")
+      .attr("font-size", "13px")
+      .attr("font-weight", "bold")
+      .text("(Best Lifestyle)");
+  }
+  if (binned2_cf.length > 0) {
+    const first = binned2_cf[0];
+    const last = binned2_cf[binned2_cf.length - 1];
+    svg.append("text")
+      .attr("x", x(first.age) + 10)
+      .attr("y", y(first.avg) + 20)
+      .attr("fill", "#888")
+      .attr("font-size", "13px")
+      .attr("font-weight", "bold")
+      .text("Average Joe");
+    svg.append("text")
+      .attr("x", x(last.age) - 80)
+      .attr("y", y(last.avg) + 20)
+      .attr("fill", "#888")
+      .attr("font-size", "13px")
+      .attr("font-weight", "bold")
+      .text("(Normal Habits)");
+  }
+
+  // Title annotation
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", margin.top - 30)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "18px")
+    .attr("font-weight", "bold")
+    .attr("fill", "#222")
+    .text("How Lifestyle Choices Change Your Balance Over Time");
+
+  // Legend
+  const legend = svg.append("g")
+    .attr("transform", `translate(${width - 260},${margin.top})`);
+  legend.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 220)
+    .attr("height", 48)
+    .attr("fill", "#fff")
+    .attr("stroke", "#bbb")
+    .attr("rx", 8)
+    .attr("ry", 8)
+    .attr("opacity", 0.95);
+  legend.append("line")
+    .attr("x1", 18)
+    .attr("y1", 18)
+    .attr("x2", 48)
+    .attr("y2", 18)
+    .attr("stroke", "#2b7a0b")
+    .attr("stroke-width", 3);
+  legend.append("text")
+    .attr("x", 60)
+    .attr("y", 22)
+    .attr("fill", "#2b7a0b")
+    .attr("font-size", "13px")
+    .attr("font-weight", "bold")
+    .text("More Exercise + Better Shoes");
+  legend.append("line")
+    .attr("x1", 18)
+    .attr("y1", 36)
+    .attr("x2", 48)
+    .attr("y2", 36)
+    .attr("stroke", "#888")
+    .attr("stroke-width", 3);
+  legend.append("text")
+    .attr("x", 60)
+    .attr("y", 40)
+    .attr("fill", "#888")
+    .attr("font-size", "13px")
+    .attr("font-weight", "bold")
+    .text("Average Joe");
+}
   </script>
 </body>
 </html>
