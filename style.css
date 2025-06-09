@@ -835,9 +835,22 @@ h1, h2, h3 {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   color: #333;
+  text-align: center;
 }
 
 #final strong {
   color: #2c3e50;
   font-weight: 700;
 }
+
+#falling {
+  display: flex;
+  flex-direction: column;  /* stack children vertically */
+  justify-content: center; /* vertical centering */
+  align-items: center;     /* horizontal centering */
+  height: 100vh;           /* full viewport height */
+  text-align: center;      /* center text inside elements */
+  padding: 0 20px;         /* optional padding for smaller screens */
+  box-sizing: border-box;
+}
+

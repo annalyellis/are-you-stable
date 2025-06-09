@@ -192,6 +192,10 @@
         </div>
         <div id="falling">
           <h1>It’s not about falling - it’s about learning how to get back up stronger.</h1>
+          <a href="https://peerj.com/articles/2648/" target="_blank" rel="noopener noreferrer">
+            A Public Data Set of Human Balance Evaluations (PeerJ Article)
+          </a>
+          
         </div>
       </div>
   </div>
@@ -2166,18 +2170,17 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
   // }
   
  
-
-function checkScroll() {
+  function checkScroll() {
   const svgElement = svg.node();
   const rect = svgElement.getBoundingClientRect();
   const windowHeight = window.innerHeight;
 
-  // Trigger when the top of the SVG is within the top 60% of the viewport
-  if (rect.top < windowHeight * 0.6 && rect.bottom > 0) {
-    if (!animationTriggered) {
-      animationTriggered = true;
-      setTimeout(animateGreenLine, 50);
-    }
+  // Trigger if any part of the SVG is in view
+  const isInView = rect.top < windowHeight && rect.bottom > 0;
+
+  if (isInView && !animationTriggered) {
+    animationTriggered = true;
+    setTimeout(animateGreenLine, 50); // fire slightly after visible
   }
   else if (rect.top > windowHeight || rect.bottom < 0) {
       // Reset when chart goes out of view
@@ -2187,6 +2190,8 @@ function checkScroll() {
       }
     } 
 }
+
+
 
 
 
