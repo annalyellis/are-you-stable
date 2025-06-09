@@ -5,6 +5,9 @@
   <title>Balance Quiz & Visualization</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/scrollama"></script>
+
+  
   <style>
   </style>
 </head>
@@ -158,6 +161,17 @@
             </div>
         </div>
         <div id="viz2" class="viz-container">
+          <h2>Does Height Impact Balance?</h2>
+          <div class="viz-content">
+              <p>Exploring the relationship between participant height and Mini-BESTest scores</p>
+              <svg width="100%" height="300"></svg>
+              <p>This visualization explores the relationship between height (in inches) and balance ability as measured by the Mini-BESTest. 
+                The scatter plot shows individual data points, while the red regression line indicates a trend: taller individuals tend to score slightly higher on the Mini-BESTest. 
+                The shaded area around the line represents the 95% confidence interval. A Pearson correlation coefficient of 0.50 suggests a weak positive relationship between height and balance performance. However, variability in scores at all heights indicates that height alone does not fully determine balance ability</p>
+          </div>
+        </div>
+
+        <div id="viz3" class="viz-container">
             <h2>How to Improve Your Balance: More Exercise</h2>
             <div class="viz-content">
                 <p>This visualization shows us that, on average, more minutes of moderate exercise is better for your balance.</p>
@@ -165,7 +179,7 @@
                 <p>Where are you on the graph? Incorporating more moderate exercise into our daily lives can help us maintain stability as we age.</p>
             </div>
         </div>
-        <div id="viz3" class="viz-container">
+        <div id="viz4" class="viz-container">
             <h2>How to Improve Your Balance: Better Shoes</h2>
             <div class="viz-content">
                 <p>How do shoes impact your balance? For good long-term balance it is important to consider which shoes can lead to long term stability. What kind of shoes do you wear?</p>
@@ -180,16 +194,6 @@
                 </p>
             </div>
         </div>
-        <div id="viz4" class="viz-container">
-          <h2>Does Height Impact Balance?</h2>
-          <div class="viz-content">
-              <p>Exploring the relationship between participant height and Mini-BESTest scores</p>
-              <svg width="100%" height="300"></svg>
-              <p>This visualization explores the relationship between height (in inches) and balance ability as measured by the Mini-BESTest. 
-                The scatter plot shows individual data points, while the red regression line indicates a trend: taller individuals tend to score slightly higher on the Mini-BESTest. 
-                The shaded area around the line represents the 95% confidence interval. A Pearson correlation coefficient of 0.50 suggests a weak positive relationship between height and balance performance. However, variability in scores at all heights indicates that height alone does not fully determine balance ability</p>
-          </div>
-        </div>
         <div id="viz5" class="viz-container">
           <h2>How Lifestyle Choices Change Your Balance Over Time</h2>
           <div class="viz-content">
@@ -201,6 +205,7 @@
   </div>
 
   <script>
+    
     let currentStep = 0;
     let assessmentData = {};
     let tmtStartTime = null;
@@ -734,9 +739,9 @@
   }
   const userHeight = parseFloat(document.getElementById('height').value);
   // Call your other visualization functions here (add await if they are async)
+  await createD3Visualization4(userHeight,miniBESTestScore);
   await createD3Visualization2(); // Assuming this is async if it loads CSV
   await createD3Visualization3(); // Assuming this is async if it loads CSV
-  await createD3Visualization4(userHeight,miniBESTestScore);
   await createD3Visualization5();
 }
     // function renderAllVisualizations() {
@@ -1153,7 +1158,7 @@ async function createD3Visualization1(userAge, userGender, userScore) {
 }
    
 async function createD3Visualization2() {
-  const svg = d3.select("#viz2 svg");
+  const svg = d3.select("#viz3 svg");
   svg.selectAll("*").remove();
 
   const width = parseInt(svg.style("width"));
@@ -1266,7 +1271,7 @@ if (!isNaN(userIPAQ)) {
 
 
 async function createD3Visualization3() {
-  const svg = d3.select("#viz3 svg");
+  const svg = d3.select("#viz4 svg");
   svg.selectAll("*").remove();
   d3.select("#footwearSelect").selectAll("option:not(:first-child)").remove(); // reset dropdown
 
@@ -1387,7 +1392,7 @@ async function createD3Visualization3() {
 
 
 async function createD3Visualization4(userHeight, miniBESTestScore) {
-  const svg = d3.select("#viz4 svg");
+  const svg = d3.select("#viz2 svg");
   if (svg.empty()) {
     console.error("Error: SVG element with ID 'viz4' or its nested SVG not found.");
     return;
@@ -1453,7 +1458,7 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
     .text("Mini-BESTest Score");
 
   // Tooltip
-  const tooltip = d3.select("#viz4").append("div")
+  const tooltip = d3.select("#viz2").append("div")
     .attr("class", "tooltip")
     .style("position", "absolute")
     .style("visibility", "hidden")
