@@ -24,7 +24,9 @@
 
     <div id="step0" class="step active">
       <h2>Welcome to the Balance Assessment!</h2>
-      <p>This quiz will assess your balance and provide personalized insights. It involves several steps, including questions about your physical activity and a simple motor test.</p>
+      <p>This quiz will assess your balance so we can provide you with personalized insights. It involves several steps, including questions about your physical activity and a simple motor test.
+      </p>
+      <p>It will result in a Mini Balance Evaluation Systems Test (Mini BES-test) score, similar to the ones patients in our dataset received through a series of physical exercises. We will predict yours through the other questions they answered.</p>
       <div class="navigation-buttons">
         <button id="startQuizBtn" onclick="goToStep(1)">Start Quiz</button>
       </div>
@@ -182,7 +184,16 @@
             <svg width="100%" height="350"></svg>
           </div>
         </div>
+        
+        <div id="final" >
+          <p>You’ve just taken a meaningful step towards understanding your body. Balance isn’t just about standing still - it’s about adapting and moving forward, both physically and mentally. Whether your quiz score surprised you or validated your efforts, the important thing is that you’re here and ready to take action. 
+            Remember: balance is only a skill. And like any skill, it can be nurtured. Taking small, consistent steps - whether it’s exercising, wearing more supportive footwear, or simply bringing more awareness - can make a real difference over time.
+          </p>
         </div>
+        <div id="falling">
+          <h1>It’s not about falling - it’s about learning how to get back up stronger.</h1>
+        </div>
+      </div>
   </div>
 
   <script>
@@ -723,6 +734,7 @@
   await createD3Visualization2(); // Assuming this is async if it loads CSV
   await createD3Visualization3(); // Assuming this is async if it loads CSV
   await createD3Visualization5();
+
 }
 
 
@@ -2133,25 +2145,50 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
   // Scroll-triggered animation
   let animationTriggered = false;
   
-  function checkScroll() {
-    const svgElement = svg.node();
-    const rect = svgElement.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
+  // function checkScroll() {
+  //   const svgElement = svg.node();
+  //   const rect = svgElement.getBoundingClientRect();
+  //   const windowHeight = window.innerHeight;
     
-    // Trigger when the chart is 50% visible
-    if (rect.top < windowHeight * 0.75 && rect.bottom > windowHeight * 0.25) {
-      if (!animationTriggered) {
-        animationTriggered = true;
-        setTimeout(animateGreenLine, 300); // Small delay for better effect
-      }
-    } else if (rect.top > windowHeight || rect.bottom < 0) {
+  //   // Trigger when the chart is 50% visible
+  //   if (rect.top < windowHeight * 0.75 && rect.bottom > windowHeight * 0.25) {
+  //     if (!animationTriggered) {
+  //       animationTriggered = true;
+  //       setTimeout(animateGreenLine, 50); // Small delay for better effect
+  //     }
+  //   } else if (rect.top > windowHeight || rect.bottom < 0) {
+  //     // Reset when chart goes out of view
+  //     if (animationTriggered) {
+  //       animationTriggered = false;
+  //       resetGreenLine();
+  //     }
+  //   }
+  // }
+  
+ 
+
+function checkScroll() {
+  const svgElement = svg.node();
+  const rect = svgElement.getBoundingClientRect();
+  const windowHeight = window.innerHeight;
+
+  // Trigger when the top of the SVG is within the top 60% of the viewport
+  if (rect.top < windowHeight * 0.6 && rect.bottom > 0) {
+    if (!animationTriggered) {
+      animationTriggered = true;
+      setTimeout(animateGreenLine, 50);
+    }
+  }
+  else if (rect.top > windowHeight || rect.bottom < 0) {
       // Reset when chart goes out of view
       if (animationTriggered) {
         animationTriggered = false;
         resetGreenLine();
       }
-    }
-  }
+    } 
+}
+
+
 
   // Add scroll listener
   window.addEventListener('scroll', checkScroll);
