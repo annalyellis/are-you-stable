@@ -13,33 +13,14 @@
 </head>
 <header>
   <nav>
-    <!-- <ul>
-      <li><a href="../index.html" class="active">Home</a></li>
-      <li><a href="../second/index.html">Second</a></li>
-      <li><a href="../third/index.html">Third</a></li>
-      <li><a href="../fourth/index.html">Fourth</a></li>
-      <li><a href="../fifth/index.html">Fifth</a></li>
-    </ul> -->
   </nav>
 </header>
 <body>
-  <!-- <section id = "introSection" class="intro-section">
-    <h1>Are you stable?</h1>
-    <p>
-      Balance is a crucial aspect of physical health 
-      that enables safe movement, coordination, and stability in 
-      everyday activities. As we age, maintaining good balance becomes 
-      increasingly important to prevent falls and support long-term 
-      mobility and independence.
-    </p>
-    <div class="navigation-buttons">
-      <button id="toQuizbtn">Let's Find Out!</button>
-    </div>
-  </section> -->
+  <div class="progress-bar">
+    <div id="progress-fill" class="progress-fill"></div>
+  </div>
+
   <div id="quizContainer">
-    <div class="progress-bar">
-      <div id="progressFill" class="progress-fill"></div>
-    </div>
 
     <div id="step0" class="step active">
       <h2>Welcome to the Balance Assessment!</h2>
@@ -153,7 +134,7 @@
             <h2>Balance Over Time (By Gender)</h2>
             <div class="viz-content">
                 <p>This graph illustrates the trend in balance performance one could experience throughout their lifetime.
-                    It is based on the Best_t score, the same score you recieved by taking the quiz.
+                    It is based on the Best_t score, the same score you recieved by taking the quiz. Scroll to find out how your balance might change over time!
                 </p>
                 <svg width="100%" height="300"></svg> <p>Consider how you compare to others your age and gender. Remember that consistent activity often leads to
                     more stable balance over time.
@@ -197,7 +178,7 @@
         <div id="viz5" class="viz-container">
           <h2>How Lifestyle Choices Change Your Balance Over Time</h2>
           <div class="viz-content">
-            <p>This chart compares two scenarios: "Average Joe if he continued his normal habits" vs. "Average Joe if he engaged in more exercise and wore better footwear." The lines show how balance scores change with age for each group.</p>
+            <p>This chart compares two scenarios: "Average Joe if he continued his normal habits" vs. "Average Joe if he engaged in more exercise and wore better footwear." The lines show how balance scores change with age for each group. Scroll to see what happens to Joe if he takes our advice!</p>
             <svg width="100%" height="350"></svg>
           </div>
         </div>
@@ -211,8 +192,8 @@
     let tmtStartTime = null;
     let tmtCurrentNumber = 1;
     let tmtCompleted = false;
-    let finalPredictedScore = null; // Stores the final score for download
-    let autoTransitionTimeout; // To store the timeout ID for auto-transitioning to viz page
+    let finalPredictedScore = null; 
+    let autoTransitionTimeout; 
 
     // FES-I Questions - A static list of questions for the FES-I section
     const fesQuestions = [
@@ -290,12 +271,11 @@
     /**
      * Updates the progress bar based on the current quiz step.
      */
-    function updateProgress() {
-        const totalSteps = 5; // Total assessment steps (1 to 5)
-        const adjustedStep = Math.max(0, currentStep - 1); // Current step for progress bar (0 to 4)
-        const progress = (adjustedStep / totalSteps) * 100;
-        document.getElementById('progressFill').style.width = `${progress}%`;
-    }
+     function updateProgress() {
+    const totalSteps = 5; // Total assessment steps (1 to 5)
+    const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+    document.getElementById('progress-fill').style.width = `${Math.max(0, progress)}%`;
+}
 
     /**
      * Dynamically creates and displays the FES-I questions.
@@ -744,19 +724,6 @@
   await createD3Visualization3(); // Assuming this is async if it loads CSV
   await createD3Visualization5();
 }
-    // function renderAllVisualizations() {
-    //   if (userGender !== null && !isNaN(userAge) && !isNaN(miniBESTestScore)) {
-    //     createD3Visualization1(userAge, userGender, miniBESTestScore);
-    // } else {
-    //     console.warn("User data incomplete for personalized visualization. Displaying general trends.");
-    //     // You might want a fallback here, e.g., createD3Visualization1(null, null, null);
-    //     // which the function itself can handle by not drawing the user point.
-    //     createD3Visualization1(null, null, null); // Call without user specific data
-    // }
-    //     createD3Visualization2();
-    //     createD3Visualization3();
-    //     // Call any other visualization rendering functions here
-    // }
 
 
     
@@ -1062,95 +1029,147 @@ async function createD3Visualization1(userAge, userGender, userScore) {
           .attr("alignment-baseline", "middle");
   });
 
-  // --- Animation Logic ---
-  const viz1Container = d3.select("#viz1");
-  // IMPORTANT: Remove any existing button before creating a new one
-  viz1Container.select(".animate-button").remove();
+  // --- Scroll Animation Logic ---
+  
+  // Get the appropriate regression line based on user's gender
+  let userRegression;
+  if (userGender === "Male") {
+    userRegression = maleRegression;
+  } else if (userGender === "Female") {
+    userRegression = femaleRegression;
+  } else {
+    // For "Other" or any non-binary gender, use average of male and female slopes
+    userRegression = {
+      slope: (maleRegression.slope + femaleRegression.slope) / 2,
+      intercept: (maleRegression.intercept + femaleRegression.intercept) / 2
+    };
+  }
+  
+  // Calculate projection line data from user's current position
+  const projectionEndAge = maxAge; // Project to the maximum age in the dataset
+  const projectionEndScore = userRegression.slope * projectionEndAge + userRegression.intercept;
+  
+  // Create projection line data
+  const projectionLineData = [
+    { x: userAge, y: userScore },
+    { x: projectionEndAge, y: projectionEndScore }
+  ];
+  
+  // Create the projection line (initially hidden)
+  const projectionLine = chartGroup.append("path")
+    .datum(projectionLineData)
+    .attr("class", "user-projection-line")
+    .attr("d", line)
+    .attr("stroke", userPointColor)
+    .attr("stroke-width", 3)
+    .attr("fill", "none")
+    .attr("stroke-dasharray", "8,4")
+    .attr("opacity", 0)
+    .style("filter", "drop-shadow(0 0 3px rgba(0,0,0,0.3))");
 
-  // // Create the new button
-  // let animateButton = viz1Container.append("button")
-  //     .attr("class", "animate-button")
-  //     .style("position", "absolute")
-  //     .style("bottom", "10px")
-  //     .style("left", "50%")
-  //     .style("transform", "translateX(-50%)")
-  //     .style("padding", "8px 15px")
-  //     .style("background-color", "#4CAF50")
-  //     .style("color", "white")
-  //     .style("border", "none")
-  //     .style("border-radius", "5px")
-  //     .style("cursor", "pointer")
-  //     .style("font-size", "14px")
-  //     .text("Simulate Aging");
+  // Add end point marker for projection
+  const projectionEndPoint = chartGroup.append("circle")
+    .attr("cx", x(projectionEndAge))
+    .attr("cy", y(projectionEndScore))
+    .attr("r", 6)
+    .attr("fill", userPointColor)
+    .attr("stroke", "white")
+    .attr("stroke-width", 2)
+    .attr("opacity", 0)
+    .attr("class", "projection-end-point");
 
-  // // Attach the event listener to the NEWLY created button
-  // animateButton.on("click", () => {
-  //   console.log("Simulate Aging button clicked!"); // Confirm click event fires
-  //   animateButton.attr("disabled", true).text("Aging..."); // Disable button during animation
+  // Add label for projection end point
+  const projectionLabel = chartGroup.append("text")
+    .attr("x", x(projectionEndAge) + 12)
+    .attr("y", y(projectionEndScore) + 4)
+    .text(`Age ${Math.round(projectionEndAge)}`)
+    .attr("fill", userPointColor)
+    .style("font-weight", "bold")
+    .style("font-size", "12px")
+    .attr("opacity", 0)
+    .attr("class", "projection-label");
 
-  //   const targetAge = 80; // Age to animate up to
-  //   const duration = 5000; // 5 seconds for the animation
-
-  //   // Get the correct regression function for the user's gender
-  //   const userRegression = (userGender === "Male") ? maleRegression : femaleRegression;
-
-  //   // Check if initial values are valid
-  //   console.log(`Animation start values - Age: ${userAge}, Score: ${userScore}`);
-  //   console.log(`Target values - Age: ${targetAge}`);
-  //   console.log(`User Regression Slope: ${userRegression.slope}, Intercept: ${userRegression.intercept}`);
-
-  //   // Transition the user's point
-  //   userDot.transition()
-  //     .duration(duration)
-  //     .ease(d3.easeLinear)
-  //     .attrTween("cx", function() {
-  //       const i = d3.interpolate(userAge, targetAge);
-  //       return function(t) {
-  //         const currentAnimatedAge = i(t);
-  //         // Calculate the corresponding score on the trend line
-  //         const animatedScore = userRegression.slope * currentAnimatedAge + userRegression.intercept;
-  //         // Clamp the score to stay within the y-domain (0-28)
-  //         const clampedScore = Math.max(0, Math.min(28, animatedScore));
-  //         d3.select(this).attr("cy", y(clampedScore)); // Update y position during interpolation
-  //         return x(currentAnimatedAge);
-  //       };
-  //     })
-  //     .on("end", () => {
-  //         // Update the title for the dot after animation ends
-  //         const finalProjectedScore = userRegression.slope * targetAge + userRegression.intercept;
-  //         userDot.select("title").text(`Projected Score at Age ${targetAge}: ${finalProjectedScore.toFixed(2)}`);
-
-  //         animateButton.attr("disabled", null).text("Simulate Aging"); // Re-enable button
-  //     });
-
-  //   // Transition the user's label
-  //   userLabel.transition()
-  //     .duration(duration)
-  //     .ease(d3.easeLinear)
-  //     .attrTween("x", function() {
-  //       const i = d3.interpolate(userAge, targetAge);
-  //       return function(t) {
-  //         const currentAnimatedAge = i(t);
-  //         return x(currentAnimatedAge) + 12; // Keep offset from dot
-  //       };
-  //     })
-  //     .attrTween("y", function() {
-  //       const i = d3.interpolate(userAge, targetAge);
-  //       return function(t) {
-  //         const currentAnimatedAge = i(t);
-  //         const animatedScore = userRegression.slope * currentAnimatedAge + userRegression.intercept;
-  //         const clampedScore = Math.max(0, Math.min(28, animatedScore));
-  //         return y(clampedScore) + 4; // Keep offset from dot
-  //       };
-  //     })
-  //     .tween("text", function() { // Animate the text content (age display)
-  //         const that = d3.select(this);
-  //         const i = d3.interpolateRound(userAge, targetAge); // Interpolate and round age
-  //         return function(t) {
-  //             that.text(`You (Age ${i(t)})`);
-  //         };
-  //     });
-  // });
+  // Scroll event handler
+  let animationTriggered = false;
+  
+  function triggerAnimation() {
+    if (animationTriggered) return;
+    animationTriggered = true;
+    
+    // Animate the projection line appearing
+    projectionLine
+      .transition()
+      .duration(1500)
+      .ease(d3.easeQuadOut)
+      .attr("opacity", 0.8)
+      .attrTween("stroke-dasharray", function() {
+        const length = this.getTotalLength();
+        return d3.interpolateString(`0,${length}`, `${length},${length}`);
+      });
+    
+    // Animate the end point appearing
+    projectionEndPoint
+      .transition()
+      .delay(1200)
+      .duration(500)
+      .ease(d3.easeBackOut)
+      .attr("opacity", 1)
+      .attr("r", 6);
+    
+    // Animate the label appearing
+    projectionLabel
+      .transition()
+      .delay(1400)
+      .duration(300)
+      .attr("opacity", 1);
+    
+    // Add a subtle pulse effect to the user dot
+    userDot
+      .transition()
+      .delay(800)
+      .duration(200)
+      .attr("r", 12)
+      .transition()
+      .duration(200)
+      .attr("r", 8);
+  }
+  
+  function handleScroll() {
+    if (animationTriggered) return;
+    
+    const vizElement = document.querySelector("#viz1");
+    if (!vizElement) return;
+    
+    const vizRect = vizElement.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    // Trigger animation when even a small part of viz comes into view (much earlier trigger)
+    if (vizRect.bottom > windowHeight * 0.1) { // Trigger when bottom of viz is 10% into viewport
+      triggerAnimation();
+    }
+  }
+  
+  // Check if visualization is already in viewport on load
+  function checkInitialVisibility() {
+    const vizElement = document.querySelector("#viz1");
+    if (!vizElement) return;
+    
+    // For visualizations high on the page, trigger animation shortly after load
+    setTimeout(() => {
+      triggerAnimation();
+    }, 800); // Reduced delay for earlier trigger
+  }
+  
+  // Add scroll listener
+  window.addEventListener('scroll', handleScroll);
+  
+  // Check initial visibility after a brief delay to ensure DOM is ready
+  setTimeout(checkInitialVisibility, 500);
+  
+  // Clean up function to remove scroll listener (call this when component unmounts)
+  window.removeScrollListener = function() {
+    window.removeEventListener('scroll', handleScroll);
+  };
 
   // Display regression equations (optional, for console logging/debugging)
   console.log(`Male Trend: y = ${maleRegression.slope.toFixed(4)}x + ${maleRegression.intercept.toFixed(4)}`);
@@ -1796,7 +1815,6 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
 
         updateProgress();
     }
-
     async function createD3Visualization5() {
   const svg = d3.select("#viz5 svg");
   svg.selectAll("*").remove();
@@ -1847,23 +1865,76 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
   const binned1 = binByAgeFull(group1, allAgesSorted);
   const binned2 = binByAgeFull(group2, allAgesSorted);
 
-  // Carry forward last known value for missing bins
-  function carryForward(binned) {
-    let last = null;
-    return binned.map(d => {
-      if (d.avg == null) {
-        return { age: d.age, avg: last };
+  // Smooth interpolation for missing bins instead of carry forward
+  function smoothInterpolate(binned) {
+    // Find indices of non-null values
+    const validIndices = [];
+    binned.forEach((d, i) => {
+      if (d.avg !== null) validIndices.push(i);
+    });
+    
+    return binned.map((d, i) => {
+      if (d.avg !== null) return d;
+      
+      // Find surrounding valid points for interpolation
+      let beforeIdx = -1, afterIdx = -1;
+      for (let j of validIndices) {
+        if (j < i) beforeIdx = j;
+        if (j > i && afterIdx === -1) afterIdx = j;
+      }
+      
+      // Interpolate between surrounding points
+      if (beforeIdx !== -1 && afterIdx !== -1) {
+        const beforePoint = binned[beforeIdx];
+        const afterPoint = binned[afterIdx];
+        const progress = (i - beforeIdx) / (afterIdx - beforeIdx);
+        const interpolatedValue = beforePoint.avg + progress * (afterPoint.avg - beforePoint.avg);
+        return { age: d.age, avg: interpolatedValue };
+      } else if (beforeIdx !== -1) {
+        // Use last known value if no after point
+        return { age: d.age, avg: binned[beforeIdx].avg };
+      } else if (afterIdx !== -1) {
+        // Use next known value if no before point
+        return { age: d.age, avg: binned[afterIdx].avg };
       } else {
-        last = d.avg;
+        return d; // Keep null if no valid points found
+      }
+    });
+  }
+  const binned1_cf = smoothInterpolate(binned1);
+  const binned2_cf = smoothInterpolate(binned2);
+
+  // Calculate shared starting point (average of both groups at earliest age)
+  const startAge = Math.min(...allAgesSorted);
+  const startScore1 = binned1_cf.find(d => d.age === startAge)?.avg;
+  const startScore2 = binned2_cf.find(d => d.age === startAge)?.avg;
+  const sharedStartScore = (startScore1 + startScore2) / 2;
+
+  // Create modified datasets that start from the same point and diverge at age 40
+  const divergeAge = 40;
+  
+  function createDivergingLine(originalData, targetStartScore) {
+    return originalData.map(d => {
+      if (d.age <= divergeAge) {
+        // Before divergence age, interpolate from shared start to original value at diverge age
+        const divergePoint = originalData.find(point => point.age === divergeAge);
+        if (!divergePoint) return { age: d.age, avg: targetStartScore };
+        
+        const progress = (d.age - startAge) / (divergeAge - startAge);
+        const interpolatedScore = targetStartScore + progress * (divergePoint.avg - targetStartScore);
+        return { age: d.age, avg: interpolatedScore };
+      } else {
+        // After divergence age, use original data
         return d;
       }
     });
   }
-  const binned1_cf = carryForward(binned1);
-  const binned2_cf = carryForward(binned2);
+
+  const divergingBinned1 = createDivergingLine(binned1_cf, sharedStartScore);
+  const divergingBinned2 = createDivergingLine(binned2_cf, sharedStartScore);
 
   // Scales
-  const allAges = [...binned1_cf.map(d => d.age), ...binned2_cf.map(d => d.age)];
+  const allAges = [...divergingBinned1.map(d => d.age), ...divergingBinned2.map(d => d.age)];
   const x = d3.scaleLinear()
     .domain([d3.min(allAges), d3.max(allAges)])
     .range([margin.left, width - margin.right]);
@@ -1895,62 +1966,237 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
     .attr("font-size", "15px")
     .text("Mini-BESTest Score");
 
+  // Add vertical line at divergence point
+  svg.append("line")
+    .attr("x1", x(divergeAge))
+    .attr("x2", x(divergeAge))
+    .attr("y1", y(0))
+    .attr("y2", y(28))
+    .attr("stroke", "#ddd")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "5,5")
+    .attr("opacity", 0.7);
+
+  // Add divergence age label
+  svg.append("text")
+    .attr("x", x(divergeAge))
+    .attr("y", y(22))
+    .attr("text-anchor", "middle")
+    .attr("fill", "#666")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold")
+    .text(`Age ${divergeAge}`);
+
+  svg.append("text")
+    .attr("x", x(divergeAge))
+    .attr("y", y(20))
+    .attr("text-anchor", "middle")
+    .attr("fill", "#666")
+    .attr("font-size", "11px")
+    .text("Lifestyle Impact Begins");
+
   // Lines
   const line = d3.line()
     .x(d => x(d.age))
     .y(d => y(d.avg));
 
+  // Shared line (before divergence)
+  const sharedLineData = divergingBinned1.filter(d => d.age <= divergeAge);
   svg.append("path")
-    .datum(binned2_cf)
+    .datum(sharedLineData)
+    .attr("fill", "none")
+    .attr("stroke", "#333")
+    .attr("stroke-width", 4)
+    .attr("d", line);
+
+  // Get the exact end point of the shared line
+  const sharedEndPoint = sharedLineData[sharedLineData.length - 1];
+  
+  // Diverging lines (after divergence) 
+  const averageLineData = divergingBinned2.filter(d => d.age >= divergeAge);
+  const betterLineData = divergingBinned1.filter(d => d.age >= divergeAge);
+
+  // Create smooth connection segment for the average line (keeping this one!)
+  if (averageLineData.length > 1) {
+    // Instead of using first point after divergence, use a smoother point ~age 45
+    const smoothedPoint = averageLineData.find(d => d.age >= 45) || averageLineData[0];
+
+    const smoothConnectionData = d3.range(0, 1.01, 0.05).map(t => {
+      const xVal = sharedEndPoint.age + t * (smoothedPoint.age - sharedEndPoint.age);
+      const yVal = sharedEndPoint.avg + t * (smoothedPoint.avg - sharedEndPoint.avg);
+      return { age: xVal, avg: yVal };
+    });
+
+    svg.append("path")
+      .datum(smoothConnectionData)
+      .attr("fill", "none")
+      .attr("stroke", "#888")
+      .attr("stroke-width", 3)
+      .attr("d", line);
+  }
+
+  // Create connection segment for the green line
+  if (betterLineData.length > 0) {
+    const betterStartPoint = betterLineData[0];
+    const betterConnectionData = [sharedEndPoint, betterStartPoint];
+    
+    svg.append("path")
+      .datum(betterConnectionData)
+      .attr("fill", "none")
+      .attr("stroke", "#2b7a0b")
+      .attr("stroke-width", 3)
+      .attr("d", line);
+  }
+
+  // FIXED: Draw the continuation of average line from age 45 onwards INCLUDING age 45 point
+  const filteredAverageLineData = averageLineData.filter(d => d.age >= 45);
+  svg.append("path")
+    .datum(filteredAverageLineData)
     .attr("fill", "none")
     .attr("stroke", "#888")
     .attr("stroke-width", 3)
     .attr("d", line);
 
-  svg.append("path")
-    .datum(binned1_cf)
+  // Green line with scrollytelling animation
+  const greenPath = svg.append("path")
+    .datum(betterLineData)
     .attr("fill", "none")
     .attr("stroke", "#2b7a0b")
     .attr("stroke-width", 3)
     .attr("d", line);
 
+  // Get the total length of the green line path
+  const greenPathNode = greenPath.node();
+  const totalLength = greenPathNode.getTotalLength();
+
+  // Set up the path for animation - start with it hidden
+  greenPath
+    .attr("stroke-dasharray", totalLength + " " + totalLength)
+    .attr("stroke-dashoffset", totalLength);
+
+  // Add the green connection line with animation too
+  let greenConnectionPath;
+  if (betterLineData.length > 0) {
+    const betterStartPoint = betterLineData[0];
+    const betterConnectionData = [sharedEndPoint, betterStartPoint];
+    
+    greenConnectionPath = svg.append("path")
+      .datum(betterConnectionData)
+      .attr("fill", "none")
+      .attr("stroke", "#2b7a0b")
+      .attr("stroke-width", 3)
+      .attr("d", line);
+
+    // Animate the connection segment first
+    const connectionLength = greenConnectionPath.node().getTotalLength();
+    greenConnectionPath
+      .attr("stroke-dasharray", connectionLength + " " + connectionLength)
+      .attr("stroke-dashoffset", connectionLength);
+  }
+
+  // Function to animate the green line drawing
+  function animateGreenLine() {
+    // First animate the connection
+    if (greenConnectionPath) {
+      greenConnectionPath
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0)
+        .on("end", () => {
+          // Then animate the main green line
+          greenPath
+            .transition()
+            .duration(2000)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0);
+        });
+    } else {
+      // If no connection, just animate the main line
+      greenPath
+        .transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
+    }
+  }
+
+  // Function to reset the animation
+  function resetGreenLine() {
+    greenPath.attr("stroke-dashoffset", totalLength);
+    if (greenConnectionPath) {
+      const connectionLength = greenConnectionPath.node().getTotalLength();
+      greenConnectionPath.attr("stroke-dashoffset", connectionLength);
+    }
+  }
+
+  // Scroll-triggered animation
+  let animationTriggered = false;
+  
+  function checkScroll() {
+    const svgElement = svg.node();
+    const rect = svgElement.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    // Trigger when the chart is 50% visible
+    if (rect.top < windowHeight * 0.75 && rect.bottom > windowHeight * 0.25) {
+      if (!animationTriggered) {
+        animationTriggered = true;
+        setTimeout(animateGreenLine, 300); // Small delay for better effect
+      }
+    } else if (rect.top > windowHeight || rect.bottom < 0) {
+      // Reset when chart goes out of view
+      if (animationTriggered) {
+        animationTriggered = false;
+        resetGreenLine();
+      }
+    }
+  }
+
+  // Add scroll listener
+  window.addEventListener('scroll', checkScroll);
+  
+  // Check initial position
+  setTimeout(checkScroll, 100);
+
   // Annotations
-  if (binned1_cf.length > 0) {
-    const first = binned1_cf[0];
-    const last = binned1_cf[binned1_cf.length - 1];
+  if (divergingBinned1.length > 0) {
+    const last = divergingBinned1[divergingBinned1.length - 1];
     svg.append("text")
-      .attr("x", x(first.age) + 10)
-      .attr("y", y(first.avg) - 10)
-      .attr("fill", "#2b7a0b")
-      .attr("font-size", "13px")
-      .attr("font-weight", "bold")
-      .text("More Exercise + Better Shoes");
-    svg.append("text")
-      .attr("x", x(last.age) - 120)
+      .attr("x", x(last.age) - 180)
       .attr("y", y(last.avg) - 10)
       .attr("fill", "#2b7a0b")
       .attr("font-size", "13px")
       .attr("font-weight", "bold")
-      .text("(Best Lifestyle)");
+      .text("More Exercise + Better Shoes");
   }
-  if (binned2_cf.length > 0) {
-    const first = binned2_cf[0];
-    const last = binned2_cf[binned2_cf.length - 1];
-    svg.append("text")
-      .attr("x", x(first.age) + 10)
-      .attr("y", y(first.avg) + 20)
-      .attr("fill", "#888")
-      .attr("font-size", "13px")
-      .attr("font-weight", "bold")
-      .text("Average Joe");
+  if (divergingBinned2.length > 0) {
+    const last = divergingBinned2[divergingBinned2.length - 1];
     svg.append("text")
       .attr("x", x(last.age) - 80)
       .attr("y", y(last.avg) + 20)
       .attr("fill", "#888")
       .attr("font-size", "13px")
       .attr("font-weight", "bold")
-      .text("(Normal Habits)");
+      .text("Average Habits");
   }
+
+  // Shared starting point annotation
+  svg.append("circle")
+    .attr("cx", x(startAge))
+    .attr("cy", y(sharedStartScore))
+    .attr("r", 6)
+    .attr("fill", "#333")
+    .attr("stroke", "white")
+    .attr("stroke-width", 2);
+
+  svg.append("text")
+    .attr("x", x(startAge) + 15)
+    .attr("y", y(sharedStartScore - 2))
+    .attr("fill", "#333")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold")
+    .text("Same Starting Point");
 
   // Title annotation
   svg.append("text")
@@ -1964,45 +2210,65 @@ async function createD3Visualization4(userHeight, miniBESTestScore) {
 
   // Legend
   const legend = svg.append("g")
-    .attr("transform", `translate(${width - 260},${margin.top})`);
+    .attr("transform", `translate(${width - 280},${margin.top + 30})`);
   legend.append("rect")
     .attr("x", 0)
     .attr("y", 0)
-    .attr("width", 220)
-    .attr("height", 48)
+    .attr("width", 240)
+    .attr("height", 68)
     .attr("fill", "#fff")
     .attr("stroke", "#bbb")
     .attr("rx", 8)
     .attr("ry", 8)
     .attr("opacity", 0.95);
+  
+  // Shared line
   legend.append("line")
     .attr("x1", 18)
     .attr("y1", 18)
     .attr("x2", 48)
     .attr("y2", 18)
-    .attr("stroke", "#2b7a0b")
-    .attr("stroke-width", 3);
+    .attr("stroke", "#333")
+    .attr("stroke-width", 4);
   legend.append("text")
     .attr("x", 60)
     .attr("y", 22)
-    .attr("fill", "#2b7a0b")
-    .attr("font-size", "13px")
+    .attr("fill", "#333")
+    .attr("font-size", "12px")
     .attr("font-weight", "bold")
-    .text("More Exercise + Better Shoes");
+    .text("Before Age 40 (Same Path)");
+    
+  // Better lifestyle line
   legend.append("line")
     .attr("x1", 18)
     .attr("y1", 36)
     .attr("x2", 48)
     .attr("y2", 36)
-    .attr("stroke", "#888")
+    .attr("stroke", "#2b7a0b")
     .attr("stroke-width", 3);
   legend.append("text")
     .attr("x", 60)
     .attr("y", 40)
-    .attr("fill", "#888")
-    .attr("font-size", "13px")
+    .attr("fill", "#2b7a0b")
+    .attr("font-size", "12px")
     .attr("font-weight", "bold")
-    .text("Average Joe");
+    .text("More Exercise + Better Shoes");
+    
+  // Average line
+  legend.append("line")
+    .attr("x1", 18)
+    .attr("y1", 54)
+    .attr("x2", 48)
+    .attr("y2", 54)
+    .attr("stroke", "#888")
+    .attr("stroke-width", 3);
+  legend.append("text")
+    .attr("x", 60)
+    .attr("y", 58)
+    .attr("fill", "#888")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold")
+    .text("Average Habits");
 }
   </script>
 </body>

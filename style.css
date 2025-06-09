@@ -293,18 +293,18 @@ nav a:hover, nav a.active {
   color: #4a5568;
 }
 
-.progress-bar {
+/* .progress-bar {
   width: 100%;
   height: 8px;
-  background: #c3dbc6;
+  background: white;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 2rem;
-}
+} */
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #006699 0%, #195536 100%);
+  background: #195536;
   transition: width 0.5s ease;
   border-radius: 4px;
 }
